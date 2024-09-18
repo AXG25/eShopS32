@@ -6,6 +6,7 @@ import {
   Flex,
   Heading,
   Spacer,
+  Text,
   Tooltip,
   useDisclosure,
 } from "@chakra-ui/react";
@@ -14,11 +15,12 @@ import { FaGear } from "react-icons/fa6";
 import { TbLogout2 } from "react-icons/tb";
 import DrawerControlPanel from "./DrawerControlPanel";
 import { Outlet } from "react-router-dom";
+import NavBar from "./NavBar";
 
 const MainLayaout = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const btnRef = useRef();
-  const login = false;
+  const login = true;
   return (
     <>
       {login ? (
@@ -34,6 +36,7 @@ const MainLayaout = () => {
             color="white"
           >
             <Box p="2">
+              {/* Botón para abrir el panel de control */}
               <Tooltip hasArrow label=" Panel de Control ">
                 <Button
                   colorScheme="gray"
@@ -44,6 +47,8 @@ const MainLayaout = () => {
                   <FaGear />
                 </Button>
               </Tooltip>
+
+              {/* Panel de control */}
               <DrawerControlPanel
                 isOpen={isOpen}
                 onClose={onClose}
@@ -51,17 +56,26 @@ const MainLayaout = () => {
                 placement="left"
               />
             </Box>
+
             <Spacer />
+
             <Box>
-              <Heading size="md">Panel: Administrador</Heading>
+              <NavBar />
             </Box>
+
             <Spacer />
+
             <Box p="2">
-              <Tooltip hasArrow label=" Cerrar sesion">
-                <Button colorScheme="gray" color="#3182ce">
-                  <TbLogout2 />
-                </Button>
-              </Tooltip>
+              <Flex>
+                <Text fontWeight="bold" p={2}> Hola Usuario</Text>
+
+                {/* Botón para cerrar sesion */}
+                <Tooltip hasArrow label=" Cerrar sesion">
+                  <Button colorScheme="gray" color="#3182ce">
+                    <TbLogout2 />
+                  </Button>
+                </Tooltip>
+              </Flex>
             </Box>
           </Flex>
         </>
