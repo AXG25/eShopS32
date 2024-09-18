@@ -18,7 +18,7 @@ import { Outlet } from "react-router-dom";
 const MainLayaout = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const btnRef = useRef();
-  const login = true;
+  const login = false;
   return (
     <>
       {login ? (
@@ -72,20 +72,20 @@ const MainLayaout = () => {
             minWidth="max-content"
             alignItems="center"
             gap="2"
-            bg="grey"
+            bg="#3182ce"
             maxW="100%"
             p={4}
             color="white"
           >
             <Box p="2">
-              <Heading size="md">Chakra App</Heading>
+              <Heading size="md">eShopS32</Heading>
             </Box>
             <Spacer />
             <ButtonGroup gap="2">
-              <Button bg="black" color="white">
+              <Button colorScheme="gray" color="#3182ce">
                 Registrarse
               </Button>
-              <Button bg="black" color="white">
+              <Button colorScheme="gray" color="#3182ce">
                 Iniciar sesion
               </Button>
             </ButtonGroup>
