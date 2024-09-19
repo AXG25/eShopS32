@@ -10,13 +10,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@chakra-ui/react": "^2.8.2",
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
     "@tanstack/react-query": "^5.56.2",
     "@tanstack/react-query-devtools": "^5.56.2",
     "axios": "^1.7.7",
+    "eshops32": "file:",
     "framer-motion": "^11.5.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.53.0",
+    "react-icons": "^5.3.0",
     "react-router-dom": "^6.26.2",
     "styled-components": "^6.1.13",
     "zustand": "^5.0.0-rc.2"

@@ -1,33 +1,53 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { ChakraProvider } from '@chakra-ui/react'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import MainLayaout from './components/MainLayaout'
+import Banner from './pages/controlPanel/Banner'
+import Logo from './pages/controlPanel/Logo'
+import Social from './pages/controlPanel/Social'
+import ColorPalette from './pages/controlPanel/ColorPalette'
+import AboutUs from './pages/controlPanel/AboutUs'
+import ContactUs from './pages/controlPanel/ContactUs'
+import DataSync from './pages/controlPanel/DataSync'
+import Config from './pages/controlPanel/Config'
+import Index from './pages/Index'
+import Categories from './pages/Categories'
+import AboutUsView from './pages/AboutUsView'
+import Products from './pages/Products'
+import ContactUsView from './pages/ContactUsView'
+import ShoppingCart from './pages/ShoppingCart'
 
 function App() {
-  const [count, setCount] = useState(0)
+
+  const router = createBrowserRouter([
+    {
+      path: '/',
+      element: <MainLayaout />,
+      children: [
+        { path: '/banner', element: <Banner /> },
+        { path: '/logo', element: <Logo /> },
+        { path: '/social', element: <Social /> },
+        { path: '/colorPalette', element: <ColorPalette /> },
+        { path: '/aboutUs', element: <AboutUs /> },
+        { path: '/contactUs', element: <ContactUs /> },
+        { path: '/dataSync', element: <DataSync /> },
+        { path: '/config', element: <Config /> },
+        { path: '/', element: <Index /> },
+        { path: '/categorias', element: <Categories /> },
+        { path: '/nosotros', element: <AboutUsView /> },
+        { path: '/productos', element: <Products /> },
+        { path: '/contacto', element: <ContactUsView /> },
+        { path: '/carrito', element: <ShoppingCart /> },
+
+      ]
+    }
+  
+  ])
 
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <ChakraProvider>
+      <RouterProvider router={router} />
+      </ChakraProvider>
     </>
   )
 }
