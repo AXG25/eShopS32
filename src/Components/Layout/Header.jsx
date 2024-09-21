@@ -4,21 +4,20 @@ import {
   InputGroup,
   InputLeftElement,
   Input,
-  useColorModeValue,
   Image,
   Box,
 } from "@chakra-ui/react";
 import { SearchIcon, HamburgerIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 import { useDebounce } from "../../hooks/useDebounce";
 import { useState } from "react";
-import useStoreConfigStore from '../../store/useStoreConfigStore';
+import useStoreConfigStore from "../../store/useStoreConfigStore";
 import CartHeader from "../cart/CartHeader";
+import DefaultLogo from "./DefaultLogo";
 
 const Header = ({ onToggleSidebar }) => {
   const { t } = useTranslation();
-  const bgColor = useColorModeValue("white", "gray.800");
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
@@ -36,8 +35,8 @@ const Header = ({ onToggleSidebar }) => {
       justify="space-between"
       wrap="wrap"
       padding="1rem"
-      bg={bgColor}
-      color="black"
+      bg={config.headerColor}
+      color={config.headerTextColor}
       boxShadow="sm"
     >
       <Flex align="center" mr={5}>
@@ -45,19 +44,26 @@ const Header = ({ onToggleSidebar }) => {
           icon={<HamburgerIcon />}
           onClick={onToggleSidebar}
           variant="outline"
-          aria-label={t('toggleSidebar')}
+          aria-label={t("toggleSidebar")}
           mr={3}
+          color={config.headerTextColor}
         />
-        <Flex align="center" cursor="pointer" onClick={() => navigate('/')}>
-          {config.logo && (
-            <Image src={config.logo} alt={t('logo')} boxSize="40px" objectFit="contain" mr={2} />
+        <Flex align="center" cursor="pointer" onClick={() => navigate("/")}>
+          {config.logo ? (
+            <Image
+              src={config.logo}
+              alt={t("logo")}
+              boxSize="40px"
+              objectFit="contain"
+              mr={2}
+            />
+          ) : (
+            <Box width="200px" height="40px">
+              <DefaultLogo />
+            </Box>
           )}
-          <Box
-            fontWeight="bold"
-            fontSize="xl"
-            color={config.primaryColor}
-          >
-            {config.title || t('myEcommerce')}
+          <Box fontWeight="bold" fontSize="xl" color={config.headerTextColor}>
+            {config.title || t("myEcommerce")}
           </Box>
         </Flex>
       </Flex>
@@ -67,10 +73,12 @@ const Header = ({ onToggleSidebar }) => {
           <SearchIcon color="gray.400" />
         </InputLeftElement>
         <Input
-          placeholder={t('searchProducts')}
+          placeholder={t("searchProducts")}
           borderRadius="full"
           onChange={(e) => setSearchTerm(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+          onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+          bg="white"
+          color="black"
         />
       </InputGroup>
 

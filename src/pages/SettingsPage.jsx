@@ -1,17 +1,13 @@
-// src/pages/SettingsPage.jsx
-
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Box,
   VStack,
   Heading,
   FormControl,
   FormLabel,
-  Switch,
   Select,
   Button,
   useToast,
-  useColorMode,
 } from "@chakra-ui/react";
 import useStoreConfigStore from "../store/useStoreConfigStore";
 
@@ -19,19 +15,12 @@ const SettingsPage = () => {
   const { config, setConfig } = useStoreConfigStore();
   const [localConfig, setLocalConfig] = useState(config);
   const toast = useToast();
-  const { colorMode, toggleColorMode } = useColorMode();
-
-  useEffect(() => {
-    if (localConfig.darkMode !== (colorMode === "dark")) {
-      toggleColorMode();
-    }
-  }, [localConfig.darkMode, colorMode, toggleColorMode]);
 
   const handleChange = (e) => {
-    const { name, value, checked } = e.target;
+    const { name, value } = e.target;
     setLocalConfig((prev) => ({
       ...prev,
-      [name]: e.target.type === "checkbox" ? checked : value,
+      [name]: value,
     }));
   };
 
@@ -52,17 +41,6 @@ const SettingsPage = () => {
         <Heading>Configuración</Heading>
         <form onSubmit={handleSubmit}>
           <VStack spacing={4} align="stretch">
-            <FormControl display="flex" alignItems="center">
-              <FormLabel htmlFor="darkMode" mb="0">
-                Modo Oscuro
-              </FormLabel>
-              <Switch
-                id="darkMode"
-                name="darkMode"
-                isChecked={localConfig.darkMode}
-                onChange={handleChange}
-              />
-            </FormControl>
             <FormControl>
               <FormLabel htmlFor="language">Idioma</FormLabel>
               <Select

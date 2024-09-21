@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import { Sidebar as ProSidebar, Menu, MenuItem } from "react-pro-sidebar";
-import { Box, Button, VStack, useColorModeValue } from "@chakra-ui/react";
+import { Box, Button, VStack, Tooltip } from "@chakra-ui/react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import {
   FaStore,
@@ -13,32 +13,38 @@ import { IoMdColorPalette } from "react-icons/io";
 import useStoreConfigStore from "../../store/useStoreConfigStore";
 import { useAuth } from "../../hooks/useAuth";
 
-/**
- * Sidebar - Componente de barra lateral para la navegación principal
- *
- * Este componente muestra una barra lateral con enlaces de navegación y un botón de cierre de sesión.
- * La barra lateral puede estar expandida o colapsada.
- *
- * @param {Object} props - Las propiedades del componente
- * @param {boolean} props.collapsed - Indica si la barra lateral está colapsada
- */
-
 const Sidebar = ({ collapsed }) => {
   const { config } = useStoreConfigStore();
   const { logout } = useAuth();
   const navigate = useNavigate();
-  const color = useColorModeValue("gray.600", "gray.200");
 
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
 
+  const menuItemStyles = {
+    button: {
+      color: config.textColor,
+      "&:hover": {
+        backgroundColor: `rgba(${parseInt(config.buttonColor.slice(1, 3), 16)}, ${parseInt(config.buttonColor.slice(3, 5), 16)}, ${parseInt(config.buttonColor.slice(5, 7), 16)}, ${config.buttonHoverOpacity})`,
+      },
+    },
+  };
+
+  const renderMenuItem = (icon, label, to) => (
+    <Tooltip label={label} placement="right" isDisabled={!collapsed}>
+      <MenuItem icon={icon} component={<RouterLink to={to} />}>
+        {!collapsed && label}
+      </MenuItem>
+    </Tooltip>
+  );
+
   return (
     <Box
       as="nav"
       h="100vh"
-      bg={config.secondaryColor}
+      bg={config.asideColor}
       display="flex"
       flexDirection="column"
     >
@@ -50,60 +56,29 @@ const Sidebar = ({ collapsed }) => {
       >
         <VStack h="100%" justify="space-between">
           <Box flexGrow={1} width="100%" overflowY="auto">
-            <Menu
-              menuItemStyles={{
-                button: {
-                  color: color,
-                  "&:hover": {
-                    backgroundColor: useColorModeValue(
-                      "whiteAlpha.200",
-                      "blackAlpha.300"
-                    ),
-                  },
-                },
-              }}
-            >
-              <MenuItem icon={<FaStore />} component={<RouterLink to="/" />}>
-                Tienda
-              </MenuItem>
-              <MenuItem
-                icon={<FaCog />}
-                component={<RouterLink to="/settings" />}
-              >
-                Configuración
-              </MenuItem>
-              <MenuItem
-                icon={<IoMdColorPalette />}
-                component={<RouterLink to="/customization" />}
-              >
-                Mercado
-              </MenuItem>
-              <MenuItem
-                icon={<FaTachometerAlt />}
-                component={<RouterLink to="/dashboard" />}
-              >
-                Dashboard
-              </MenuItem>
-              <MenuItem
-                icon={<FaUserAlt />}
-                component={<RouterLink to="/profile" />}
-              >
-                Perfil
-              </MenuItem>
+            <Menu menuItemStyles={menuItemStyles}>
+              {renderMenuItem(<FaStore />, "Tienda", "/")}
+              {renderMenuItem(<FaCog />, "Configuración", "/settings")}
+              {renderMenuItem(<IoMdColorPalette />, "Personalización", "/customization")}
+              {renderMenuItem(<FaTachometerAlt />, "Dashboard", "/dashboard")}
+              {renderMenuItem(<FaUserAlt />, "Perfil", "/profile")}
             </Menu>
           </Box>
           <Box width="100%" p={2}>
-            <Button
-              leftIcon={<FaSignOutAlt />}
-              variant="outline"
-              onClick={handleLogout}
-              width="100%"
-              bg="whiteAlpha.200"
-              _hover={{ bg: "whiteAlpha.300" }}
-              size={collapsed ? "sm" : "md"}
-            >
-              {!collapsed && "Cerrar Sesión"}
-            </Button>
+            <Tooltip label="Cerrar Sesión" placement="right" isDisabled={!collapsed}>
+              <Button
+                leftIcon={<FaSignOutAlt />}
+                variant="outline"
+                onClick={handleLogout}
+                width="100%"
+                bg={config.buttonColor}
+                color={config.buttonTextColor}
+                _hover={{ opacity: config.buttonHoverOpacity }}
+                size={collapsed ? "sm" : "md"}
+              >
+                {!collapsed && "Cerrar Sesión"}
+              </Button>
+            </Tooltip>
           </Box>
         </VStack>
       </ProSidebar>

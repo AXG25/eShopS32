@@ -1,27 +1,32 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { changeLanguage } from "../i18n";
-import axios from "axios"; // Asegúrate de tener axios instalado
+import axios from "axios";
+
+const defaultConfig = {
+  title: "Mi E-commerce",
+  backgroundColor: "#FFFFFF",
+  headerColor: "#FFFFFF",
+  headerTextColor: "#000000",
+  textColor: "#333333",
+  primaryColor: "#3182CE",
+  secondaryColor: "#ED64A6",
+  buttonColor: "#4299E1",
+  buttonTextColor: "#FFFFFF",
+  buttonHoverOpacity: 0.8,
+  asideColor: "#F7FAFC",
+  logo: null,
+  language: "es",
+  currency: "EUR",
+};
 
 const useStoreConfigStore = create(
   persist(
     (set, get) => ({
-      config: {
-        title: "Mi E-commerce",
-        primaryColor: "#3182CE",
-        secondaryColor: "#ED64A6",
-        darkModePrimaryColor: "#90CDF4",
-        darkModeSecondaryColor: "#F687B3",
-        logo: "/default-logo.png",
-        language: "es",
-        currency: "EUR",
-        darkMode: false,
-      },
+      config: { ...defaultConfig },
       setConfig: (newConfig) => {
         set((state) => {
           const updatedConfig = { ...state.config, ...newConfig };
-
-          // Si el idioma ha cambiado, actualizar i18next
           if (
             newConfig.language &&
             newConfig.language !== state.config.language
@@ -29,16 +34,21 @@ const useStoreConfigStore = create(
             changeLanguage(newConfig.language);
           }
 
-          // Aplicar el modo oscuro
-          if (newConfig.darkMode !== undefined) {
-            document.documentElement.classList.toggle(
-              "dark",
-              newConfig.darkMode
-            );
-          }
+          // Aplicar cambios inmediatamente
+          applyStyleChanges(updatedConfig);
 
           return { config: updatedConfig };
         });
+      },
+      setLogo: (logoUrl) => {
+        set((state) => ({
+          config: { ...state.config, logo: logoUrl },
+        }));
+      },
+      resetConfig: () => {
+        set({ config: { ...defaultConfig } });
+        changeLanguage(defaultConfig.language);
+        applyStyleChanges(defaultConfig);
       },
       saveConfigToBackend: async () => {
         const config = get().config;
@@ -56,6 +66,7 @@ const useStoreConfigStore = create(
         try {
           const response = await axios.get("/api/store-config");
           set({ config: response.data });
+          applyStyleChanges(response.data);
           console.log("Configuración cargada desde el backend");
         } catch (error) {
           console.error(
@@ -70,12 +81,12 @@ const useStoreConfigStore = create(
           const response = await axios.get("/api/store-config");
           const backendConfig = response.data;
 
-          // Comparar las fechas de última modificación
           if (
             new Date(backendConfig.lastModified) >
             new Date(localConfig.lastModified)
           ) {
             set({ config: backendConfig });
+            applyStyleChanges(backendConfig);
             console.log("Configuración actualizada desde el backend");
           } else if (
             new Date(backendConfig.lastModified) <
@@ -97,5 +108,33 @@ const useStoreConfigStore = create(
     }
   )
 );
+
+// Función para aplicar cambios de estilo en tiempo real
+const applyStyleChanges = (config) => {
+  const root = document.documentElement;
+  Object.entries(config).forEach(([key, value]) => {
+    if (typeof value === "string" && value.startsWith("#")) {
+      root.style.setProperty(`--${key}`, value);
+      const rgbValue = hexToRgb(value);
+      if (rgbValue) {
+        root.style.setProperty(`--${key}-rgb`, rgbValue);
+      }
+    }
+  });
+
+  // Aplicar opacidad al hover de los botones
+  root.style.setProperty("--button-hover-opacity", config.buttonHoverOpacity);
+};
+
+// Función auxiliar para convertir HEX a RGB
+const hexToRgb = (hex) => {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result
+    ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(
+        result[3],
+        16
+      )}`
+    : null;
+};
 
 export default useStoreConfigStore;

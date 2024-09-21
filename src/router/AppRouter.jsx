@@ -23,12 +23,7 @@ const AppRouter = () => {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
 
-      {/* Ruta de inicio fuera del ResponsiveLayout */}
-      <Route element={<PrivateRoute excludeFromLayout />}>
-        <Route path="/customization" element={<CustomizationDashboard />} />
-      </Route>
-
-      {/* Rutas dentro del ResponsiveLayout */}
+      {/* Todas las rutas dentro del ResponsiveLayout */}
       <Route element={<PrivateRoute />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
@@ -36,6 +31,8 @@ const AppRouter = () => {
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/cart" element={<CartView />} />
         <Route path="/profile" element={<ProfilePage />} />
+        {/* Añadimos la ruta de customization aquí */}
+        <Route path="/customization" element={<CustomizationDashboard />} />
       </Route>
 
       <Route path="*" element={<NotFoundPage />} />
