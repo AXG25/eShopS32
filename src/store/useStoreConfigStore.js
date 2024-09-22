@@ -10,7 +10,7 @@ const defaultConfig = {
   headerTextColor: "#000000",
   textColor: "#333333",
   primaryColor: "#3182CE",
-  secondaryColor: "#ED64A6",
+  secondaryColor: "#E2E8F0",
   buttonColor: "#4299E1",
   buttonTextColor: "#FFFFFF",
   buttonHoverOpacity: 0.8,

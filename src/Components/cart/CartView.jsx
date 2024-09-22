@@ -18,12 +18,14 @@ import {
 import { FaTrash, FaPlus, FaMinus, FaArrowLeft } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import useCartStore from '../../store/useCartStore';
+import { useAuth } from '../../hooks/useAuth';
 import { motion } from 'framer-motion';
 
 const MotionBox = motion(Box);
 
 const CartView = () => {
   const { items, removeFromCart, updateQuantity, getTotalPrice, clearCart } = useCartStore();
+  const { isAuthenticated } = useAuth();
   const bgColor = useColorModeValue('gray.50', 'gray.700');
   const cardBgColor = useColorModeValue('white', 'gray.600');
   const textColor = useColorModeValue('gray.600', 'gray.200');
@@ -41,15 +43,26 @@ const CartView = () => {
 
   // Manejador para proceder al pago
   const handleCheckout = () => {
-    // Aquí iría la lógica para proceder al pago
-    toast({
-      title: "Procesando pago",
-      description: "Redirigiendo al proceso de pago...",
-      status: "info",
-      duration: 2000,
-      isClosable: true,
-    });
-    navigate('/checkout');
+    if (!isAuthenticated) {
+      toast({
+        title: "Inicia sesión para continuar",
+        description: "Necesitas iniciar sesión para proceder con el pago.",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+      });
+      navigate('/login', { state: { from: '/cart' } });
+    } else {
+      // Aquí iría la lógica para proceder al pago
+      toast({
+        title: "Procesando pago",
+        description: "Redirigiendo al proceso de pago...",
+        status: "info",
+        duration: 2000,
+        isClosable: true,
+      });
+      navigate('/checkout');
+    }
   };
 
   // Manejador para vaciar el carrito
@@ -139,7 +152,7 @@ const CartView = () => {
                   </Button>
                 </VStack>
                 <Button colorScheme="blue" size="lg" onClick={handleCheckout}>
-                  Proceder al Pago
+                  {isAuthenticated ? "Proceder al Pago" : "Iniciar Sesión para Comprar"}
                 </Button>
               </Flex>
             </>
@@ -150,4 +163,4 @@ const CartView = () => {
   );
 };
 
-export default CartView;  
+export default CartView;

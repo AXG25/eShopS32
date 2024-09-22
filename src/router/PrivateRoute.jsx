@@ -5,14 +5,14 @@ import { PropTypes } from "prop-types";
 import ResponsiveLayout from "../layouts/ResponsiveLayout";
 
 const PrivateRoute = ({ excludeFromLayout = false }) => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, hasPermission } = useAuth();
   const location = useLocation();
 
   if (isLoading) {
     return <div>Cargando...</div>;
   }
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !hasPermission('user')) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
