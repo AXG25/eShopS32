@@ -60,12 +60,6 @@ const Sidebar = ({ collapsed }) => {
               {isAuthenticated && (
                 <>
                   <MenuItem
-                    icon={<FaUserAlt />}
-                    component={<RouterLink to="/profile" />}
-                  >
-                    Perfil
-                  </MenuItem>
-                  <MenuItem
                     icon={<FaCog />}
                     component={<RouterLink to="/settings" />}
                   >

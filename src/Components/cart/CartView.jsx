@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Box,
   VStack,
@@ -14,21 +13,22 @@ import {
   Flex,
   Badge,
   useToast,
-} from '@chakra-ui/react';
-import { FaTrash, FaPlus, FaMinus, FaArrowLeft } from 'react-icons/fa';
-import { Link, useNavigate } from 'react-router-dom';
-import useCartStore from '../../store/useCartStore';
-import { useAuth } from '../../hooks/useAuth';
-import { motion } from 'framer-motion';
+} from "@chakra-ui/react";
+import { FaTrash, FaPlus, FaMinus, FaArrowLeft } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
+import useCartStore from "../../store/useCartStore";
+import { useAuth } from "../../hooks/useAuth";
+import { motion } from "framer-motion";
 
 const MotionBox = motion(Box);
 
 const CartView = () => {
-  const { items, removeFromCart, updateQuantity, getTotalPrice, clearCart } = useCartStore();
+  const { items, removeFromCart, updateQuantity, getTotalPrice, clearCart } =
+    useCartStore();
   const { isAuthenticated } = useAuth();
-  const bgColor = useColorModeValue('gray.50', 'gray.700');
-  const cardBgColor = useColorModeValue('white', 'gray.600');
-  const textColor = useColorModeValue('gray.600', 'gray.200');
+  //const bgColor = useColorModeValue('gray.50', 'gray.700');
+  const cardBgColor = useColorModeValue("white", "gray.600");
+  const textColor = useColorModeValue("gray.600", "gray.200");
   const navigate = useNavigate();
   const toast = useToast();
 
@@ -51,7 +51,7 @@ const CartView = () => {
         duration: 3000,
         isClosable: true,
       });
-      navigate('/login', { state: { from: '/cart' } });
+      navigate("/login", { state: { from: "/cart" } });
     } else {
       // Aquí iría la lógica para proceder al pago
       toast({
@@ -61,7 +61,7 @@ const CartView = () => {
         duration: 2000,
         isClosable: true,
       });
-      navigate('/checkout');
+      navigate("/checkout");
     }
   };
 
@@ -91,7 +91,7 @@ const CartView = () => {
               Seguir Comprando
             </Button>
           </Flex>
-          
+
           {items.length === 0 ? (
             <Text fontSize="lg" textAlign="center" color={textColor}>
               Tu carrito está vacío. ¡Agrega algunos productos!
@@ -110,9 +110,17 @@ const CartView = () => {
                 >
                   <Flex justify="space-between" align="center">
                     <HStack spacing={4}>
-                      <Image src={item.image} alt={item.title} boxSize="100px" objectFit="cover" borderRadius="md" />
+                      <Image
+                        src={item.image}
+                        alt={item.title}
+                        boxSize="100px"
+                        objectFit="cover"
+                        borderRadius="md"
+                      />
                       <VStack align="start" spacing={1}>
-                        <Text fontWeight="bold" fontSize="lg">{item.title}</Text>
+                        <Text fontWeight="bold" fontSize="lg">
+                          {item.title}
+                        </Text>
                         <Badge colorScheme="blue">{item.category}</Badge>
                         <Text color={textColor}>€{item.price.toFixed(2)}</Text>
                       </VStack>
@@ -120,14 +128,20 @@ const CartView = () => {
                     <HStack>
                       <IconButton
                         icon={<FaMinus />}
-                        onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
+                        onClick={() =>
+                          handleQuantityChange(item.id, item.quantity - 1)
+                        }
                         size="sm"
                         variant="outline"
                       />
-                      <Text fontWeight="bold" minW="40px" textAlign="center">{item.quantity}</Text>
+                      <Text fontWeight="bold" minW="40px" textAlign="center">
+                        {item.quantity}
+                      </Text>
                       <IconButton
                         icon={<FaPlus />}
-                        onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
+                        onClick={() =>
+                          handleQuantityChange(item.id, item.quantity + 1)
+                        }
                         size="sm"
                         variant="outline"
                       />
@@ -141,18 +155,27 @@ const CartView = () => {
                   </Flex>
                 </MotionBox>
               ))}
-              
+
               <Divider />
-              
+
               <Flex justify="space-between" align="center">
                 <VStack align="start" spacing={2}>
-                  <Text fontSize="2xl" fontWeight="bold">Total: €{getTotalPrice().toFixed(2)}</Text>
-                  <Button colorScheme="red" variant="outline" onClick={handleClearCart} size="sm">
+                  <Text fontSize="2xl" fontWeight="bold">
+                    Total: €{getTotalPrice().toFixed(2)}
+                  </Text>
+                  <Button
+                    colorScheme="red"
+                    variant="outline"
+                    onClick={handleClearCart}
+                    size="sm"
+                  >
                     Vaciar Carrito
                   </Button>
                 </VStack>
                 <Button colorScheme="blue" size="lg" onClick={handleCheckout}>
-                  {isAuthenticated ? "Proceder al Pago" : "Iniciar Sesión para Comprar"}
+                  {isAuthenticated
+                    ? "Proceder al Pago"
+                    : "Iniciar Sesión para Comprar"}
                 </Button>
               </Flex>
             </>

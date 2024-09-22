@@ -1,195 +1,160 @@
-import React, { useState } from 'react';
+import { memo, useState } from "react";
+import PropTypes from "prop-types";
 import {
   Box,
   Image,
   Text,
   Button,
-  HStack,
   VStack,
+  HStack,
+  useColorModeValue,
+  AspectRatio,
+  IconButton,
   Badge,
-  Icon,
-  useToast,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  useDisclosure,
-} from '@chakra-ui/react';
-import { motion } from 'framer-motion';
-import { FaHeart, FaSearch } from 'react-icons/fa';
-import useCartStore from '../../store/useCartStore';
-import useProductStore from '../../store/useProductStore';
+} from "@chakra-ui/react";
+import { motion } from "framer-motion";
+import { FaShoppingCart, FaInfoCircle } from "react-icons/fa";
+import useCartStore from "../../store/useCartStore";
+import ProductPreview from "./ProductPreview ";
 
 const MotionBox = motion(Box);
 
-const ProductCard = ({ product }) => {
+const ProductCard = memo(({ product }) => {
   const { addItemToCart } = useCartStore();
-  const { updateProductLikes } = useProductStore();
-  const [selectedSize, setSelectedSize] = useState(null);
-  const toast = useToast();
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isWishlisted, setIsWishlisted] = useState(false);
 
-  // Si el producto es undefined o null, no renderizamos nada
-  if (!product) {
-    return null;
-  }
+  const bgColor = useColorModeValue("white", "gray.700");
+  const textColor = useColorModeValue("gray.800", "white");
+  const buttonColor = useColorModeValue("blue.500", "blue.300");
 
-  const handleAddToCart = () => {
-    if (product.sizes && !selectedSize) {
-      toast({
-        title: "Selecciona una talla",
-        status: "warning",
-        duration: 2000,
-        isClosable: true,
-      });
-      return;
-    }
-    addItemToCart({ ...product, size: selectedSize });
-    toast({
-      title: "Producto añadido al carrito",
-      status: "success",
-      duration: 2000,
-      isClosable: true,
-    });
-  };
+  const formatPrice = (price) => price.toFixed(2);
 
-  const handleLike = () => {
-    updateProductLikes(product.id, (product.likes || 0) + 1);
-  };
-
-  const formatPrice = (price) => {
-    return typeof price === 'number' ? price.toFixed(2) : 'Precio no disponible';
-  };
-
-  const discountedPrice = product.discount 
-    ? product.price * (1 - product.discount / 100) 
+  const discountedPrice = product.discount
+    ? product.price * (1 - product.discount / 100)
     : product.price;
+
+  const handleAddToCart = (productToAdd) => {
+    addItemToCart(productToAdd);
+  };
+
+  const toggleWishlist = () => {
+    setIsWishlisted(!isWishlisted);
+  };
 
   return (
     <>
       <MotionBox
+        width="300px"
+        height="400px"
         borderWidth="1px"
         borderRadius="lg"
         overflow="hidden"
-        p={4}
-        whileHover={{ scale: 1.05 }}
+        bg={bgColor}
+        whileHover={{ y: -5 }}
         transition={{ duration: 0.3 }}
+        boxShadow="md"
       >
-        <VStack spacing={4} align="stretch">
-          <Box position="relative" height="200px">
-            <Image 
-              src={product.image} 
-              alt={product.title} 
-              objectFit="cover"
+        <AspectRatio ratio={4 / 3} width="100%">
+          <Box position="relative">
+            <Image
+              src={product.image}
+              alt={product.title}
+              objectFit="contain"
               width="100%"
               height="100%"
-              fallbackSrc="https://via.placeholder.com/200" // Imagen de respaldo
             />
             {product.discount > 0 && (
-              <Badge position="absolute" top={2} right={2} colorScheme="red">
-                {product.discount}% Off
+              <Badge position="absolute" top={2} left={2} colorScheme="red">
+                {product.discount}% OFF
               </Badge>
             )}
-            <HStack position="absolute" top={2} left={2} spacing={2}>
-              <Icon as={FaHeart} color="red.500" />
-              <Text color="white" fontWeight="bold" textShadow="1px 1px 3px rgba(0,0,0,0.6)">
-                {product.likes || 0}
-              </Text>
-            </HStack>
-            <Button 
-              position="absolute"
-              bottom={2}
-              right={2}
-              size="sm"
-              colorScheme="blue"
-              onClick={onOpen}
-            >
-              <Icon as={FaSearch} />
-            </Button>
           </Box>
-          <VStack align="start" spacing={1}>
-            <Text fontWeight="bold" noOfLines={2}>
+        </AspectRatio>
+
+        <VStack
+          p={4}
+          spacing={2}
+          align="stretch"
+          flex={1}
+          justifyContent="space-between"
+        >
+          <VStack align="stretch" spacing={1}>
+            <Text
+              fontWeight="bold"
+              fontSize="md"
+              color={textColor}
+              noOfLines={2}
+            >
               {product.title}
             </Text>
-            <Text fontSize="sm" color="gray.500">
+            <Text fontSize="xs" color="gray.500" noOfLines={1}>
               {product.category}
             </Text>
-            <HStack>
-              <Text fontWeight="bold" color={product.discount > 0 ? "red.500" : "black"}>
+          </VStack>
+
+          <VStack align="stretch" spacing={2}>
+            <HStack justify="space-between">
+              <Text fontWeight="bold" fontSize="lg" color={buttonColor}>
                 €{formatPrice(discountedPrice)}
               </Text>
               {product.discount > 0 && (
-                <Text as="s" color="gray.500">
+                <Text as="s" fontSize="sm" color="gray.500">
                   €{formatPrice(product.price)}
                 </Text>
               )}
             </HStack>
-          </VStack>
-          {product.sizes && (
-            <HStack wrap="wrap" justify="center">
-              {product.sizes.map((size) => (
-                <Button
-                  key={size}
-                  size="sm"
-                  variant={selectedSize === size ? "solid" : "outline"}
-                  onClick={() => setSelectedSize(size)}
-                >
-                  {size}
-                </Button>
-              ))}
+
+            <HStack>
+              <Button
+                leftIcon={<FaShoppingCart />}
+                colorScheme="blue"
+                onClick={() => setIsModalOpen(true)}
+                size="sm"
+                flex={1}
+              >
+                Add to Cart
+              </Button>
+              <IconButton
+                icon={<FaInfoCircle />}
+                variant="outline"
+                onClick={() => setIsModalOpen(true)}
+                size="sm"
+                aria-label="Details"
+              />
             </HStack>
-          )}
-          <HStack justify="space-between">
-            <Button colorScheme="blue" onClick={handleAddToCart} flex={1}>
-              Añadir al carrito
-            </Button>
-            <Button colorScheme="red" onClick={handleLike}>
-              <Icon as={FaHeart} />
-            </Button>
-          </HStack>
+          </VStack>
         </VStack>
       </MotionBox>
 
-      <Modal isOpen={isOpen} onClose={onClose} size="xl">
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>{product.title}</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Image 
-              src={product.image} 
-              alt={product.title} 
-              objectFit="contain"
-              width="100%"
-              height="400px"
-              fallbackSrc="https://via.placeholder.com/400" // Imagen de respaldo
-            />
-            <Text mt={4}>{product.description}</Text>
-            <HStack mt={4}>
-              <Text fontWeight="bold">Precio:</Text>
-              <Text fontWeight="bold" color={product.discount > 0 ? "red.500" : "black"}>
-                €{formatPrice(discountedPrice)}
-              </Text>
-              {product.discount > 0 && (
-                <Text as="s" color="gray.500">
-                  €{formatPrice(product.price)}
-                </Text>
-              )}
-            </HStack>
-          </ModalBody>
-          <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={handleAddToCart}>
-              Añadir al carrito
-            </Button>
-            <Button variant="ghost" onClick={onClose}>Cerrar</Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      <ProductPreview
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        product={product}
+        onAddToCart={handleAddToCart}
+        onToggleWishlist={toggleWishlist}
+        isWishlisted={isWishlisted}
+      />
     </>
   );
+});
+
+ProductCard.propTypes = {
+  product: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+    category: PropTypes.string.isRequired,
+    price: PropTypes.number.isRequired,
+    discount: PropTypes.number,
+    description: PropTypes.string,
+    image: PropTypes.string.isRequired,
+    bgColor: PropTypes.string,
+    rating: PropTypes.number,
+    sizes: PropTypes.arrayOf(PropTypes.string),
+    colors: PropTypes.arrayOf(PropTypes.string),
+  }).isRequired,
 };
+
+ProductCard.displayName = "ProductCard";
 
 export default ProductCard;

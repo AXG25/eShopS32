@@ -1,5 +1,4 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 import {
   Flex,
   IconButton,
@@ -29,7 +28,7 @@ import DefaultLogo from "../Layout/DefaultLogo";
 
 /**
  * Header component for the e-commerce application.
- * 
+ *
  * @component
  * @param {Object} props - The component props.
  * @param {Function} props.onToggleSidebar - Function to toggle the sidebar.
@@ -39,8 +38,8 @@ const Header = ({ onToggleSidebar }) => {
   const { t } = useTranslation();
   const bgColor = useColorModeValue("white", "gray.800");
   const buttonColor = useColorModeValue("blue.500", "blue.300");
-  const logoColor = useColorModeValue("blue.500", "blue.300");
-  const titleColor = useColorModeValue("gray.800", "white");
+  // const logoColor = useColorModeValue("blue.500", "blue.300");
+  //const titleColor = useColorModeValue("gray.800", "white");
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
@@ -149,7 +148,6 @@ const Header = ({ onToggleSidebar }) => {
 };
 
 Header.propTypes = {
-
   onToggleSidebar: PropTypes.func.isRequired,
 };
 

@@ -294,4 +294,8 @@ DesignTab.propTypes = {
   setLocalConfig: PropTypes.func.isRequired,
 };
 
+ColorTab.displayName = "ColorTab";
+FontTab.displayName = "FontTab";
+ButtonTab.displayName = "ButtonTab";
+
 export default React.memo(DesignTab);
