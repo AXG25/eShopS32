@@ -118,10 +118,10 @@ const HomePage = () => {
             Nuestros Productos
           </Heading>
           
-          <Box>
+      {/*     <Box>
             <Heading as="h2" size="lg" mb={4}>Productos Destacados</Heading>
             <InfiniteProductSlider />
-          </Box>
+          </Box> */}
           
           <FilterBar onFilterChange={handleFilterChange} />
 
