@@ -4,12 +4,10 @@ import {
   Box,
   Image,
   Text,
-  Button,
   VStack,
   HStack,
   useColorModeValue,
   AspectRatio,
-  IconButton,
   Badge,
 } from "@chakra-ui/react";
 import { motion } from "framer-motion";
@@ -17,6 +15,7 @@ import { FaShoppingCart, FaInfoCircle } from "react-icons/fa";
 import useCartStore from "../../store/useCartStore";
 import ProductPreview from "./ProductPreview ";
 
+import CustomButton from "../common/CustomButton";
 const MotionBox = motion(Box);
 
 const ProductCard = memo(({ product }) => {
@@ -26,7 +25,6 @@ const ProductCard = memo(({ product }) => {
 
   const bgColor = useColorModeValue("white", "gray.700");
   const textColor = useColorModeValue("gray.800", "white");
-  const buttonColor = useColorModeValue("blue.500", "blue.300");
 
   const formatPrice = (price) => price.toFixed(2);
 
@@ -95,7 +93,7 @@ const ProductCard = memo(({ product }) => {
 
           <VStack align="stretch" spacing={2}>
             <HStack justify="space-between">
-              <Text fontWeight="bold" fontSize="lg" color={buttonColor}>
+              <Text fontWeight="bold" fontSize="lg" color="blue.500">
                 €{formatPrice(discountedPrice)}
               </Text>
               {product.discount > 0 && (
@@ -106,16 +104,16 @@ const ProductCard = memo(({ product }) => {
             </HStack>
 
             <HStack>
-              <Button
+              <CustomButton
                 leftIcon={<FaShoppingCart />}
-                colorScheme="blue"
                 onClick={() => setIsModalOpen(true)}
                 size="sm"
                 flex={1}
               >
                 Add to Cart
-              </Button>
-              <IconButton
+              </CustomButton>
+              <CustomButton
+                isIconButton
                 icon={<FaInfoCircle />}
                 variant="outline"
                 onClick={() => setIsModalOpen(true)}
@@ -141,7 +139,7 @@ const ProductCard = memo(({ product }) => {
 
 ProductCard.propTypes = {
   product: PropTypes.shape({
-    id: PropTypes.string.isRequired,
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     title: PropTypes.string.isRequired,
     category: PropTypes.string.isRequired,
     price: PropTypes.number.isRequired,
@@ -149,7 +147,7 @@ ProductCard.propTypes = {
     description: PropTypes.string,
     image: PropTypes.string.isRequired,
     bgColor: PropTypes.string,
-    rating: PropTypes.number,
+    rating: PropTypes.oneOfType([PropTypes.string, PropTypes.object, PropTypes.number]).isRequired,
     sizes: PropTypes.arrayOf(PropTypes.string),
     colors: PropTypes.arrayOf(PropTypes.string),
   }).isRequired,

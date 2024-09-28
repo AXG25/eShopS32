@@ -1,51 +1,86 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Flex,
   Select,
   Input,
   Text,
-  Button,
   HStack,
   VStack,
   Collapse,
   useDisclosure,
   Badge,
-  IconButton,
-} from '@chakra-ui/react';
-import { ChevronDownIcon, ChevronUpIcon, CloseIcon } from '@chakra-ui/icons';
-import useProductStore from '../../store/useProductStore';
+  Divider,
+} from "@chakra-ui/react";
+import { ChevronDownIcon, ChevronUpIcon, CloseIcon } from "@chakra-ui/icons";
+import { useTranslation } from "react-i18next";
+import CustomButton from "../common/CustomButton";
+import { debounce } from "lodash";
 
-const FilterBar = ({ onFilterChange }) => {
-  const { products } = useProductStore();
+const FilterBar = ({
+  onFilterChange,
+  onClearFilters,
+  products,
+  currentFilters,
+}) => {
+  const { t } = useTranslation();
   const { isOpen, onToggle } = useDisclosure();
-  const [minPrice, setMinPrice] = useState('');
-  const [maxPrice, setMaxPrice] = useState('');
-  const [category, setCategory] = useState('');
-  const [sortBy, setSortBy] = useState('');
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [category, setCategory] = useState(currentFilters.category || "");
+  const [sortBy, setSortBy] = useState(currentFilters.sortBy || "");
 
-  const categories = ['Todas', ...new Set(products.map(product => product.category))];
+  const categories = [
+    "",
+    ...new Set(products.map((product) => product.category)),
+  ];
+
+  const debouncedFilterChange = useCallback(
+    debounce((filters) => {
+      onFilterChange(filters);
+    }, 300),
+    [onFilterChange]
+  );
 
   useEffect(() => {
     const filters = {
-      priceRange: [minPrice ? parseFloat(minPrice) : 0, maxPrice ? parseFloat(maxPrice) : Infinity],
-      category: category === 'Todas' ? '' : category,
+      priceRange: [
+        minPrice ? parseFloat(minPrice) : 0,
+        maxPrice ? parseFloat(maxPrice) : Infinity,
+      ],
+      category,
       sortBy,
     };
-    onFilterChange(filters);
-  }, [minPrice, maxPrice, category, sortBy, onFilterChange]);
+    debouncedFilterChange(filters);
+  }, [minPrice, maxPrice, category, sortBy, debouncedFilterChange]);
+
+  useEffect(() => {
+    setCategory(currentFilters.category || "");
+    setSortBy(currentFilters.sortBy || "");
+    setMinPrice(
+      currentFilters.priceRange[0] === 0
+        ? ""
+        : currentFilters.priceRange[0].toString()
+    );
+    setMaxPrice(
+      currentFilters.priceRange[1] === Infinity
+        ? ""
+        : currentFilters.priceRange[1].toString()
+    );
+  }, [currentFilters]);
 
   const clearFilters = () => {
-    setMinPrice('');
-    setMaxPrice('');
-    setCategory('');
-    setSortBy('');
+    setMinPrice("");
+    setMaxPrice("");
+    setCategory("");
+    setSortBy("");
+    onClearFilters();
   };
 
   const getActiveFiltersCount = () => {
     let count = 0;
     if (minPrice || maxPrice) count++;
-    if (category && category !== 'Todas') count++;
+    if (category) count++;
     if (sortBy) count++;
     return count;
   };
@@ -54,70 +89,90 @@ const FilterBar = ({ onFilterChange }) => {
     <Box bg="gray.50" p={4} borderRadius="md" shadow="sm" mb={4}>
       <Flex justifyContent="space-between" alignItems="center">
         <HStack>
-          <Button onClick={onToggle} rightIcon={isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />} variant="ghost">
-            Filtros
-          </Button>
+          <CustomButton
+            onClick={onToggle}
+            rightIcon={isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
+            variant="ghost"
+          >
+            {t("filters")}
+          </CustomButton>
           {getActiveFiltersCount() > 0 && (
             <Badge colorScheme="blue" variant="solid" borderRadius="full">
               {getActiveFiltersCount()}
             </Badge>
           )}
         </HStack>
-        <IconButton
-          icon={<CloseIcon />}
+        <CustomButton
+          leftIcon={<CloseIcon />}
           onClick={clearFilters}
           size="sm"
           variant="ghost"
-          aria-label="Limpiar filtros"
-        />
+          isDisabled={getActiveFiltersCount() === 0}
+        >
+          {t("clearFilters")}
+        </CustomButton>
       </Flex>
 
       <Collapse in={isOpen} animateOpacity>
         <VStack spacing={4} align="stretch" mt={4}>
-          <Flex direction={{ base: 'column', md: 'row' }} justify="space-between" align="center" wrap="wrap">
-            <Box>
-              <Text fontWeight="bold" mb={2}>Rango de Precio</Text>
-              <HStack>
-                <Input
-                  placeholder="Min €"
-                  value={minPrice}
-                  onChange={(e) => setMinPrice(e.target.value)}
-                  type="number"
-                  min="0"
-                  w="100px"
-                />
-                <Text>-</Text>
-                <Input
-                  placeholder="Max €"
-                  value={maxPrice}
-                  onChange={(e) => setMaxPrice(e.target.value)}
-                  type="number"
-                  min="0"
-                  w="100px"
-                />
-              </HStack>
-            </Box>
+          <Box>
+            <Text fontWeight="bold" mb={2}>
+              {t("priceRange")}
+            </Text>
+            <HStack>
+              <Input
+                placeholder={t("minPrice")}
+                value={minPrice}
+                onChange={(e) => setMinPrice(e.target.value)}
+                type="number"
+                min="0"
+              />
+              <Text>-</Text>
+              <Input
+                placeholder={t("maxPrice")}
+                value={maxPrice}
+                onChange={(e) => setMaxPrice(e.target.value)}
+                type="number"
+                min="0"
+              />
+            </HStack>
+          </Box>
 
-            <Box>
-              <Text fontWeight="bold" mb={2}>Categoría</Text>
-              <Select value={category} onChange={(e) => setCategory(e.target.value)} w="200px">
-                {categories.map((cat) => (
-                  <option key={cat} value={cat}>{cat}</option>
+          <Divider />
+
+          <Box>
+            <Text fontWeight="bold" mb={2}>
+              {t("category")}
+            </Text>
+            <Select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+            >
+              <option value="">{t("allCategories")}</option>
+              {categories
+                .filter((cat) => cat !== "")
+                .map((cat) => (
+                  <option key={cat} value={cat}>
+                    {t(cat.toLowerCase())}
+                  </option>
                 ))}
-              </Select>
-            </Box>
+            </Select>
+          </Box>
 
-            <Box>
-              <Text fontWeight="bold" mb={2}>Ordenar por</Text>
-              <Select value={sortBy} onChange={(e) => setSortBy(e.target.value)} w="200px">
-                <option value="">Seleccionar</option>
-                <option value="price_asc">Precio: Menor a Mayor</option>
-                <option value="price_desc">Precio: Mayor a Menor</option>
-                <option value="name_asc">Nombre: A-Z</option>
-                <option value="name_desc">Nombre: Z-A</option>
-              </Select>
-            </Box>
-          </Flex>
+          <Divider />
+
+          <Box>
+            <Text fontWeight="bold" mb={2}>
+              {t("sortBy")}
+            </Text>
+            <Select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+              <option value="">{t("select")}</option>
+              <option value="price_asc">{t("priceLowToHigh")}</option>
+              <option value="price_desc">{t("priceHighToLow")}</option>
+              <option value="name_asc">{t("nameAToZ")}</option>
+              <option value="name_desc">{t("nameZToA")}</option>
+            </Select>
+          </Box>
         </VStack>
       </Collapse>
     </Box>

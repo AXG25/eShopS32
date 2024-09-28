@@ -9,7 +9,6 @@ import {
   Box,
   Image,
   Text,
-  Button,
   VStack,
   HStack,
   Icon,
@@ -25,6 +24,7 @@ import {
   Flex,
 } from "@chakra-ui/react";
 import { FaShoppingCart, FaStar, FaRegStar, FaHeart } from "react-icons/fa";
+import CustomButton from "../common/CustomButton";
 
 const ProductPreview = ({
   isOpen,
@@ -115,14 +115,14 @@ const ProductPreview = ({
                   </Text>
                   <SimpleGrid columns={6} spacing={2}>
                     {product.sizes.map((size) => (
-                      <Button
+                      <CustomButton
                         key={size}
                         onClick={() => setSelectedSize(size)}
                         variant={selectedSize === size ? "solid" : "outline"}
                         size="sm"
                       >
                         {size}
-                      </Button>
+                      </CustomButton>
                     ))}
                   </SimpleGrid>
                 </Box>
@@ -174,28 +174,25 @@ const ProductPreview = ({
 
               <Divider />
 
-              <Button
-                leftIcon={<FaShoppingCart />}
-                colorScheme="blue"
-                size="lg"
+              <CustomButton
+                leftIcon={<FaHeart color={isWishlisted ? "red" : undefined} />}
+                onClick={onToggleWishlist}
+                variant="outline"
                 width="100%"
+              >
+                {isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
+              </CustomButton>
+
+              <CustomButton
                 onClick={handleAddToCart}
                 isDisabled={
                   (product.sizes && !selectedSize) ||
                   (product.colors && !selectedColor)
                 }
+                width="100%"
               >
                 ADD TO CART
-              </Button>
-
-              <Button
-                leftIcon={<FaHeart color={isWishlisted ? "red" : undefined} />}
-                variant="outline"
-                width="100%"
-                onClick={onToggleWishlist}
-              >
-                {isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
-              </Button>
+              </CustomButton>
             </VStack>
           </Flex>
         </ModalBody>

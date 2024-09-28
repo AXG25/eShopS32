@@ -1,60 +1,109 @@
-import { Box, Container, Stack, Text, Link, useColorModeValue } from '@chakra-ui/react';
-import { FaTwitter, FaYoutube, FaInstagram } from 'react-icons/fa';
-import { useTranslation } from 'react-i18next';
-import useStoreConfigStore from '../../store/useStoreConfigStore';
+import React from 'react';
+import {
+  Box,
+  Container,
+  SimpleGrid,
+  Stack,
+  Text,
+  Link,
+  useColorModeValue,
+  Flex,
+  IconButton,
+} from "@chakra-ui/react";
+import { FaTwitter, FaYoutube, FaInstagram, FaLinkedin, FaGithub, FaFacebook, FaPinterest } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
+import useStoreConfigStore from "../../store/useStoreConfigStore";
 
-const SocialButton = ({ children, label, href }) => {
+const Footer = () => {
+  const { t } = useTranslation();
+  const { config } = useStoreConfigStore();
+  const bgColor = useColorModeValue("gray.700", "gray.900");
+  const textColor = useColorModeValue("gray.200", "gray.400");
+
+  const socialIcons = {
+    twitter: FaTwitter,
+    youtube: FaYoutube,
+    instagram: FaInstagram,
+    linkedin: FaLinkedin,
+    github: FaGithub,
+    facebook: FaFacebook,
+    pinterest: FaPinterest,
+  };
+
   return (
-    <Link
-      bg={useColorModeValue('blackAlpha.100', 'whiteAlpha.100')}
-      rounded={'full'}
-      w={8}
-      h={8}
-      cursor={'pointer'}
-      as={'a'}
-      href={href}
-      display={'inline-flex'}
-      alignItems={'center'}
-      justifyContent={'center'}
-      transition={'background 0.3s ease'}
-      _hover={{
-        bg: useColorModeValue('blackAlpha.200', 'whiteAlpha.200'),
-      }}>
-      <Text srOnly>{label}</Text>
-      {children}
-    </Link>
+    <Box bg={bgColor} color={textColor}>
+      <Container as={Stack} maxW={"6xl"} py={10}>
+        <SimpleGrid columns={{ base: 1, sm: 2, md: 4 }} spacing={8}>
+          <Stack align={"flex-start"}>
+            <Text fontWeight={"500"} fontSize={"lg"} mb={2}>
+              {t("storeInfo")}
+            </Text>
+            {config.footer.storeInfo.map((info, index) => (
+              <Link key={index} href={info.url}>{info.name}</Link>
+            ))}
+          </Stack>
+          
+          <Stack align={"flex-start"}>
+            <Text fontWeight={"500"} fontSize={"lg"} mb={2}>
+              {t("customerService")}
+            </Text>
+            {config.footer.customerService.map((service, index) => (
+              <Link key={index} href={service.url}>{service.name}</Link>
+            ))}
+          </Stack>
+          
+          <Stack align={"flex-start"}>
+            <Text fontWeight={"500"} fontSize={"lg"} mb={2}>
+              {t("myAccount")}
+            </Text>
+            {config.footer.myAccount.map((item, index) => (
+              <Link key={index} href={item.url}>{item.name}</Link>
+            ))}
+          </Stack>
+          
+          <Stack align={"flex-start"}>
+            <Text fontWeight={"500"} fontSize={"lg"} mb={2}>
+              {t("contact")}
+            </Text>
+            <Text>{config.footer.contact.address}</Text>
+            <Text>{config.footer.contact.phone}</Text>
+            <Text>{config.footer.contact.email}</Text>
+          </Stack>
+        </SimpleGrid>
+      </Container>
+
+      <Box borderTopWidth={1} borderStyle={"solid"} borderColor={useColorModeValue("gray.600", "gray.800")}>
+        <Container
+          as={Stack}
+          maxW={"6xl"}
+          py={4}
+          direction={{ base: "column", md: "row" }}
+          spacing={4}
+          justify={{ md: "space-between" }}
+          align={{ md: "center" }}
+        >
+          <Text>© {new Date().getFullYear()} {config.title}. {t("allRightsReserved")}</Text>
+          <Stack direction={"row"} spacing={6}>
+            {config.footer.socialLinks.map((social, index) => {
+              const SocialIcon = socialIcons[social.name.toLowerCase()];
+              return (
+                <IconButton
+                  key={index}
+                  as="a"
+                  href={social.url}
+                  aria-label={social.name}
+                  icon={<SocialIcon />}
+                  size="md"
+                  color={textColor}
+                  variant="ghost"
+                />
+              );
+            })}
+          </Stack>
+        </Container>
+      </Box>
+    </Box>
   );
 };
 
-export default function Footer() {
-  const { config } = useStoreConfigStore();
-  const { t } = useTranslation();
-
-  return (
-    <Box
-      bg={useColorModeValue('gray.50', 'gray.900')}
-      color={useColorModeValue('gray.700', 'gray.200')}>
-      <Container
-        as={Stack}
-        maxW={'6xl'}
-        py={4}
-        direction={{ base: 'column', md: 'row' }}
-        spacing={4}
-        justify={{ base: 'center', md: 'space-between' }}
-        align={{ base: 'center', md: 'center' }}>
-        <Text>© 2024 {config.title}. {t('allRightsReserved')}</Text>
-        <Stack direction={'row'} spacing={6}>
-          <SocialButton label={'Twitter'} href={'#'}>
-            <FaTwitter />
-          </SocialButton>
-          <SocialButton label={'YouTube'} href={'#'}>
-            <FaYoutube />
-          </SocialButton>
-          <SocialButton label={'Instagram'} href={'#'}>
-            <FaInstagram />
-          </SocialButton>
-        </Stack>
-      </Container>
-    </Box>
-  );
-}
+export default Footer;

@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   Box,
   VStack,
@@ -13,26 +14,45 @@ import {
   Flex,
   Badge,
   useToast,
+  FormControl,
+  FormLabel,
+  Input,
+  Checkbox,
+  Textarea,
 } from "@chakra-ui/react";
-import { FaTrash, FaPlus, FaMinus, FaArrowLeft } from "react-icons/fa";
+import { FaTrash, FaPlus, FaMinus, FaArrowLeft, FaWhatsapp } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import useCartStore from "../../store/useCartStore";
 import { useAuth } from "../../hooks/useAuth";
 import { motion } from "framer-motion";
+import axios from "axios";
 
 const MotionBox = motion(Box);
 
 const CartView = () => {
-  const { items, removeFromCart, updateQuantity, getTotalPrice, clearCart } =
-    useCartStore();
+  const { items, removeFromCart, updateQuantity, getTotalPrice, clearCart } = useCartStore();
   const { isAuthenticated } = useAuth();
-  //const bgColor = useColorModeValue('gray.50', 'gray.700');
   const cardBgColor = useColorModeValue("white", "gray.600");
   const textColor = useColorModeValue("gray.600", "gray.200");
   const navigate = useNavigate();
   const toast = useToast();
 
-  // Manejador para cambiar la cantidad de un producto
+  const [orderForm, setOrderForm] = useState({
+    cedula: "",
+    telefono: "",
+    requiresDelivery: false,
+    nombre: "",
+    direccion: "",
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setOrderForm(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+  };
+
   const handleQuantityChange = (productId, newQuantity) => {
     if (newQuantity > 0) {
       updateQuantity(productId, newQuantity);
@@ -41,8 +61,7 @@ const CartView = () => {
     }
   };
 
-  // Manejador para proceder al pago
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (!isAuthenticated) {
       toast({
         title: "Inicia sesión para continuar",
@@ -52,20 +71,64 @@ const CartView = () => {
         isClosable: true,
       });
       navigate("/login", { state: { from: "/cart" } });
-    } else {
-      // Aquí iría la lógica para proceder al pago
+      return;
+    }
+
+    // Validar el formulario
+    if (!orderForm.cedula || !orderForm.telefono || (orderForm.requiresDelivery && (!orderForm.nombre || !orderForm.direccion))) {
       toast({
-        title: "Procesando pago",
-        description: "Redirigiendo al proceso de pago...",
-        status: "info",
-        duration: 2000,
+        title: "Formulario incompleto",
+        description: "Por favor, completa todos los campos requeridos.",
+        status: "error",
+        duration: 3000,
         isClosable: true,
       });
-      navigate("/checkout");
+      return;
+    }
+
+    // Preparar los datos del pedido
+    const orderData = {
+      ...orderForm,
+      items,
+      total: getTotalPrice(),
+    };
+
+    try {
+      // Enviar datos al endpoint
+      await axios.post('/api/orders', orderData);
+
+      // Enviar mensaje a WhatsApp
+      const whatsappMessage = `Nuevo pedido:\n
+Cédula: ${orderForm.cedula}
+Teléfono: ${orderForm.telefono}
+${orderForm.requiresDelivery ? `Nombre: ${orderForm.nombre}\nDirección: ${orderForm.direccion}` : ''}
+Productos:\n${items.map(item => `- ${item.title} (x${item.quantity})`).join('\n')}
+Total: €${getTotalPrice().toFixed(2)}`;
+
+      const whatsappUrl = `https://wa.me/NUMERO_DEL_ADMINISTRADOR?text=${encodeURIComponent(whatsappMessage)}`;
+      window.open(whatsappUrl, '_blank');
+
+      // Limpiar el carrito y mostrar mensaje de éxito
+      clearCart();
+      toast({
+        title: "Pedido realizado con éxito",
+        description: "Tu pedido ha sido enviado. Te contactaremos pronto.",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+      navigate("/");
+    } catch (error) {
+      toast({
+        title: "Error al procesar el pedido",
+        description: "Hubo un problema al enviar tu pedido. Por favor, intenta de nuevo.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
     }
   };
 
-  // Manejador para vaciar el carrito
   const handleClearCart = () => {
     clearCart();
     toast({
@@ -128,9 +191,7 @@ const CartView = () => {
                     <HStack>
                       <IconButton
                         icon={<FaMinus />}
-                        onClick={() =>
-                          handleQuantityChange(item.id, item.quantity - 1)
-                        }
+                        onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
                         size="sm"
                         variant="outline"
                       />
@@ -139,9 +200,7 @@ const CartView = () => {
                       </Text>
                       <IconButton
                         icon={<FaPlus />}
-                        onClick={() =>
-                          handleQuantityChange(item.id, item.quantity + 1)
-                        }
+                        onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
                         size="sm"
                         variant="outline"
                       />
@@ -158,6 +217,33 @@ const CartView = () => {
 
               <Divider />
 
+              <VStack spacing={4} align="stretch">
+                <Heading size="md">Información del Pedido</Heading>
+                <FormControl isRequired>
+                  <FormLabel>Cédula</FormLabel>
+                  <Input name="cedula" value={orderForm.cedula} onChange={handleInputChange} />
+                </FormControl>
+                <FormControl isRequired>
+                  <FormLabel>Teléfono</FormLabel>
+                  <Input name="telefono" value={orderForm.telefono} onChange={handleInputChange} />
+                </FormControl>
+                <Checkbox name="requiresDelivery" isChecked={orderForm.requiresDelivery} onChange={handleInputChange}>
+                  ¿Requiere envío?
+                </Checkbox>
+                {orderForm.requiresDelivery && (
+                  <>
+                    <FormControl isRequired>
+                      <FormLabel>Nombre</FormLabel>
+                      <Input name="nombre" value={orderForm.nombre} onChange={handleInputChange} />
+                    </FormControl>
+                    <FormControl isRequired>
+                      <FormLabel>Dirección</FormLabel>
+                      <Textarea name="direccion" value={orderForm.direccion} onChange={handleInputChange} />
+                    </FormControl>
+                  </>
+                )}
+              </VStack>
+
               <Flex justify="space-between" align="center">
                 <VStack align="start" spacing={2}>
                   <Text fontSize="2xl" fontWeight="bold">
@@ -172,10 +258,8 @@ const CartView = () => {
                     Vaciar Carrito
                   </Button>
                 </VStack>
-                <Button colorScheme="blue" size="lg" onClick={handleCheckout}>
-                  {isAuthenticated
-                    ? "Proceder al Pago"
-                    : "Iniciar Sesión para Comprar"}
+                <Button colorScheme="blue" size="lg" onClick={handleCheckout} leftIcon={<FaWhatsapp />}>
+                  {isAuthenticated ? "Realizar Pedido" : "Iniciar Sesión para Comprar"}
                 </Button>
               </Flex>
             </>

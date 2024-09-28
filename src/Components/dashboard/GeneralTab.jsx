@@ -206,25 +206,6 @@ export const GeneralTab = ({ localConfig, setLocalConfig }) => {
           </Box>
         </VStack>
       </Box>
-
-      <Divider />
-
-      <Box>
-        <HStack mb={4}>
-          <FaMoon size="24px" />
-          <Heading as="h2" size="lg">
-            {t("appearance")}
-          </Heading>
-        </HStack>
-        <HStack spacing={4} bg={sectionBgColor} p={4} borderRadius="md">
-          <Text fontWeight="semibold">{t("darkMode")}</Text>
-          <Switch
-            id="dark-mode-switch"
-            isChecked={localConfig.darkMode}
-            onChange={handleDarkModeChange}
-          />
-        </HStack>
-      </Box>
     </VStack>
   );
 };

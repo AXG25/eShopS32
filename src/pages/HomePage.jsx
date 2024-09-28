@@ -1,4 +1,5 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   Box,
   SimpleGrid,
@@ -8,74 +9,92 @@ import {
   Heading,
   useToast,
   Spinner,
-  Fade,
-  Divider,
-} from '@chakra-ui/react';
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { motion, AnimatePresence } from 'framer-motion';
-import axios from 'axios';
-import useStoreConfigStore from '../store/useStoreConfigStore';
-import InfiniteProductSlider from '../Components/product/InfiniteProductSlider';
-import FilterBar from '../Components/product/FilterBar';
-import ProductCard from '../Components/product/ProductCard';
+  Flex,
+} from "@chakra-ui/react";
+import { useQuery } from "@tanstack/react-query";
+import { motion, AnimatePresence } from "framer-motion";
+import axios from "axios";
+import useStoreConfigStore from "../store/useStoreConfigStore";
+import FilterBar from "../Components/product/FilterBar";
+import ProductCard from "../Components/product/ProductCard";
+import CustomButton from "../Components/common/CustomButton";
 
 const MotionBox = motion(Box);
 
-const fetchProducts = async ({ pageParam = 1, filters }) => {
-  const { data } = await axios.get(`https://fakestoreapi.com/products`, {
-    params: {
-      ...filters,
-      _page: pageParam,
-      _limit: 12,
-    },
-  });
-  return {
-    data,
-    nextPage: data.length === 12 ? pageParam + 1 : undefined,
-  };
+const fetchProducts = async () => {
+  const { data } = await axios.get(`https://fakestoreapi.com/products`);
+  return data;
 };
 
 const HomePage = () => {
   const { config } = useStoreConfigStore();
-  const [filters, setFilters] = useState({});
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [filters, setFilters] = useState({
+    priceRange: [0, Infinity],
+    category: "",
+    sortBy: "",
+  });
   const toast = useToast();
-  const loadMoreRef = useRef(null);
   const scrollContainerRef = useRef(null);
 
   const {
-    status,
-    data,
+    data: products,
+    isLoading,
     error,
-    isFetchingNextPage,
-    fetchNextPage,
-    hasNextPage,
-  } = useInfiniteQuery({
-    queryKey: ['products', filters],
-    queryFn: ({ pageParam }) => fetchProducts({ pageParam, filters }),
-    getNextPageParam: (lastPage) => lastPage.nextPage,
-    initialPageParam: 1,
+    refetch,
+  } = useQuery({
+    queryKey: ["products"],
+    queryFn: fetchProducts,
   });
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
-        }
-      },
-      { threshold: 1.0 }
-    );
-
-    if (loadMoreRef.current) {
-      observer.observe(loadMoreRef.current);
+    const selectedCategory = location.state?.selectedCategory;
+    if (selectedCategory) {
+      setFilters(prev => ({ ...prev, category: selectedCategory }));
+      // Limpia el estado de la navegación para que no persista al recargar
+      navigate(location.pathname, { replace: true, state: {} });
     }
-
-    return () => observer.disconnect();
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+  }, [location.state, navigate]);
 
   const handleFilterChange = useCallback((newFilters) => {
-    setFilters(newFilters);
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      ...newFilters,
+    }));
   }, []);
+
+  const handleClearFilters = useCallback(() => {
+    setFilters({
+      priceRange: [0, Infinity],
+      category: "",
+      sortBy: "",
+    });
+  }, []);
+
+  const filteredProducts = useCallback(() => {
+    if (!products) return [];
+    return products
+      .filter((product) => {
+        const priceInRange =
+          (filters.priceRange[0] === 0 ||
+            product.price >= filters.priceRange[0]) &&
+          (filters.priceRange[1] === Infinity ||
+            product.price <= filters.priceRange[1]);
+        const categoryMatch =
+          !filters.category || product.category.toLowerCase() === filters.category.toLowerCase();
+        return priceInRange && categoryMatch;
+      })
+      .sort((a, b) => {
+        if (filters.sortBy === "price_asc") return a.price - b.price;
+        if (filters.sortBy === "price_desc") return b.price - a.price;
+        if (filters.sortBy === "name_asc")
+          return a.title.localeCompare(b.title);
+        if (filters.sortBy === "name_desc")
+          return b.title.localeCompare(a.title);
+        return 0;
+      });
+  }, [products, filters]);
 
   useEffect(() => {
     if (error) {
@@ -90,81 +109,94 @@ const HomePage = () => {
   }, [error, toast]);
 
   const scrollbarStyle = {
-    '&::-webkit-scrollbar': {
-      width: '1px',
+    "&::-webkit-scrollbar": {
+      width: "4px",
     },
-    '&::-webkit-scrollbar-track': {
-      background: '#f1f1f1',
+    "&::-webkit-scrollbar-track": {
+      background: "#f1f1f1",
     },
-    '&::-webkit-scrollbar-thumb': {
-      background: '#888',
-      borderRadius: '4px',
+    "&::-webkit-scrollbar-thumb": {
+      background: "#888",
+      borderRadius: "4px",
     },
-    '&::-webkit-scrollbar-thumb:hover': {
-      background: '#555',
+    "&::-webkit-scrollbar-thumb:hover": {
+      background: "#555",
     },
   };
+
+  const filteredProductsList = filteredProducts();
 
   return (
     <Box
       ref={scrollContainerRef}
-      height="calc(100vh - 80px)" // Ajusta esto según el tamaño de tu header
+      height="calc(100vh - 80px)"
       overflowY="auto"
       sx={scrollbarStyle}
     >
       <Container maxW="container.xl" pb={20}>
         <VStack spacing={8} align="stretch">
-          <Heading as="h1" size="2xl" textAlign="center" color={config.primaryColor}>
-            Nuestros Productos
+          <Heading
+            as="h1"
+            size="2xl"
+            textAlign="center"
+            color={config.primaryColor}
+          >
+            {filters.category ? `Productos: ${filters.category}` : "Todos los Productos"}
           </Heading>
-          
-      {/*     <Box>
-            <Heading as="h2" size="lg" mb={4}>Productos Destacados</Heading>
-            <InfiniteProductSlider />
-          </Box> */}
-          
-          <FilterBar onFilterChange={handleFilterChange} />
 
-          {status === 'pending' ? (
-            <Spinner size="xl" alignSelf="center" />
-          ) : status === 'error' ? (
-            <Text color="red.500" textAlign="center">Error: {error.message}</Text>
+          <FilterBar
+            onFilterChange={handleFilterChange}
+            onClearFilters={handleClearFilters}
+            products={products || []}
+            currentFilters={filters}
+          />
+
+          {isLoading ? (
+            <Flex justify="center" align="center" height="50vh">
+              <Spinner size="xl" color={config.primaryColor} />
+            </Flex>
+          ) : error ? (
+            <VStack spacing={4} align="center">
+              <Text color="red.500" fontSize="lg">
+                Error: {error.message}
+              </Text>
+              <CustomButton onClick={() => refetch()} colorScheme="blue">
+                Intentar de nuevo
+              </CustomButton>
+            </VStack>
           ) : (
             <AnimatePresence>
-              <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing={6}>
-                {data.pages.map((page, i) => (
-                  <React.Fragment key={i}>
-                    {page.data.map((product) => (
-                      <MotionBox
-                        key={product.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.5 }}
-                      >
-                        <ProductCard product={product} />
-                      </MotionBox>
-                    ))}
-                  </React.Fragment>
+              <SimpleGrid
+                columns={{ base: 1, sm: 2, md: 3, lg: 4 }}
+                spacing={6}
+              >
+                {filteredProductsList.map((product) => (
+                  <MotionBox
+                    key={product.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <ProductCard product={product} />
+                  </MotionBox>
                 ))}
               </SimpleGrid>
             </AnimatePresence>
           )}
 
-          <Box ref={loadMoreRef} h="20px" />
-          
-          <Fade in={isFetchingNextPage}>
-            <Spinner size="md" alignSelf="center" />
-          </Fade>
-
-          {!hasNextPage && data?.pages.length > 0 && (
+          {filteredProductsList.length === 0 && !isLoading && (
             <VStack spacing={4} pt={8}>
-              <Divider />
-              <Text fontSize="lg" fontWeight="medium" textAlign="center" color="gray.600">
-                Has llegado al final de la lista
+              <Text
+                fontSize="lg"
+                fontWeight="medium"
+                textAlign="center"
+                color="gray.600"
+              >
+                No se encontraron productos
               </Text>
               <Text fontSize="md" color="gray.500" textAlign="center">
-                No hay más productos para mostrar
+                Intenta ajustar los filtros
               </Text>
             </VStack>
           )}

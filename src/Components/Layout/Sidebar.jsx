@@ -7,8 +7,8 @@ import {
   FaCog,
   FaTachometerAlt,
   FaSignOutAlt,
-  FaUserAlt,
   FaShoppingCart,
+  FaListUl, // Nuevo icono para categorías
 } from "react-icons/fa";
 import { IoMdColorPalette } from "react-icons/io";
 import useStoreConfigStore from "../../store/useStoreConfigStore";
@@ -18,6 +18,17 @@ const Sidebar = ({ collapsed }) => {
   const { config } = useStoreConfigStore();
   const { isAuthenticated, hasPermission, logout } = useAuth();
   const color = useColorModeValue("gray.600", "gray.200");
+  const hoverBgColor = useColorModeValue("whiteAlpha.200", "blackAlpha.300");
+
+  // Estilos comunes para los elementos del menú
+  const menuItemStyles = {
+    button: {
+      color: color,
+      "&:hover": {
+        backgroundColor: hoverBgColor,
+      },
+    },
+  };
 
   return (
     <Box
@@ -35,21 +46,16 @@ const Sidebar = ({ collapsed }) => {
       >
         <VStack h="100%" justify="space-between">
           <Box flexGrow={1} width="100%" overflowY="auto">
-            <Menu
-              menuItemStyles={{
-                button: {
-                  color: color,
-                  "&:hover": {
-                    backgroundColor: useColorModeValue(
-                      "whiteAlpha.200",
-                      "blackAlpha.300"
-                    ),
-                  },
-                },
-              }}
-            >
+            <Menu menuItemStyles={menuItemStyles}>
               <MenuItem icon={<FaStore />} component={<RouterLink to="/" />}>
                 Tienda
+              </MenuItem>
+              {/* Nuevo ítem de menú para categorías */}
+              <MenuItem
+                icon={<FaListUl />}
+                component={<RouterLink to="/categorias" />}
+              >
+                Categorías
               </MenuItem>
               <MenuItem
                 icon={<FaShoppingCart />}
@@ -58,14 +64,12 @@ const Sidebar = ({ collapsed }) => {
                 Carrito
               </MenuItem>
               {isAuthenticated && (
-                <>
-                  <MenuItem
-                    icon={<FaCog />}
-                    component={<RouterLink to="/settings" />}
-                  >
-                    Configuración
-                  </MenuItem>
-                </>
+                <MenuItem
+                  icon={<FaCog />}
+                  component={<RouterLink to="/settings" />}
+                >
+                  Configuración
+                </MenuItem>
               )}
               {hasPermission("admin") && (
                 <>

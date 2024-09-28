@@ -16,11 +16,20 @@ import {
   TabPanel,
   SimpleGrid,
   Select,
+  Input,
   useToast,
+  HStack,
+  AccordionItem,
+  AccordionButton,
+  AccordionIcon,
+  AccordionPanel,
+  Accordion,
 } from "@chakra-ui/react";
 import { FaPalette, FaFont, FaSquare, FaUndo } from "react-icons/fa";
 import ColorPicker from "./ColorPicker";
+import CustomButton from "../common/CustomButton";
 import useStoreConfigStore from "../../store/useStoreConfigStore";
+
 
 const ColorTab = React.memo(
   ({ localConfig, handleColorChange, handleReset }) => (
@@ -73,7 +82,7 @@ const FontTab = React.memo(
             min={12}
             max={24}
             step={1}
-            value={localConfig.baseFontSize}
+            value={parseInt(localConfig.baseFontSize)}
             onChange={handleFontSizeChange}
           >
             <SliderTrack>
@@ -97,41 +106,79 @@ const FontTab = React.memo(
   )
 );
 
-const ButtonTab = React.memo(
-  ({ localConfig, handleColorChange, handleOpacityChange, handleReset }) => (
-    <TabPanel>
-      <VStack spacing={6} align="stretch">
+const ButtonSectionTab = ({ sectionName, localConfig, handleColorChange, handleOpacityChange, handleInputChange }) => (
+  <AccordionItem>
+    <h2>
+      <AccordionButton>
+        <Box flex="1" textAlign="left">
+          {sectionName}
+        </Box>
+        <AccordionIcon />
+      </AccordionButton>
+    </h2>
+    <AccordionPanel pb={4}>
+      <VStack spacing={4} align="stretch">
         <ColorPicker
-          color={localConfig.buttonColor}
-          onChange={(color) => handleColorChange("buttonColor", color)}
-          label="Color de Botón"
+          color={localConfig[`${sectionName}ButtonColor`] || localConfig.buttonColor}
+          onChange={(color) => handleColorChange(`${sectionName}ButtonColor`, color)}
+          label={`Color de Botón (${sectionName})`}
         />
         <ColorPicker
-          color={localConfig.buttonTextColor}
-          onChange={(color) => handleColorChange("buttonTextColor", color)}
-          label="Color de Texto de Botón"
+          color={localConfig[`${sectionName}ButtonTextColor`] || localConfig.buttonTextColor}
+          onChange={(color) => handleColorChange(`${sectionName}ButtonTextColor`, color)}
+          label={`Color de Texto de Botón (${sectionName})`}
         />
         <Box>
           <Text fontWeight="bold" mb={2}>
-            Opacidad del Hover
+            Opacidad del Hover ({sectionName})
           </Text>
           <Slider
             min={0}
             max={1}
             step={0.1}
-            value={localConfig.buttonHoverOpacity}
-            onChange={handleOpacityChange}
+            value={localConfig[`${sectionName}ButtonHoverOpacity`] || localConfig.buttonHoverOpacity}
+            onChange={(value) => handleOpacityChange(`${sectionName}ButtonHoverOpacity`, value)}
           >
             <SliderTrack>
               <SliderFilledTrack />
             </SliderTrack>
             <SliderThumb boxSize={6} />
           </Slider>
-          <Text textAlign="center" mt={2}>
-            {localConfig.buttonHoverOpacity.toFixed(1)}
+        </Box>
+        <Box>
+          <Text fontWeight="bold" mb={2}>
+            Tamaño de Fuente del Botón ({sectionName})
           </Text>
+          <Input
+            value={localConfig[`${sectionName}ButtonFontSize`] || localConfig.buttonFontSize}
+            onChange={(e) => handleInputChange(`${sectionName}ButtonFontSize`, e.target.value)}
+            placeholder="ej: 16px"
+          />
+        </Box>
+        <Box>
+          <Text fontWeight="bold" mb={2}>
+            Radio de Borde del Botón ({sectionName})
+          </Text>
+          <Input
+            value={localConfig[`${sectionName}ButtonBorderRadius`] || localConfig.buttonBorderRadius}
+            onChange={(e) => handleInputChange(`${sectionName}ButtonBorderRadius`, e.target.value)}
+            placeholder="ej: 4px"
+          />
         </Box>
       </VStack>
+    </AccordionPanel>
+  </AccordionItem>
+);
+
+const ButtonTab = React.memo(
+  ({ localConfig, handleColorChange, handleOpacityChange, handleInputChange, handleReset }) => (
+    <TabPanel>
+      <Accordion allowMultiple>
+        <ButtonSectionTab sectionName="general" localConfig={localConfig} handleColorChange={handleColorChange} handleOpacityChange={handleOpacityChange} handleInputChange={handleInputChange} />
+        <ButtonSectionTab sectionName="header" localConfig={localConfig} handleColorChange={handleColorChange} handleOpacityChange={handleOpacityChange} handleInputChange={handleInputChange} />
+        <ButtonSectionTab sectionName="productCard" localConfig={localConfig} handleColorChange={handleColorChange} handleOpacityChange={handleOpacityChange} handleInputChange={handleInputChange} />
+        <ButtonSectionTab sectionName="cart" localConfig={localConfig} handleColorChange={handleColorChange} handleOpacityChange={handleOpacityChange} handleInputChange={handleInputChange} />
+      </Accordion>
       <Button
         leftIcon={<FaUndo />}
         mt={4}
@@ -163,14 +210,21 @@ const DesignTab = ({ localConfig, setLocalConfig }) => {
 
   const handleFontSizeChange = useCallback(
     (value) => {
-      setLocalConfig((prev) => ({ ...prev, baseFontSize: value }));
+      setLocalConfig((prev) => ({ ...prev, baseFontSize: `${value}px` }));
     },
     [setLocalConfig]
   );
 
   const handleOpacityChange = useCallback(
-    (value) => {
-      setLocalConfig((prev) => ({ ...prev, buttonHoverOpacity: value }));
+    (key, value) => {
+      setLocalConfig((prev) => ({ ...prev, [key]: value }));
+    },
+    [setLocalConfig]
+  );
+
+  const handleInputChange = useCallback(
+    (key, value) => {
+      setLocalConfig((prev) => ({ ...prev, [key]: value }));
     },
     [setLocalConfig]
   );
@@ -196,7 +250,7 @@ const DesignTab = ({ localConfig, setLocalConfig }) => {
   const previewStyle = useMemo(
     () => ({
       fontFamily: localConfig.mainFont,
-      fontSize: `${localConfig.baseFontSize}px`,
+      fontSize: localConfig.baseFontSize,
       color: localConfig.textColor,
       backgroundColor: localConfig.backgroundColor,
       padding: "20px",
@@ -235,6 +289,7 @@ const DesignTab = ({ localConfig, setLocalConfig }) => {
             localConfig={localConfig}
             handleColorChange={handleColorChange}
             handleOpacityChange={handleOpacityChange}
+            handleInputChange={handleInputChange}
             handleReset={handleReset}
           />
         </TabPanels>
@@ -263,13 +318,12 @@ const DesignTab = ({ localConfig, setLocalConfig }) => {
           <Text fontSize="xl">Subtítulo</Text>
           <Text>Texto de párrafo normal</Text>
           <Text fontSize="sm">Texto pequeño</Text>
-          <Button
-            bg={localConfig.buttonColor}
-            color={localConfig.buttonTextColor}
-            _hover={{ opacity: localConfig.buttonHoverOpacity }}
-          >
-            Botón de Ejemplo
-          </Button>
+          <HStack spacing={2}>
+            <CustomButton>Botón General</CustomButton>
+            <CustomButton config={localConfig.header}>Botón Header</CustomButton>
+            <CustomButton config={localConfig.productCard}>Botón Producto</CustomButton>
+            <CustomButton config={localConfig.cart}>Botón Carrito</CustomButton>
+          </HStack>
         </VStack>
       </Box>
     </Box>
@@ -277,21 +331,24 @@ const DesignTab = ({ localConfig, setLocalConfig }) => {
 };
 
 DesignTab.propTypes = {
-  localConfig: PropTypes.shape({
-    backgroundColor: PropTypes.string.isRequired,
-    textColor: PropTypes.string.isRequired,
-    headerColor: PropTypes.string.isRequired,
-    headerTextColor: PropTypes.string.isRequired,
-    primaryColor: PropTypes.string.isRequired,
-    secondaryColor: PropTypes.string.isRequired,
-    buttonColor: PropTypes.string.isRequired,
-    buttonTextColor: PropTypes.string.isRequired,
-    buttonHoverOpacity: PropTypes.number.isRequired,
-    mainFont: PropTypes.string.isRequired,
-    baseFontSize: PropTypes.number.isRequired,
-    asideColor: PropTypes.string.isRequired,
-  }).isRequired,
+  localConfig: PropTypes.object.isRequired,
   setLocalConfig: PropTypes.func.isRequired,
+};
+
+ButtonSectionTab.propTypes = {
+  sectionName: PropTypes.string.isRequired,
+  localConfig: PropTypes.object.isRequired,
+  handleColorChange: PropTypes.func.isRequired,
+  handleOpacityChange: PropTypes.func.isRequired,
+  handleInputChange: PropTypes.func.isRequired,
+};
+
+ButtonTab.propTypes = {
+  localConfig: PropTypes.object.isRequired,
+  handleColorChange: PropTypes.func.isRequired,
+  handleOpacityChange: PropTypes.func.isRequired,
+  handleInputChange: PropTypes.func.isRequired,
+  handleReset: PropTypes.func.isRequired,
 };
 
 ColorTab.displayName = "ColorTab";

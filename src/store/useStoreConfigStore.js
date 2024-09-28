@@ -10,14 +10,48 @@ const defaultConfig = {
   headerTextColor: "#000000",
   textColor: "#333333",
   primaryColor: "#3182CE",
-  secondaryColor: "#E2E8F0",
+  secondaryColor: "#FFFFFF",
   buttonColor: "#4299E1",
   buttonTextColor: "#FFFFFF",
   buttonHoverOpacity: 0.8,
+  buttonFontSize: "16px",
+  buttonBorderRadius: "4px",
   asideColor: "#F7FAFC",
   logo: null,
   language: "es",
   currency: "EUR",
+  mainFont: "'Roboto', sans-serif",
+  //new
+  footer: {
+    storeInfo: [
+      { name: "Sobre Nosotros", url: "/about" },
+      { name: "Términos y Condiciones", url: "/terms" },
+      { name: "Política de Privacidad", url: "/privacy" },
+    ],
+    customerService: [
+      { name: "Preguntas Frecuentes", url: "/faq" },
+      { name: "Envíos", url: "/shipping" },
+      { name: "Devoluciones", url: "/returns" },
+      { name: "Garantía", url: "/warranty" },
+    ],
+    myAccount: [
+      { name: "Mi Perfil", url: "/profile" },
+      { name: "Mis Pedidos", url: "/orders" },
+      { name: "Lista de Deseos", url: "/wishlist" },
+      { name: "Notificaciones", url: "/notifications" },
+    ],
+    contact: {
+      address: "43 Raymouth Rd. Baltemoer, London 3910",
+      phone: "+1(123)-456-7890",
+      email: "info@mydomain.com",
+    },
+    socialLinks: [
+      { name: "Facebook", url: "https://facebook.com" },
+      { name: "Twitter", url: "https://twitter.com" },
+      { name: "Instagram", url: "https://instagram.com" },
+      { name: "Pinterest", url: "https://pinterest.com" },
+    ],
+  },
 };
 
 const useStoreConfigStore = create(
@@ -65,8 +99,9 @@ const useStoreConfigStore = create(
       loadConfigFromBackend: async () => {
         try {
           const response = await axios.get("/api/store-config");
-          set({ config: response.data });
-          applyStyleChanges(response.data);
+          const loadedConfig = { ...defaultConfig, ...response.data };
+          set({ config: loadedConfig });
+          applyStyleChanges(loadedConfig);
           console.log("Configuración cargada desde el backend");
         } catch (error) {
           console.error(
@@ -85,8 +120,9 @@ const useStoreConfigStore = create(
             new Date(backendConfig.lastModified) >
             new Date(localConfig.lastModified)
           ) {
-            set({ config: backendConfig });
-            applyStyleChanges(backendConfig);
+            const syncedConfig = { ...defaultConfig, ...backendConfig };
+            set({ config: syncedConfig });
+            applyStyleChanges(syncedConfig);
             console.log("Configuración actualizada desde el backend");
           } else if (
             new Date(backendConfig.lastModified) <
@@ -101,6 +137,17 @@ const useStoreConfigStore = create(
           console.error("Error al sincronizar la configuración:", error);
         }
       },
+      updateFooterConfig: (newFooterConfig) => {
+        set((state) => ({
+          config: {
+            ...state.config,
+            footer: {
+              ...state.config.footer,
+              ...newFooterConfig,
+            },
+          },
+        }));
+      },
     }),
     {
       name: "store-config-storage",
@@ -113,11 +160,19 @@ const useStoreConfigStore = create(
 const applyStyleChanges = (config) => {
   const root = document.documentElement;
   Object.entries(config).forEach(([key, value]) => {
-    if (typeof value === "string" && value.startsWith("#")) {
-      root.style.setProperty(`--${key}`, value);
-      const rgbValue = hexToRgb(value);
-      if (rgbValue) {
-        root.style.setProperty(`--${key}-rgb`, rgbValue);
+    if (typeof value === "string") {
+      if (
+        value.startsWith("#") ||
+        key.includes("FontSize") ||
+        key.includes("BorderRadius")
+      ) {
+        root.style.setProperty(`--${key}`, value);
+      }
+      if (value.startsWith("#")) {
+        const rgbValue = hexToRgb(value);
+        if (rgbValue) {
+          root.style.setProperty(`--${key}-rgb`, rgbValue);
+        }
       }
     }
   });

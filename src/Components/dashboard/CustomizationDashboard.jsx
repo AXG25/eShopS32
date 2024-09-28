@@ -1,4 +1,3 @@
-// src/Components/dashboard/CustomizationDashboard.jsx
 import { useState, useEffect, useCallback } from "react";
 import {
   Box,
@@ -12,12 +11,13 @@ import {
   Button,
   useToast,
 } from "@chakra-ui/react";
-import { FaCog, FaPalette, FaBoxOpen } from "react-icons/fa";
+import { FaCog, FaPalette, FaBoxOpen, FaList } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 
 import DesignTab from "./DesignTab";
 import { GeneralTab } from "./GeneralTab";
 import { ProductTab } from "./ProductTab";
+import { FooterTab } from "./FooterTab";
 import useStoreConfigStore from "../../store/useStoreConfigStore";
 import useProductStore from "../../store/useProductStore";
 
@@ -68,6 +68,13 @@ const CustomizationDashboard = () => {
     [deleteProduct]
   );
 
+  const handleFooterConfigChange = useCallback((newFooterConfig) => {
+    setLocalConfig((prevConfig) => ({
+      ...prevConfig,
+      footer: newFooterConfig,
+    }));
+  }, []);
+
   return (
     <Container maxW="container.xl" py={8}>
       <Heading mb={6}>Personalización de la Tienda</Heading>
@@ -81,6 +88,9 @@ const CustomizationDashboard = () => {
           </Tab>
           <Tab>
             <FaBoxOpen /> Productos
+          </Tab>
+          <Tab>
+            <FaList /> Footer
           </Tab>
         </TabList>
 
@@ -124,6 +134,20 @@ const CustomizationDashboard = () => {
                 <ProductTab
                   handleDeleteProduct={handleDeleteProduct}
                   products={products}
+                />
+              </MotionBox>
+            </TabPanel>
+
+            <TabPanel>
+              <MotionBox
+                variants={tabVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+              >
+                <FooterTab
+                  footerConfig={localConfig.footer}
+                  onFooterConfigChange={handleFooterConfigChange}
                 />
               </MotionBox>
             </TabPanel>

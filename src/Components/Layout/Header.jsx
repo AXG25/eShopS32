@@ -1,14 +1,12 @@
 import PropTypes from "prop-types";
 import {
   Flex,
-  IconButton,
   InputGroup,
   InputLeftElement,
   Input,
   useColorModeValue,
   Image,
   Box,
-  Button,
   Avatar,
   Menu,
   MenuButton,
@@ -25,6 +23,8 @@ import useStoreConfigStore from "../../store/useStoreConfigStore";
 import { useAuth } from "../../hooks/useAuth";
 import CartHeader from "../cart/CartHeader";
 import DefaultLogo from "../Layout/DefaultLogo";
+import CustomButton from "../common/CustomButton";
+import ProfileButton from "../common/ProfileButton";
 
 /**
  * Header component for the e-commerce application.
@@ -37,9 +37,6 @@ import DefaultLogo from "../Layout/DefaultLogo";
 const Header = ({ onToggleSidebar }) => {
   const { t } = useTranslation();
   const bgColor = useColorModeValue("white", "gray.800");
-  const buttonColor = useColorModeValue("blue.500", "blue.300");
-  // const logoColor = useColorModeValue("blue.500", "blue.300");
-  //const titleColor = useColorModeValue("gray.800", "white");
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
@@ -67,13 +64,14 @@ const Header = ({ onToggleSidebar }) => {
       boxShadow="sm"
     >
       <Flex align="center" mr={5}>
-        <IconButton
+        <CustomButton
+          isIconButton
           icon={<HamburgerIcon />}
           onClick={onToggleSidebar}
           variant="outline"
           aria-label={t("toggleSidebar")}
           mr={3}
-          color={config.headerTextColor}
+          section="header"
         />
         <Flex align="center" cursor="pointer" onClick={() => navigate("/")}>
           {config.logo ? (
@@ -112,15 +110,10 @@ const Header = ({ onToggleSidebar }) => {
         {isAuthenticated ? (
           <Menu>
             <MenuButton
-              as={Button}
-              rounded={"full"}
-              variant={"link"}
-              cursor={"pointer"}
-              minW={0}
+              as={ProfileButton}
+              user={user}
               ml={4}
-            >
-              <Avatar size={"sm"} src={user.avatarUrl} name={user.name} />
-            </MenuButton>
+            />
             <MenuList>
               <MenuItem as={RouterLink} to="/profile">
                 Perfil
@@ -129,18 +122,15 @@ const Header = ({ onToggleSidebar }) => {
             </MenuList>
           </Menu>
         ) : (
-          <Button
+          <CustomButton
             as={RouterLink}
             to="/login"
-            colorScheme="blue"
-            bg={buttonColor}
-            color="white"
-            _hover={{ bg: "blue.600" }}
             ml={4}
             leftIcon={<Text fontSize="lg">👤</Text>}
+            section="header"
           >
             Iniciar Sesión
-          </Button>
+          </CustomButton>
         )}
       </Flex>
     </Flex>

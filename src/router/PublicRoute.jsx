@@ -1,9 +1,14 @@
-import { Outlet } from 'react-router-dom';
+// src/router/PublicRoute.jsx
+
+import { Outlet, useLocation } from 'react-router-dom';
 import ResponsiveLayout from '../layouts/ResponsiveLayout';
 
 const PublicRoute = () => {
+  const location = useLocation();
+  const isLandingPage = location.pathname === '/';
+
   return (
-    <ResponsiveLayout>
+    <ResponsiveLayout isLandingPage={isLandingPage}>
       <Outlet />
     </ResponsiveLayout>
   );
