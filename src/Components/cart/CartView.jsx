@@ -117,7 +117,7 @@ Total: €${getTotalPrice().toFixed(2)}`;
         duration: 5000,
         isClosable: true,
       });
-      navigate("/");
+      navigate("/home");
     } catch (error) {
       toast({
         title: "Error al procesar el pedido",
@@ -150,7 +150,7 @@ Total: €${getTotalPrice().toFixed(2)}`;
         <VStack spacing={8} align="stretch">
           <Flex justify="space-between" align="center">
             <Heading size="xl">Tu Carrito</Heading>
-            <Button leftIcon={<FaArrowLeft />} variant="ghost" as={Link} to="/">
+            <Button leftIcon={<FaArrowLeft />} variant="ghost" as={Link} to="/home">
               Seguir Comprando
             </Button>
           </Flex>

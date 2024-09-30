@@ -1,8 +1,5 @@
-import {
-  Flex,
-  Text,
-  useColorModeValue,
-} from "@chakra-ui/react";
+import PropTypes from "prop-types";
+import { Flex, Text, useColorModeValue } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import DynamicIcon from "../common/DynamicIcon";
 
@@ -34,13 +31,26 @@ const CategoryItem = ({ category, onClick }) => {
           shadow: "md",
         }}
       >
-        <DynamicIcon name={category.icon} boxSize="40px" color={iconColor} mb={2} />
+        <DynamicIcon
+          name={category.icon}
+          boxSize="40px"
+          color={iconColor}
+          mb={2}
+        />
         <Text fontWeight="medium" fontSize="sm" textAlign="center">
           {category.name}
         </Text>
       </Flex>
     </motion.div>
   );
+};
+
+CategoryItem.propTypes = {
+  category: PropTypes.shape({
+    icon: PropTypes.elementType.isRequired,
+    name: PropTypes.string.isRequired,
+  }).isRequired,
+  onClick: PropTypes.func.isRequired,
 };
 
 export default CategoryItem;

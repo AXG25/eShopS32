@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import {
   Box,
   Container,
@@ -14,12 +13,13 @@ import {
   useColorModeValue,
   useToast,
 } from '@chakra-ui/react';
+import { useState } from 'react';
 import { FaEnvelope, FaPhone, FaMapMarkerAlt } from 'react-icons/fa';
 
 const ContactUsPage = () => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const toast = useToast();
-  const bgColor = useColorModeValue('gray.50', 'gray.800');
+  //const bgColor = useColorModeValue('gray.50', 'gray.800');
   const textColor = useColorModeValue('gray.600', 'gray.200');
 
   const handleInputChange = (e) => {

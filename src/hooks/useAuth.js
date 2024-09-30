@@ -109,7 +109,7 @@ export const useAuth = () => {
       const result = await loginMutation.mutateAsync(credentials);
       const defaultRoute = result.permissions.includes("admin")
         ? "/dashboard"
-        : "/";
+        : "/home";
       const from = location.state?.from || defaultRoute;
       navigate(from, { replace: true });
       return result;

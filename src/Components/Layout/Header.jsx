@@ -73,7 +73,7 @@ const Header = ({ onToggleSidebar }) => {
           mr={3}
           section="header"
         />
-        <Flex align="center" cursor="pointer" onClick={() => navigate("/")}>
+        <Flex align="center" cursor="pointer" onClick={() => navigate("/home")}>
           {config.logo ? (
             <Image
               src={config.logo}

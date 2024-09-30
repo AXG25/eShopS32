@@ -23,7 +23,7 @@ const CategoriesPage = () => {
   ];
 
   const handleCategoryClick = (categoryId) => {
-    navigate("/", { state: { selectedCategory: categoryId } });
+    navigate("/home", { state: { selectedCategory: categoryId } });
   };
 
   return (

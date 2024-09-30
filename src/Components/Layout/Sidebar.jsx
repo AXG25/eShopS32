@@ -47,7 +47,7 @@ const Sidebar = ({ collapsed }) => {
         <VStack h="100%" justify="space-between">
           <Box flexGrow={1} width="100%" overflowY="auto">
             <Menu menuItemStyles={menuItemStyles}>
-              <MenuItem icon={<FaStore />} component={<RouterLink to="/" />}>
+              <MenuItem icon={<FaStore />} component={<RouterLink to="/home" />}>
                 Tienda
               </MenuItem>
               {/* Nuevo ítem de menú para categorías */}

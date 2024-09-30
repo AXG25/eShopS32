@@ -23,7 +23,7 @@ import {
   useColorModeValue,
   Flex,
 } from "@chakra-ui/react";
-import { FaShoppingCart, FaStar, FaRegStar, FaHeart } from "react-icons/fa";
+import {  FaStar, FaRegStar, FaHeart } from "react-icons/fa";
 import CustomButton from "../common/CustomButton";
 
 const ProductPreview = ({

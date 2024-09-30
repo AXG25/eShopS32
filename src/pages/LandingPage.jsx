@@ -1,4 +1,4 @@
-import React from "react";
+import PropTypes from "prop-types";
 import {
   Box,
   Container,
@@ -14,14 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import { Link as RouterLink } from "react-router-dom";
-import {
-  FaShippingFast,
-  FaCreditCard,
-  FaHeadset,
-  FaStar,
-  FaRocket,
-  FaUser,
-} from "react-icons/fa";
+import { FaHeadset, FaRocket, FaUser } from "react-icons/fa";
 import Footer from "../Components/Layout/Footer";
 import ContactUsPage from "./ContactUsPage";
 import InfiniteProductSlider from "../Components/product/InfiniteProductSlider";
@@ -91,7 +84,11 @@ const LandingPage = () => {
             punto de venta nos ha permitido entender y cubrir las necesidades de
             nuestros clientes
           </Text>
-          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={10} justifyItems="center">
+          <SimpleGrid
+            columns={{ base: 1, md: 3 }}
+            spacing={10}
+            justifyItems="center"
+          >
             <FeatureCard
               icon={FaUser}
               title="Implementaciones con compromiso"
@@ -144,6 +141,11 @@ const LandingPage = () => {
       <Footer />
     </Box>
   );
+};
+FeatureCard.propTypes = {
+  icon: PropTypes.elementType.isRequired,
+  title: PropTypes.string.isRequired,
+  description: PropTypes.string,
 };
 
 export default LandingPage;
