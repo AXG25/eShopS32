@@ -9,15 +9,15 @@ import {
   FormLabel,
   Input,
   Textarea,
-  Button,
   useColorModeValue,
   useToast,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import { FaEnvelope, FaPhone, FaMapMarkerAlt } from 'react-icons/fa';
+import CustomButton from '../Components/common/CustomButton';
 
 const ContactUsPage = () => {
-  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [formData, setFormData] = useState({ name: '', message: '' });
   const toast = useToast();
   //const bgColor = useColorModeValue('gray.50', 'gray.800');
   const textColor = useColorModeValue('gray.600', 'gray.200');
@@ -38,7 +38,7 @@ const ContactUsPage = () => {
       duration: 5000,
       isClosable: true,
     });
-    setFormData({ name: '', email: '', message: '' });
+    setFormData({ name: '', message: '' });
   };
 
   return (
@@ -59,14 +59,10 @@ const ContactUsPage = () => {
                     <Input name="name" value={formData.name} onChange={handleInputChange} />
                   </FormControl>
                   <FormControl isRequired>
-                    <FormLabel>Email</FormLabel>
-                    <Input name="email" type="email" value={formData.email} onChange={handleInputChange} />
-                  </FormControl>
-                  <FormControl isRequired>
                     <FormLabel>Mensaje</FormLabel>
                     <Textarea name="message" value={formData.message} onChange={handleInputChange} />
                   </FormControl>
-                  <Button type="submit" colorScheme="blue">Enviar</Button>
+                  <CustomButton type="submit" colorScheme="blue" w="100%">Enviar</CustomButton>
                 </VStack>
               </form>
             </VStack>

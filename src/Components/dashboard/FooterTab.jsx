@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   VStack,
   Heading,
@@ -11,6 +10,7 @@ import {
   Textarea,
 } from "@chakra-ui/react";
 import { FaPlus, FaTrash } from "react-icons/fa";
+import PropTypes from 'prop-types';
 
 export const FooterTab = ({ footerConfig, onFooterConfigChange }) => {
   const handleChange = (e, section, index, key) => {
@@ -98,4 +98,9 @@ export const FooterTab = ({ footerConfig, onFooterConfigChange }) => {
       </FormControl>
     </VStack>
   );
+};
+
+FooterTab.propTypes = {
+  footerConfig: PropTypes.object.isRequired,
+  onFooterConfigChange: PropTypes.func.isRequired,
 };

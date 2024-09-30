@@ -1,4 +1,3 @@
-import PropTypes from "prop-types";
 import {
   Box,
   Container,
@@ -14,10 +13,15 @@ import {
 } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import { Link as RouterLink } from "react-router-dom";
-import { FaHeadset, FaRocket, FaUser } from "react-icons/fa";
+import {
+  FaHeadset,
+  FaRocket,
+  FaUser,
+} from "react-icons/fa";
 import Footer from "../Components/Layout/Footer";
 import ContactUsPage from "./ContactUsPage";
-import InfiniteProductSlider from "../Components/product/InfiniteProductSlider";
+//import InfiniteProductSlider from "../Components/product/InfiniteProductSlider";
+import PropTypes from 'prop-types';
 
 const MotionBox = motion(Box);
 
@@ -37,9 +41,15 @@ const FeatureCard = ({ icon, title, description }) => (
   </MotionBox>
 );
 
+FeatureCard.propTypes = {
+  icon: PropTypes.element.isRequired,
+  title: PropTypes.string.isRequired,
+  description: PropTypes.string.isRequired,
+};
+
 const LandingPage = () => {
   const bgColor = useColorModeValue("gray.50", "gray.900");
-  const textColor = useColorModeValue("gray.700", "gray.200");
+  //const textColor = useColorModeValue("gray.700", "gray.200");
   const primaryColor = useColorModeValue("teal.500", "teal.300");
 
   return (
@@ -109,14 +119,14 @@ const LandingPage = () => {
       </Box>
 
       {/* Featured Products Section */}
-      <Box bg={useColorModeValue("white", "gray.800")} py={20}>
+      {/* <Box bg={useColorModeValue("white", "gray.800")} py={20}>
         <Container maxW="container.xl">
           <Heading textAlign="center" mb={10} color={primaryColor}>
             Productos Destacados
           </Heading>
           <InfiniteProductSlider />
         </Container>
-      </Box>
+      </Box> */}
 
       {/* Contact Us Section */}
       <Box py={20}>
@@ -124,7 +134,7 @@ const LandingPage = () => {
       </Box>
 
       {/* CTA Section */}
-      <Box bg={useColorModeValue("teal.100", "teal.900")} py={20}>
+      {/* <Box bg={useColorModeValue("teal.100", "teal.900")} py={20}>
         <Container maxW="container.xl" textAlign="center">
           <Heading mb={4} color={textColor}>
             ¿Listo para comprar?
@@ -136,7 +146,7 @@ const LandingPage = () => {
             Registrarse
           </Button>
         </Container>
-      </Box>
+      </Box> */}
 
       <Footer />
     </Box>

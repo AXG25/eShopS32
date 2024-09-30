@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Box,
   Container,
@@ -7,7 +6,6 @@ import {
   Text,
   Link,
   useColorModeValue,
-  Flex,
   IconButton,
 } from "@chakra-ui/react";
 import { FaTwitter, FaYoutube, FaInstagram, FaLinkedin, FaGithub, FaFacebook, FaPinterest } from "react-icons/fa";
@@ -35,7 +33,7 @@ const Footer = () => {
       <Container as={Stack} maxW={"6xl"} py={10}>
         <SimpleGrid columns={{ base: 1, sm: 2, md: 4 }} spacing={8}>
           <Stack align={"flex-start"}>
-            <Text fontWeight={"500"} fontSize={"lg"} mb={2}>
+            <Text fontWeight={"500"} fontSize={"lg"} mb={2} color={"white"}>
               {t("storeInfo")}
             </Text>
             {config.footer.storeInfo.map((info, index) => (
@@ -44,7 +42,7 @@ const Footer = () => {
           </Stack>
           
           <Stack align={"flex-start"}>
-            <Text fontWeight={"500"} fontSize={"lg"} mb={2}>
+            <Text fontWeight={"500"} fontSize={"lg"} mb={2} color={"white"}>
               {t("customerService")}
             </Text>
             {config.footer.customerService.map((service, index) => (
@@ -53,7 +51,7 @@ const Footer = () => {
           </Stack>
           
           <Stack align={"flex-start"}>
-            <Text fontWeight={"500"} fontSize={"lg"} mb={2}>
+            <Text fontWeight={"500"} fontSize={"lg"} mb={2} color={"white"}>
               {t("myAccount")}
             </Text>
             {config.footer.myAccount.map((item, index) => (
@@ -62,12 +60,12 @@ const Footer = () => {
           </Stack>
           
           <Stack align={"flex-start"}>
-            <Text fontWeight={"500"} fontSize={"lg"} mb={2}>
+            <Text fontWeight={"500"} fontSize={"lg"} mb={2} color={"white"}>
               {t("contact")}
             </Text>
-            <Text>{config.footer.contact.address}</Text>
-            <Text>{config.footer.contact.phone}</Text>
-            <Text>{config.footer.contact.email}</Text>
+            <Text color={"white"}>{config.footer.contact.address}</Text>
+            <Text color={"white"}>{config.footer.contact.phone}</Text>
+            <Text color={"white"}>{config.footer.contact.email}</Text>
           </Stack>
         </SimpleGrid>
       </Container>
@@ -82,7 +80,7 @@ const Footer = () => {
           justify={{ md: "space-between" }}
           align={{ md: "center" }}
         >
-          <Text>© {new Date().getFullYear()} {config.title}. {t("allRightsReserved")}</Text>
+          <Text color={"white"}>© {new Date().getFullYear()} {config.title}. {t("allRightsReserved")}</Text>
           <Stack direction={"row"} spacing={6}>
             {config.footer.socialLinks.map((social, index) => {
               const SocialIcon = socialIcons[social.name.toLowerCase()];

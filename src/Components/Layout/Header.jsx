@@ -7,12 +7,10 @@ import {
   useColorModeValue,
   Image,
   Box,
-  Avatar,
   Menu,
   MenuButton,
   MenuList,
   MenuItem,
-  Text,
 } from "@chakra-ui/react";
 import { SearchIcon, HamburgerIcon } from "@chakra-ui/icons";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
@@ -25,6 +23,7 @@ import CartHeader from "../cart/CartHeader";
 import DefaultLogo from "../Layout/DefaultLogo";
 import CustomButton from "../common/CustomButton";
 import ProfileButton from "../common/ProfileButton";
+import { IoMdLogIn } from "react-icons/io";
 
 /**
  * Header component for the e-commerce application.
@@ -126,7 +125,7 @@ const Header = ({ onToggleSidebar }) => {
             as={RouterLink}
             to="/login"
             ml={4}
-            leftIcon={<Text fontSize="lg">👤</Text>}
+            leftIcon={<IoMdLogIn />}
             section="header"
           >
             Iniciar Sesión

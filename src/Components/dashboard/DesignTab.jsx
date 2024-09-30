@@ -4,7 +4,6 @@ import {
   Box,
   VStack,
   Text,
-  Button,
   Slider,
   SliderTrack,
   SliderFilledTrack,
@@ -30,7 +29,6 @@ import ColorPicker from "./ColorPicker";
 import CustomButton from "../common/CustomButton";
 import useStoreConfigStore from "../../store/useStoreConfigStore";
 
-
 const ColorTab = React.memo(
   ({ localConfig, handleColorChange, handleReset }) => (
     <TabPanel>
@@ -48,13 +46,13 @@ const ColorTab = React.memo(
             />
           ))}
       </SimpleGrid>
-      <Button
+      <CustomButton
         leftIcon={<FaUndo />}
         mt={4}
         onClick={() => handleReset("Colores")}
       >
         Restablecer Colores
-      </Button>
+      </CustomButton>
     </TabPanel>
   )
 );
@@ -91,22 +89,28 @@ const FontTab = React.memo(
             <SliderThumb boxSize={6} />
           </Slider>
           <Text textAlign="center" mt={2}>
-            {localConfig.baseFontSize}px
+            {localConfig.baseFontSize}
           </Text>
         </Box>
       </VStack>
-      <Button
+      <CustomButton
         leftIcon={<FaUndo />}
         mt={4}
         onClick={() => handleReset("Tipografía")}
       >
         Restablecer Tipografía
-      </Button>
+      </CustomButton>
     </TabPanel>
   )
 );
 
-const ButtonSectionTab = ({ sectionName, localConfig, handleColorChange, handleOpacityChange, handleInputChange }) => (
+const ButtonSectionTab = ({
+  sectionName,
+  localConfig,
+  handleColorChange,
+  handleOpacityChange,
+  handleInputChange,
+}) => (
   <AccordionItem>
     <h2>
       <AccordionButton>
@@ -119,13 +123,22 @@ const ButtonSectionTab = ({ sectionName, localConfig, handleColorChange, handleO
     <AccordionPanel pb={4}>
       <VStack spacing={4} align="stretch">
         <ColorPicker
-          color={localConfig[`${sectionName}ButtonColor`] || localConfig.buttonColor}
-          onChange={(color) => handleColorChange(`${sectionName}ButtonColor`, color)}
+          color={
+            localConfig[`${sectionName}ButtonColor`] || localConfig.buttonColor
+          }
+          onChange={(color) =>
+            handleColorChange(`${sectionName}ButtonColor`, color)
+          }
           label={`Color de Botón (${sectionName})`}
         />
         <ColorPicker
-          color={localConfig[`${sectionName}ButtonTextColor`] || localConfig.buttonTextColor}
-          onChange={(color) => handleColorChange(`${sectionName}ButtonTextColor`, color)}
+          color={
+            localConfig[`${sectionName}ButtonTextColor`] ||
+            localConfig.buttonTextColor
+          }
+          onChange={(color) =>
+            handleColorChange(`${sectionName}ButtonTextColor`, color)
+          }
           label={`Color de Texto de Botón (${sectionName})`}
         />
         <Box>
@@ -136,8 +149,13 @@ const ButtonSectionTab = ({ sectionName, localConfig, handleColorChange, handleO
             min={0}
             max={1}
             step={0.1}
-            value={localConfig[`${sectionName}ButtonHoverOpacity`] || localConfig.buttonHoverOpacity}
-            onChange={(value) => handleOpacityChange(`${sectionName}ButtonHoverOpacity`, value)}
+            value={
+              localConfig[`${sectionName}ButtonHoverOpacity`] ||
+              localConfig.buttonHoverOpacity
+            }
+            onChange={(value) =>
+              handleOpacityChange(`${sectionName}ButtonHoverOpacity`, value)
+            }
           >
             <SliderTrack>
               <SliderFilledTrack />
@@ -150,8 +168,13 @@ const ButtonSectionTab = ({ sectionName, localConfig, handleColorChange, handleO
             Tamaño de Fuente del Botón ({sectionName})
           </Text>
           <Input
-            value={localConfig[`${sectionName}ButtonFontSize`] || localConfig.buttonFontSize}
-            onChange={(e) => handleInputChange(`${sectionName}ButtonFontSize`, e.target.value)}
+            value={
+              localConfig[`${sectionName}ButtonFontSize`] ||
+              localConfig.buttonFontSize
+            }
+            onChange={(e) =>
+              handleInputChange(`${sectionName}ButtonFontSize`, e.target.value)
+            }
             placeholder="ej: 16px"
           />
         </Box>
@@ -160,8 +183,16 @@ const ButtonSectionTab = ({ sectionName, localConfig, handleColorChange, handleO
             Radio de Borde del Botón ({sectionName})
           </Text>
           <Input
-            value={localConfig[`${sectionName}ButtonBorderRadius`] || localConfig.buttonBorderRadius}
-            onChange={(e) => handleInputChange(`${sectionName}ButtonBorderRadius`, e.target.value)}
+            value={
+              localConfig[`${sectionName}ButtonBorderRadius`] ||
+              localConfig.buttonBorderRadius
+            }
+            onChange={(e) =>
+              handleInputChange(
+                `${sectionName}ButtonBorderRadius`,
+                e.target.value
+              )
+            }
             placeholder="ej: 4px"
           />
         </Box>
@@ -171,21 +202,51 @@ const ButtonSectionTab = ({ sectionName, localConfig, handleColorChange, handleO
 );
 
 const ButtonTab = React.memo(
-  ({ localConfig, handleColorChange, handleOpacityChange, handleInputChange, handleReset }) => (
+  ({
+    localConfig,
+    handleColorChange,
+    handleOpacityChange,
+    handleInputChange,
+    handleReset,
+  }) => (
     <TabPanel>
       <Accordion allowMultiple>
-        <ButtonSectionTab sectionName="general" localConfig={localConfig} handleColorChange={handleColorChange} handleOpacityChange={handleOpacityChange} handleInputChange={handleInputChange} />
-        <ButtonSectionTab sectionName="header" localConfig={localConfig} handleColorChange={handleColorChange} handleOpacityChange={handleOpacityChange} handleInputChange={handleInputChange} />
-        <ButtonSectionTab sectionName="productCard" localConfig={localConfig} handleColorChange={handleColorChange} handleOpacityChange={handleOpacityChange} handleInputChange={handleInputChange} />
-        <ButtonSectionTab sectionName="cart" localConfig={localConfig} handleColorChange={handleColorChange} handleOpacityChange={handleOpacityChange} handleInputChange={handleInputChange} />
+        <ButtonSectionTab
+          sectionName="general"
+          localConfig={localConfig}
+          handleColorChange={handleColorChange}
+          handleOpacityChange={handleOpacityChange}
+          handleInputChange={handleInputChange}
+        />
+        <ButtonSectionTab
+          sectionName="header"
+          localConfig={localConfig}
+          handleColorChange={handleColorChange}
+          handleOpacityChange={handleOpacityChange}
+          handleInputChange={handleInputChange}
+        />
+        <ButtonSectionTab
+          sectionName="productCard"
+          localConfig={localConfig}
+          handleColorChange={handleColorChange}
+          handleOpacityChange={handleOpacityChange}
+          handleInputChange={handleInputChange}
+        />
+        <ButtonSectionTab
+          sectionName="cart"
+          localConfig={localConfig}
+          handleColorChange={handleColorChange}
+          handleOpacityChange={handleOpacityChange}
+          handleInputChange={handleInputChange}
+        />
       </Accordion>
-      <Button
+      <CustomButton
         leftIcon={<FaUndo />}
         mt={4}
         onClick={() => handleReset("Botones")}
       >
         Restablecer Botones
-      </Button>
+      </CustomButton>
     </TabPanel>
   )
 );
@@ -295,13 +356,13 @@ const DesignTab = ({ localConfig, setLocalConfig }) => {
         </TabPanels>
       </Tabs>
       <Box mt={6}>
-        <Button
+        <CustomButton
           leftIcon={<FaUndo />}
           colorScheme="red"
           onClick={() => handleReset()}
         >
           Restablecer Todos los Estilos
-        </Button>
+        </CustomButton>
       </Box>
       <Box mt={6} borderWidth={1} p={4} borderRadius="md">
         <Text fontWeight="bold" mb={2}>
@@ -320,8 +381,12 @@ const DesignTab = ({ localConfig, setLocalConfig }) => {
           <Text fontSize="sm">Texto pequeño</Text>
           <HStack spacing={2}>
             <CustomButton>Botón General</CustomButton>
-            <CustomButton config={localConfig.header}>Botón Header</CustomButton>
-            <CustomButton config={localConfig.productCard}>Botón Producto</CustomButton>
+            <CustomButton config={localConfig.header}>
+              Botón Header
+            </CustomButton>
+            <CustomButton config={localConfig.productCard}>
+              Botón Producto
+            </CustomButton>
             <CustomButton config={localConfig.cart}>Botón Carrito</CustomButton>
           </HStack>
         </VStack>

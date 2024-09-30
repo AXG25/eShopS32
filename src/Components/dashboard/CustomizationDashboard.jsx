@@ -8,10 +8,9 @@ import {
   TabPanels,
   Tab,
   TabPanel,
-  Button,
   useToast,
 } from "@chakra-ui/react";
-import { FaCog, FaPalette, FaBoxOpen, FaList } from "react-icons/fa";
+import { FaCog, FaPalette } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 
 import DesignTab from "./DesignTab";
@@ -20,6 +19,7 @@ import { ProductTab } from "./ProductTab";
 import { FooterTab } from "./FooterTab";
 import useStoreConfigStore from "../../store/useStoreConfigStore";
 import useProductStore from "../../store/useProductStore";
+import CustomButton from "../common/CustomButton";
 
 const MotionBox = motion(Box);
 
@@ -86,12 +86,12 @@ const CustomizationDashboard = () => {
           <Tab>
             <FaPalette /> Diseño
           </Tab>
-          <Tab>
+          {/* <Tab>
             <FaBoxOpen /> Productos
           </Tab>
           <Tab>
             <FaList /> Footer
-          </Tab>
+          </Tab> */}
         </TabList>
 
         <AnimatePresence mode="wait">
@@ -156,9 +156,9 @@ const CustomizationDashboard = () => {
       </Tabs>
 
       <Box mt={8}>
-        <Button colorScheme="blue" size="lg" onClick={handleSaveConfig}>
+        <CustomButton colorScheme="blue" size="lg" onClick={handleSaveConfig}>
           Guardar y Sincronizar Cambios
-        </Button>
+        </CustomButton>
       </Box>
     </Container>
   );

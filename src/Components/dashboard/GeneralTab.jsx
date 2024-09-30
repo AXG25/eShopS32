@@ -6,7 +6,6 @@ import {
   Text,
   Input,
   Select,
-  Switch,
   Image,
   useColorModeValue,
   Divider,
@@ -16,7 +15,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
-import { FaStore, FaLanguage, FaMoon, FaUpload } from "react-icons/fa";
+import { FaStore, FaLanguage, FaUpload } from "react-icons/fa";
 import useStoreConfigStore from "../../store/useStoreConfigStore";
 import PropTypes from "prop-types";
 
@@ -73,10 +72,10 @@ export const GeneralTab = ({ localConfig, setLocalConfig }) => {
     };
   }, [previewLanguage, config.language, i18n]);
 
-  const handleDarkModeChange = useCallback((e) => {
+  /* const handleDarkModeChange = useCallback((e) => {
     const newDarkMode = e.target.checked;
     setLocalConfig((prev) => ({ ...prev, darkMode: newDarkMode }));
-  }, []);
+  }, []); */
 
   return (
     <VStack
@@ -166,7 +165,7 @@ export const GeneralTab = ({ localConfig, setLocalConfig }) => {
         <HStack mb={4}>
           <FaLanguage size="24px" />
           <Heading as="h2" size="lg">
-            {t("languageAndLocalization")}
+            {t("language")}
           </Heading>
         </HStack>
         <VStack
@@ -190,7 +189,7 @@ export const GeneralTab = ({ localConfig, setLocalConfig }) => {
               <option value="fr">Français</option>
             </Select>
           </Box>
-          <Box>
+          {/* <Box>
             <Text fontWeight="semibold" mb={2}>
               {t("currency")}
             </Text>
@@ -203,7 +202,7 @@ export const GeneralTab = ({ localConfig, setLocalConfig }) => {
               <option value="USD">US Dollar ($)</option>
               <option value="GBP">British Pound (£)</option>
             </Select>
-          </Box>
+          </Box> */}
         </VStack>
       </Box>
     </VStack>

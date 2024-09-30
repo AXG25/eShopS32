@@ -6,10 +6,10 @@ import {
   FormControl,
   FormLabel,
   Select,
-  Button,
   useToast,
 } from "@chakra-ui/react";
 import useStoreConfigStore from "../store/useStoreConfigStore";
+import CustomButton from "../Components/common/CustomButton";
 
 const SettingsPage = () => {
   const { config, setConfig } = useStoreConfigStore();
@@ -67,9 +67,9 @@ const SettingsPage = () => {
                 <option value="GBP">British Pound (£)</option>
               </Select>
             </FormControl>
-            <Button type="submit" colorScheme="blue">
+            <CustomButton type="submit" colorScheme="blue">
               Guardar Configuración
-            </Button>
+            </CustomButton>
           </VStack>
         </form>
       </VStack>

@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Popover,
   PopoverTrigger,
@@ -8,7 +7,6 @@ import {
   Text,
   HStack,
   Image,
-  Box,
   Portal,
 } from "@chakra-ui/react";
 import { FaShoppingCart } from "react-icons/fa";
@@ -23,7 +21,7 @@ const CartHeader = () => {
     <Popover placement="bottom-end">
       <PopoverTrigger>
  
-          <CustomButton rightIcon={<FaShoppingCart />} colorScheme="blue" section="header">
+          <CustomButton leftIcon={<FaShoppingCart />} colorScheme="blue" section="header">
             Carrito ({getTotalItems()})
           </CustomButton>
     

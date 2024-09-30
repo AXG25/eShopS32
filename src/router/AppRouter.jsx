@@ -35,6 +35,7 @@ const AppRouter = () => {
         <Route path="/home" element={<HomePage />} />
         <Route path="/cart" element={<CartView />} />
         <Route path="/categorias" element={<CategoriesPage />} />
+        <Route path="/nosotros" element={<ContactUsPage />} />
       </Route>
 
       {/* Rutas públicas sin ResponsiveLayout*/}
