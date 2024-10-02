@@ -34,7 +34,7 @@ const Footer = () => {
         <SimpleGrid columns={{ base: 1, sm: 2, md: 4 }} spacing={8}>
           <Stack align={"flex-start"}>
             <Text fontWeight={"500"} fontSize={"lg"} mb={2} color={"white"}>
-              {t("storeInfo")}
+              {t("store.storeInfo")}
             </Text>
             {config.footer.storeInfo.map((info, index) => (
               <Link key={index} href={info.url}>{info.name}</Link>
@@ -43,7 +43,7 @@ const Footer = () => {
           
           <Stack align={"flex-start"}>
             <Text fontWeight={"500"} fontSize={"lg"} mb={2} color={"white"}>
-              {t("customerService")}
+              {t("footer.customerService")}
             </Text>
             {config.footer.customerService.map((service, index) => (
               <Link key={index} href={service.url}>{service.name}</Link>
@@ -52,7 +52,7 @@ const Footer = () => {
           
           <Stack align={"flex-start"}>
             <Text fontWeight={"500"} fontSize={"lg"} mb={2} color={"white"}>
-              {t("myAccount")}
+              {t("footer.myAccount")}
             </Text>
             {config.footer.myAccount.map((item, index) => (
               <Link key={index} href={item.url}>{item.name}</Link>
@@ -61,7 +61,7 @@ const Footer = () => {
           
           <Stack align={"flex-start"}>
             <Text fontWeight={"500"} fontSize={"lg"} mb={2} color={"white"}>
-              {t("contact")}
+              {t("footer.contact")}
             </Text>
             <Text color={"white"}>{config.footer.contact.address}</Text>
             <Text color={"white"}>{config.footer.contact.phone}</Text>
@@ -80,7 +80,7 @@ const Footer = () => {
           justify={{ md: "space-between" }}
           align={{ md: "center" }}
         >
-          <Text color={"white"}>© {new Date().getFullYear()} {config.title}. {t("allRightsReserved")}</Text>
+          <Text color={"white"}>© {new Date().getFullYear()} {config.title}. {t("footer.allRightsReserved")}</Text>
           <Stack direction={"row"} spacing={6}>
             {config.footer.socialLinks.map((social, index) => {
               const SocialIcon = socialIcons[social.name.toLowerCase()];

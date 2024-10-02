@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
+import PropTypes from "prop-types";
+import { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Flex,
@@ -94,7 +95,7 @@ const FilterBar = ({
             rightIcon={isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
             variant="ghost"
           >
-            {t("filters")}
+            {t("filters.title")}
           </CustomButton>
           {getActiveFiltersCount() > 0 && (
             <Badge colorScheme="blue" variant="solid" borderRadius="full">
@@ -109,7 +110,7 @@ const FilterBar = ({
           variant="ghost"
           isDisabled={getActiveFiltersCount() === 0}
         >
-          {t("clearFilters")}
+          {t("general.clearFilters")}
         </CustomButton>
       </Flex>
 
@@ -117,11 +118,11 @@ const FilterBar = ({
         <VStack spacing={4} align="stretch" mt={4}>
           <Box>
             <Text fontWeight="bold" mb={2}>
-              {t("priceRange")}
+              {t("filters.priceRange")}
             </Text>
             <HStack>
               <Input
-                placeholder={t("minPrice")}
+                placeholder={t("filters.minPrice")}
                 value={minPrice}
                 onChange={(e) => setMinPrice(e.target.value)}
                 type="number"
@@ -129,7 +130,7 @@ const FilterBar = ({
               />
               <Text>-</Text>
               <Input
-                placeholder={t("maxPrice")}
+                placeholder={t("filters.maxPrice")}
                 value={maxPrice}
                 onChange={(e) => setMaxPrice(e.target.value)}
                 type="number"
@@ -142,7 +143,7 @@ const FilterBar = ({
 
           <Box>
             <Text fontWeight="bold" mb={2}>
-              {t("category")}
+              {t("general.category")}
             </Text>
             <Select
               value={category}
@@ -163,7 +164,7 @@ const FilterBar = ({
 
           <Box>
             <Text fontWeight="bold" mb={2}>
-              {t("sortBy")}
+              {t("general.sortBy")}
             </Text>
             <Select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
               <option value="">{t("select")}</option>
@@ -179,4 +180,19 @@ const FilterBar = ({
   );
 };
 
+FilterBar.propTypes = {
+  onFilterChange: PropTypes.func.isRequired,
+  onClearFilters: PropTypes.func.isRequired,
+  products: PropTypes.arrayOf(
+    PropTypes.shape({
+      category: PropTypes.string.isRequired,
+      // Puedes agregar más propiedades del producto si es necesario
+    })
+  ).isRequired,
+  currentFilters: PropTypes.shape({
+    category: PropTypes.string,
+    sortBy: PropTypes.string,
+    priceRange: PropTypes.arrayOf(PropTypes.number).isRequired,
+  }).isRequired,
+};
 export default FilterBar;

@@ -8,18 +8,19 @@ import {
   TabPanels,
   Tab,
   TabPanel,
+  Button,
   useToast,
 } from "@chakra-ui/react";
-import { FaCog, FaPalette } from "react-icons/fa";
+import { FaCog, FaPalette, FaBoxOpen, FaList, FaHome } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 
 import DesignTab from "./DesignTab";
 import { GeneralTab } from "./GeneralTab";
 import { ProductTab } from "./ProductTab";
 import { FooterTab } from "./FooterTab";
+import LandingPageTab from "./LandingPageTab"; // Nuevo componente
 import useStoreConfigStore from "../../store/useStoreConfigStore";
 import useProductStore from "../../store/useProductStore";
-import CustomButton from "../common/CustomButton";
 
 const MotionBox = motion(Box);
 
@@ -75,6 +76,16 @@ const CustomizationDashboard = () => {
     }));
   }, []);
 
+  const handleLandingPageConfigChange = useCallback((newLandingPageConfig) => {
+    setLocalConfig((prevConfig) => ({
+      ...prevConfig,
+      landingPage: {
+        ...prevConfig.landingPage,
+        ...newLandingPageConfig,
+      },
+    }));
+  }, []);
+
   return (
     <Container maxW="container.xl" py={8}>
       <Heading mb={6}>Personalización de la Tienda</Heading>
@@ -86,12 +97,15 @@ const CustomizationDashboard = () => {
           <Tab>
             <FaPalette /> Diseño
           </Tab>
-          {/* <Tab>
+          <Tab>
             <FaBoxOpen /> Productos
           </Tab>
           <Tab>
             <FaList /> Footer
-          </Tab> */}
+          </Tab>
+          <Tab>
+            <FaHome /> Landing Page
+          </Tab>
         </TabList>
 
         <AnimatePresence mode="wait">
@@ -151,14 +165,28 @@ const CustomizationDashboard = () => {
                 />
               </MotionBox>
             </TabPanel>
+
+            <TabPanel>
+              <MotionBox
+                variants={tabVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+              >
+                <LandingPageTab
+                  landingPageConfig={localConfig.landingPage}
+                  onLandingPageConfigChange={handleLandingPageConfigChange}
+                />
+              </MotionBox>
+            </TabPanel>
           </TabPanels>
         </AnimatePresence>
       </Tabs>
 
       <Box mt={8}>
-        <CustomButton colorScheme="blue" size="lg" onClick={handleSaveConfig}>
+        <Button colorScheme="blue" size="lg" onClick={handleSaveConfig}>
           Guardar y Sincronizar Cambios
-        </CustomButton>
+        </Button>
       </Box>
     </Container>
   );

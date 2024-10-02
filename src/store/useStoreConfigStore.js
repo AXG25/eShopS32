@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { changeLanguage } from "../i18n";
 import axios from "axios";
+import { FaHeadset, FaRocket, FaUser } from "react-icons/fa";
 
 const defaultConfig = {
   title: "Mi E-commerce",
@@ -21,7 +22,6 @@ const defaultConfig = {
   language: "es",
   currency: "EUR",
   mainFont: "'Roboto', sans-serif",
-  //new
   footer: {
     storeInfo: [
       { name: "Sobre Nosotros", url: "/about" },
@@ -52,6 +52,35 @@ const defaultConfig = {
       { name: "Pinterest", url: "https://pinterest.com" },
     ],
   },
+  // Nueva sección para la configuración de la Landing Page
+  landingPage: {
+    heroBgGradient: "linear(to-r, teal.500, blue.500)",
+    heroTextColor: "white",
+    heroTitle: "Software administrativo enterprise",
+    heroSubtitle: "La solución informática pensada para su empresa",
+    heroButtonText: "Explorar Productos",
+    heroButtonColorScheme: "teal",
+    heroImage: "/featured-product.png",
+    featuresTitle: "Por qué elegirnos",
+    featuresSubtitle: "16 años de experiencia en la industria del software administrativo y punto de venta nos ha permitido entender y cubrir las necesidades de nuestros clientes",
+    features: [
+      {
+        icon: FaUser,
+        title: "Implementaciones con compromiso",
+        description: "Al adquirir uno de nuestros productos va a experimentar cómo nuestros analistas de soportes y los distribuidores autorizados le dan el acompañamiento que necesite."
+      },
+      {
+        icon: FaRocket,
+        title: "System32 es fácil de usar",
+        description: "Nuestra interfaz de usuario está detalladamente trabajada para que su aprendizaje sea intuitivo. Desde su creación nuestro software se ha caracterizado por su diseño."
+      },
+      {
+        icon: FaHeadset,
+        title: "Soporte técnico de valor",
+        description: "Constantemente capacitamos a nuestro personal y a nuestros distribuidores con los programas informáticos de System32 para que puedan dar respuesta oportuna y eficaz para evitar que su empresa se mantenga operativa."
+      }
+    ]
+  }
 };
 
 const useStoreConfigStore = create(
@@ -144,6 +173,18 @@ const useStoreConfigStore = create(
             footer: {
               ...state.config.footer,
               ...newFooterConfig,
+            },
+          },
+        }));
+      },
+      // Nueva función para actualizar la configuración de la Landing Page
+      updateLandingPageConfig: (newLandingPageConfig) => {
+        set((state) => ({
+          config: {
+            ...state.config,
+            landingPage: {
+              ...state.config.landingPage,
+              ...newLandingPageConfig,
             },
           },
         }));

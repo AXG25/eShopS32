@@ -68,7 +68,7 @@ const Header = ({ onToggleSidebar }) => {
           icon={<HamburgerIcon />}
           onClick={onToggleSidebar}
           variant="outline"
-          aria-label={t("toggleSidebar")}
+          aria-label={t("navigation.toggleSidebar")}
           mr={3}
           section="header"
         />
@@ -76,7 +76,7 @@ const Header = ({ onToggleSidebar }) => {
           {config.logo ? (
             <Image
               src={config.logo}
-              alt={t("logo")}
+              alt={t("store.logo")}
               boxSize="40px"
               objectFit="contain"
               mr={2}
@@ -87,7 +87,7 @@ const Header = ({ onToggleSidebar }) => {
             </Box>
           )}
           <Box fontWeight="bold" fontSize="xl" color={config.headerTextColor}>
-            {config.title || t("myEcommerce")}
+            {config.title || t("store.myEcommerce")}
           </Box>
         </Flex>
       </Flex>
@@ -97,7 +97,7 @@ const Header = ({ onToggleSidebar }) => {
           <SearchIcon color="gray.400" />
         </InputLeftElement>
         <Input
-          placeholder={t("searchProducts")}
+          placeholder={t("store.searchProducts")}
           borderRadius="full"
           onChange={(e) => setSearchTerm(e.target.value)}
           onKeyPress={(e) => e.key === "Enter" && handleSearch()}

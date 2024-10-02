@@ -20,7 +20,13 @@ import {
   Checkbox,
   Textarea,
 } from "@chakra-ui/react";
-import { FaTrash, FaPlus, FaMinus, FaArrowLeft, FaWhatsapp } from "react-icons/fa";
+import {
+  FaTrash,
+  FaPlus,
+  FaMinus,
+  FaArrowLeft,
+  FaWhatsapp,
+} from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import useCartStore from "../../store/useCartStore";
 import { useAuth } from "../../hooks/useAuth";
@@ -30,7 +36,8 @@ import axios from "axios";
 const MotionBox = motion(Box);
 
 const CartView = () => {
-  const { items, removeFromCart, updateQuantity, getTotalPrice, clearCart } = useCartStore();
+  const { items, removeFromCart, updateQuantity, getTotalPrice, clearCart } =
+    useCartStore();
   const { isAuthenticated } = useAuth();
   const cardBgColor = useColorModeValue("white", "gray.600");
   const textColor = useColorModeValue("gray.600", "gray.200");
@@ -47,9 +54,9 @@ const CartView = () => {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setOrderForm(prev => ({
+    setOrderForm((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
@@ -75,7 +82,12 @@ const CartView = () => {
     }
 
     // Validar el formulario
-    if (!orderForm.cedula || !orderForm.telefono || (orderForm.requiresDelivery && (!orderForm.nombre || !orderForm.direccion))) {
+    if (
+      !orderForm.cedula ||
+      !orderForm.telefono ||
+      (orderForm.requiresDelivery &&
+        (!orderForm.nombre || !orderForm.direccion))
+    ) {
       toast({
         title: "Formulario incompleto",
         description: "Por favor, completa todos los campos requeridos.",
@@ -95,18 +107,26 @@ const CartView = () => {
 
     try {
       // Enviar datos al endpoint
-      await axios.post('/api/orders', orderData);
+      await axios.post("/api/orders", orderData);
 
       // Enviar mensaje a WhatsApp
       const whatsappMessage = `Nuevo pedido:\n
 Cédula: ${orderForm.cedula}
 Teléfono: ${orderForm.telefono}
-${orderForm.requiresDelivery ? `Nombre: ${orderForm.nombre}\nDirección: ${orderForm.direccion}` : ''}
-Productos:\n${items.map(item => `- ${item.title} (x${item.quantity})`).join('\n')}
+${
+  orderForm.requiresDelivery
+    ? `Nombre: ${orderForm.nombre}\nDirección: ${orderForm.direccion}`
+    : ""
+}
+Productos:\n${items
+        .map((item) => `- ${item.title} (x${item.quantity})`)
+        .join("\n")}
 Total: €${getTotalPrice().toFixed(2)}`;
 
-      const whatsappUrl = `https://wa.me/NUMERO_DEL_ADMINISTRADOR?text=${encodeURIComponent(whatsappMessage)}`;
-      window.open(whatsappUrl, '_blank');
+      const whatsappUrl = `https://wa.me/NUMERO_DEL_ADMINISTRADOR?text=${encodeURIComponent(
+        whatsappMessage
+      )}`;
+      window.open(whatsappUrl, "_blank");
 
       // Limpiar el carrito y mostrar mensaje de éxito
       clearCart();
@@ -121,7 +141,8 @@ Total: €${getTotalPrice().toFixed(2)}`;
     } catch (error) {
       toast({
         title: "Error al procesar el pedido",
-        description: "Hubo un problema al enviar tu pedido. Por favor, intenta de nuevo.",
+        description:
+          "Hubo un problema al enviar tu pedido. Por favor, intenta de nuevo.",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -150,7 +171,12 @@ Total: €${getTotalPrice().toFixed(2)}`;
         <VStack spacing={8} align="stretch">
           <Flex justify="space-between" align="center">
             <Heading size="xl">Tu Carrito</Heading>
-            <Button leftIcon={<FaArrowLeft />} variant="ghost" as={Link} to="/home">
+            <Button
+              leftIcon={<FaArrowLeft />}
+              variant="ghost"
+              as={Link}
+              to="/home"
+            >
               Seguir Comprando
             </Button>
           </Flex>
@@ -191,7 +217,9 @@ Total: €${getTotalPrice().toFixed(2)}`;
                     <HStack>
                       <IconButton
                         icon={<FaMinus />}
-                        onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
+                        onClick={() =>
+                          handleQuantityChange(item.id, item.quantity - 1)
+                        }
                         size="sm"
                         variant="outline"
                       />
@@ -200,7 +228,9 @@ Total: €${getTotalPrice().toFixed(2)}`;
                       </Text>
                       <IconButton
                         icon={<FaPlus />}
-                        onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
+                        onClick={() =>
+                          handleQuantityChange(item.id, item.quantity + 1)
+                        }
                         size="sm"
                         variant="outline"
                       />
@@ -221,24 +251,44 @@ Total: €${getTotalPrice().toFixed(2)}`;
                 <Heading size="md">Información del Pedido</Heading>
                 <FormControl isRequired>
                   <FormLabel>Cédula</FormLabel>
-                  <Input name="cedula" value={orderForm.cedula} onChange={handleInputChange} />
+                  <Input
+                    name="cedula"
+                    value={orderForm.cedula}
+                    onChange={handleInputChange}
+                  />
                 </FormControl>
                 <FormControl isRequired>
                   <FormLabel>Teléfono</FormLabel>
-                  <Input name="telefono" value={orderForm.telefono} onChange={handleInputChange} />
+                  <Input
+                    name="telefono"
+                    value={orderForm.telefono}
+                    onChange={handleInputChange}
+                  />
                 </FormControl>
-                <Checkbox name="requiresDelivery" isChecked={orderForm.requiresDelivery} onChange={handleInputChange}>
+                <Checkbox
+                  name="requiresDelivery"
+                  isChecked={orderForm.requiresDelivery}
+                  onChange={handleInputChange}
+                >
                   ¿Requiere envío?
                 </Checkbox>
                 {orderForm.requiresDelivery && (
                   <>
                     <FormControl isRequired>
                       <FormLabel>Nombre</FormLabel>
-                      <Input name="nombre" value={orderForm.nombre} onChange={handleInputChange} />
+                      <Input
+                        name="nombre"
+                        value={orderForm.nombre}
+                        onChange={handleInputChange}
+                      />
                     </FormControl>
                     <FormControl isRequired>
                       <FormLabel>Dirección</FormLabel>
-                      <Textarea name="direccion" value={orderForm.direccion} onChange={handleInputChange} />
+                      <Textarea
+                        name="direccion"
+                        value={orderForm.direccion}
+                        onChange={handleInputChange}
+                      />
                     </FormControl>
                   </>
                 )}
@@ -258,8 +308,15 @@ Total: €${getTotalPrice().toFixed(2)}`;
                     Vaciar Carrito
                   </Button>
                 </VStack>
-                <Button colorScheme="blue" size="lg" onClick={handleCheckout} leftIcon={<FaWhatsapp />}>
-                  {isAuthenticated ? "Realizar Pedido" : "Iniciar Sesión para Comprar"}
+                <Button
+                  colorScheme="blue"
+                  size="lg"
+                  onClick={handleCheckout}
+                  leftIcon={<FaWhatsapp />}
+                >
+                  {isAuthenticated
+                    ? "Realizar Pedido"
+                    : "Iniciar Sesión para Comprar"}
                 </Button>
               </Flex>
             </>

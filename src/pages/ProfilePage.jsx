@@ -41,14 +41,14 @@ const ProfilePage = () => {
       await updateUser(formData);
       setIsEditing(false);
       toast({
-        title: t("profileUpdated"),
+        title: t("auth.profileUpdated"),
         status: "success",
         duration: 3000,
         isClosable: true,
       });
     } catch (error) {
       toast({
-        title: t("updateError"),
+        title: t("auth.updateError"),
         description: error.message,
         status: "error",
         duration: 3000,
@@ -70,7 +70,7 @@ const ProfilePage = () => {
       <VStack spacing={6} align="stretch">
         <HStack justify="space-between" align="center">
           <Heading size="xl" color={textColor}>
-            {t("userProfile")}
+            {t("user.userProfile")}
           </Heading>
           <Avatar size="xl" src={user.avatarUrl} name={user.name} />
         </HStack>
@@ -80,7 +80,7 @@ const ProfilePage = () => {
         <form onSubmit={handleSubmit}>
           <VStack spacing={4} align="stretch">
             <FormControl>
-              <FormLabel>{t("name")}</FormLabel>
+              <FormLabel>{t("general.name")}</FormLabel>
               <Input
                 name="name"
                 value={formData.name}
@@ -90,7 +90,7 @@ const ProfilePage = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel>{t("email")}</FormLabel>
+              <FormLabel>{t("auth.email")}</FormLabel>
               <Input
                 name="email"
                 value={formData.email}
@@ -118,7 +118,7 @@ const ProfilePage = () => {
                 colorScheme="blue"
                 mt={4}
               >
-                {t("editProfile")}
+                {t("user.editProfile")}
               </CustomButton>
             )}
           </VStack>
@@ -128,20 +128,20 @@ const ProfilePage = () => {
 
         <VStack align="stretch" spacing={3}>
           <Heading size="md" color={textColor}>
-            {t("accountInfo")}
+            {t("user.accountInfo")}
           </Heading>
           <Text>
-            <strong>{t("memberSince")}:</strong>{" "}
+            <strong>{t("user.memberSince")}:</strong>{" "}
             {new Date(user.createdAt).toLocaleDateString()}
           </Text>
           <Text>
-            <strong>{t("lastLogin")}:</strong>{" "}
+            <strong>{t("user.lastLogin")}:</strong>{" "}
             {new Date(user.lastLogin).toLocaleDateString()}
           </Text>
         </VStack>
 
         <CustomButton variant="outline" colorScheme="red">
-          {t("deleteAccount")}
+          {t("user.deleteAccount")}
         </CustomButton>
       </VStack>
     </Box>

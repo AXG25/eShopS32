@@ -47,27 +47,27 @@ const ImageUpload = ({ onImageUpload, initialImage }) => {
         <Input {...getInputProps()} />
         <VStack spacing={3}>
           {image ? (
-            <Image src={image} alt={t('productImage')} maxH="200px" objectFit="contain" />
+            <Image src={image} alt={t('products.productImage')} maxH="200px" objectFit="contain" />
           ) : (
             <Icon as={FaCloudUploadAlt} w={12} h={12} color={textColor} />
           )}
           <Text fontWeight="medium">
-            {isDragActive ? t('dropImageHere') : t('dragDropImage')}
+            {isDragActive ? t('ui.dragAndDropImage') : t('ui.dropImageHere')}
           </Text>
           <Text fontSize="sm" color={textColor}>
-            {t('or')}
+            {t('general.or')}
           </Text>
           <CustomButton
             leftIcon={<FaImage />}
             onClick={(e) => e.stopPropagation()}
           >
-            {t('selectImage')}
+            {t('ui.selectImage')}
           </CustomButton>
         </VStack>
       </Box>
       {image && (
         <Text mt={2} fontSize="sm" color={textColor}>
-          {t('imageSelected')}
+          {t('ui.imageSelected')}
         </Text>
       )}
     </Box>

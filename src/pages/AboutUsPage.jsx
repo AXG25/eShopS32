@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Box,
   Container,
@@ -6,7 +5,6 @@ import {
   Text,
   Image,
   VStack,
-  HStack,
   SimpleGrid,
   useColorModeValue,
   Icon,
@@ -14,7 +12,8 @@ import {
 import { motion } from 'framer-motion';
 import { FaUsers, FaLightbulb, FaHandshake, FaLeaf } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
-import CustomButton from '../components/common/CustomButton';
+import CustomButton from '../Components/common/CustomButton';
+import PropTypes from 'prop-types';
 
 const MotionBox = motion(Box);
 
@@ -48,7 +47,7 @@ const AboutUsPage = () => {
       <Container maxW="container.xl">
         <VStack spacing={12} align="stretch">
           <Heading as="h1" size="2xl" textAlign="center" mb={6}>
-            {t('aboutUsTitle')}
+            {t('about.aboutUsTitle')}
           </Heading>
           
           <SimpleGrid columns={{ base: 1, md: 2 }} spacing={10}>
@@ -61,65 +60,71 @@ const AboutUsPage = () => {
             />
             <VStack align="start" justify="center" spacing={6}>
               <Heading as="h2" size="xl">
-                {t('ourHistory')}
+                {t('about.ourHistory')}
               </Heading>
               <Text color={textColor}>
-                {t('historyText')}
+                {t('about.historyText')}
               </Text>
-              <CustomButton>{t('learnMore')}</CustomButton>
+              <CustomButton>{t('about.learnMore')}</CustomButton>
             </VStack>
           </SimpleGrid>
 
           <Box>
             <Heading as="h2" size="xl" textAlign="center" mb={8}>
-              {t('ourMission')}
+              {t('about.ourMission')}
             </Heading>
             <Text fontSize="xl" textAlign="center" maxW="2xl" mx="auto" color={textColor}>
-              {t('missionText')}
+              {t('about.missionText')}
             </Text>
           </Box>
 
           <Box>
             <Heading as="h2" size="xl" textAlign="center" mb={8}>
-              {t('ourValues')}
+              {t('about.ourValues')}
             </Heading>
             <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
               <ValueCard
                 icon={FaUsers}
-                title={t('teamwork')}
+                title={t('about.teamwork')}
                 description={t('teamworkDesc')}
               />
               <ValueCard
                 icon={FaLightbulb}
-                title={t('innovation')}
-                description={t('innovationDesc')}
+                title={t('about.innovation')}
+                description={t('about.innovationDesc')}
               />
               <ValueCard
                 icon={FaHandshake}
-                title={t('integrity')}
-                description={t('integrityDesc')}
+                title={t('about.integrity')}
+                description={t('about.integrityDesc')}
               />
               <ValueCard
                 icon={FaLeaf}
-                title={t('sustainability')}
-                description={t('sustainabilityDesc')}
+                title={t('about.sustainability')}
+                description={t('about.sustainabilityDesc')}
               />
             </SimpleGrid>
           </Box>
 
           <Box textAlign="center">
             <Heading as="h2" size="xl" mb={6}>
-              {t('joinOurTeam')}
+              {t('about.joinOurTeam')}
             </Heading>
             <Text fontSize="lg" mb={6} color={textColor}>
-              {t('joinTeamText')}
+              {t('about.joinTeamText')}
             </Text>
-            <CustomButton size="lg">{t('viewOpenings')}</CustomButton>
+            <CustomButton size="lg">{t('about.viewOpenings')}</CustomButton>
           </Box>
         </VStack>
       </Container>
     </Box>
   );
+};
+
+ValueCard.propTypes = {
+  icon: PropTypes.elementType.isRequired,
+  title: PropTypes.string.isRequired,
+  description: PropTypes.string.isRequired
 };
 
 export default AboutUsPage;

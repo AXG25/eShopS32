@@ -90,7 +90,7 @@ export const GeneralTab = ({ localConfig, setLocalConfig }) => {
         <HStack mb={4}>
           <FaStore size="24px" />
           <Heading as="h2" size="lg">
-            {t("storeInformation")}
+            {t("store.information")}
           </Heading>
         </HStack>
         <VStack
@@ -102,31 +102,31 @@ export const GeneralTab = ({ localConfig, setLocalConfig }) => {
         >
           <Box>
             <Text fontWeight="semibold" mb={2}>
-              {t("storeTitle")}
+              {t("store.title")}
             </Text>
             <Input
               name="title"
               value={localConfig.title}
               onChange={handleConfigChange}
-              placeholder={t("enterStoreTitle")}
+              placeholder={t("store.enterTitle")}
             />
           </Box>
           <Box>
             <Text fontWeight="semibold" mb={2}>
-              {t("storeDescription")}
+              {t("store.description")}
             </Text>
             <Input
               name="description"
               value={localConfig.description}
               onChange={handleConfigChange}
-              placeholder={t("enterStoreDescription")}
+              placeholder={t("store.enterDescription")}
             />
           </Box>
           <Box>
             <Text fontWeight="semibold" mb={2}>
-              {t("storeLogo")}
+              {t("store.logo")}
             </Text>
-            <Tooltip label={t("dragAndDropImage")}>
+            <Tooltip label={t("ui.dragAndDropImage")}>
               <Box
                 {...getRootProps()}
                 border="2px dashed"
@@ -138,11 +138,11 @@ export const GeneralTab = ({ localConfig, setLocalConfig }) => {
               >
                 <input {...getInputProps()} />
                 {isDragActive ? (
-                  <Text>{t("dropImageHere")}</Text>
+                  <Text>{t("ui.dropImageHere")}</Text>
                 ) : (
                   <HStack justify="center">
                     <FaUpload />
-                    <Text>{t("uploadLogo")}</Text>
+                    <Text>{t("store.uploadLogo")}</Text>
                   </HStack>
                 )}
               </Box>
@@ -150,7 +150,7 @@ export const GeneralTab = ({ localConfig, setLocalConfig }) => {
             {localConfig.logo && (
               <Image
                 src={localConfig.logo}
-                alt={t("logoPreview")}
+                alt={t("store.logoPreview")}
                 maxH="100px"
                 mt={2}
               />
@@ -165,7 +165,7 @@ export const GeneralTab = ({ localConfig, setLocalConfig }) => {
         <HStack mb={4}>
           <FaLanguage size="24px" />
           <Heading as="h2" size="lg">
-            {t("language")}
+            {t("store.language")}
           </Heading>
         </HStack>
         <VStack
@@ -177,7 +177,7 @@ export const GeneralTab = ({ localConfig, setLocalConfig }) => {
         >
           <Box>
             <Text fontWeight="semibold" mb={2}>
-              {t("mainLanguage")}
+              {t("store.mainLanguage")}
             </Text>
             <Select
               name="language"

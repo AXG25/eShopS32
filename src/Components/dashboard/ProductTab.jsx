@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import { useState, useCallback } from "react";
 import {
   Box,
@@ -67,29 +68,29 @@ const ProductModal = ({ isOpen, onClose, product, onSave }) => {
     <Modal isOpen={isOpen} onClose={onClose} size="5xl">
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>{product ? t("editProduct") : t("addNewProduct")}</ModalHeader>
+        <ModalHeader>{product ? t("products.editProduct") : t("products.addNewProduct")}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <Flex>
             <Box flex="3" pr={8}>
               <VStack spacing={4} align="stretch">
                 <FormControl isRequired>
-                  <FormLabel>{t("productName")}</FormLabel>
+                  <FormLabel>{t("products.productName")}</FormLabel>
                   <Input name="title" value={formData.title} onChange={handleChange} />
                 </FormControl>
                 <FormControl isRequired>
-                  <FormLabel>{t("description")}</FormLabel>
+                  <FormLabel>{t("general.description")}</FormLabel>
                   <Textarea name="description" value={formData.description} onChange={handleChange} rows={4} />
                 </FormControl>
                 <HStack>
                   <FormControl isRequired>
-                    <FormLabel>{t("price")}</FormLabel>
+                    <FormLabel>{t("general.price")}</FormLabel>
                     <Input name="price" type="number" value={formData.price} onChange={handleChange} />
                   </FormControl>
                   <FormControl isRequired>
-                    <FormLabel>{t("category")}</FormLabel>
+                    <FormLabel>{t("general.category")}</FormLabel>
                     <Select name="category" value={formData.category} onChange={handleChange}>
-                      <option value="">{t("selectCategory")}</option>
+                      <option value="">{t("products.selectCategory")}</option>
                       <option value="electronics">{t("electronics")}</option>
                       <option value="jewelery">{t("jewelery")}</option>
                       <option value="men's clothing">{t("menClothing")}</option>
@@ -101,7 +102,7 @@ const ProductModal = ({ isOpen, onClose, product, onSave }) => {
             </Box>
             <Box flex="2">
               <FormControl>
-                <FormLabel>{t("productImage")}</FormLabel>
+                <FormLabel>{t("products.productImage")}</FormLabel>
                 <ImageUpload
                   onImageUpload={handleImageUpload}
                   initialImage={formData.image}
@@ -112,10 +113,10 @@ const ProductModal = ({ isOpen, onClose, product, onSave }) => {
         </ModalBody>
         <ModalFooter>
           <CustomButton onClick={handleSubmit} colorScheme="blue" mr={3}>
-            {product ? t("update") : t("add")}
+            {product ? t("general.update") : t("general.add")}
           </CustomButton>
           <CustomButton variant="ghost" onClick={onClose}>
-            {t("cancel")}
+            {t("general.cancel")}
           </CustomButton>
         </ModalFooter>
       </ModalContent>
@@ -142,7 +143,7 @@ export const ProductTab = () => {
     },
     onSuccess: (data) => {
       queryClient.setQueryData(["products"], (oldData) => [...oldData, data]);
-      toast({ title: t("productAdded"), status: "success" });
+      toast({ title: t("products.productAdded"), status: "success" });
       onClose();
     },
   });
@@ -156,7 +157,7 @@ export const ProductTab = () => {
       queryClient.setQueryData(["products"], (oldData) =>
         oldData.map((item) => (item.id === data.id ? data : item))
       );
-      toast({ title: t("productUpdated"), status: "success" });
+      toast({ title: t("products.productUpdated"), status: "success" });
       onClose();
     },
   });
@@ -170,7 +171,7 @@ export const ProductTab = () => {
       queryClient.setQueryData(["products"], (oldData) =>
         oldData.filter((item) => item.id !== id)
       );
-      toast({ title: t("productDeleted"), status: "success" });
+      toast({ title: t("products.productDeleted"), status: "success" });
     },
   });
 
@@ -188,28 +189,28 @@ export const ProductTab = () => {
   }, [onOpen]);
 
   const handleDelete = useCallback((id) => {
-    if (window.confirm(t("confirmDelete"))) {
+    if (window.confirm(t("confirmDelete.confirmDelete"))) {
       deleteMutation.mutate(id);
     }
   }, [deleteMutation, t]);
 
   if (isLoading) return <Spinner />;
-  if (error) return <Text color="red.500">{t("errorLoadingProducts")}: {error.message}</Text>;
+  if (error) return <Text color="red.500">{t("products.errorLoadingProducts")}: {error.message}</Text>;
 
   return (
     <Box>
       <CustomButton onClick={() => { setCurrentProduct(null); onOpen(); }} mb={4}>
-        {t("addNewProduct")}
+        {t("products.addNewProduct")}
       </CustomButton>
 
       <Table variant="simple">
         <Thead>
           <Tr>
-            <Th>{t("image")}</Th>
-            <Th>{t("name")}</Th>
-            <Th>{t("price")}</Th>
-            <Th>{t("category")}</Th>
-            <Th>{t("actions")}</Th>
+            <Th>{t("general.image")}</Th>
+            <Th>{t("general.name")}</Th>
+            <Th>{t("general.price")}</Th>
+            <Th>{t("general.category")}</Th>
+            <Th>{t("general.actions")}</Th>
           </Tr>
         </Thead>
         <Tbody>
@@ -223,10 +224,10 @@ export const ProductTab = () => {
               <Td>{product.category}</Td>
               <Td>
                 <CustomButton size="sm" onClick={() => handleEdit(product)} mr={2}>
-                  {t("edit")}
+                  {t("general.edit")}
                 </CustomButton>
                 <CustomButton size="sm" colorScheme="red" onClick={() => handleDelete(product.id)}>
-                  {t("delete")}
+                  {t("general.delete")}
                 </CustomButton>
               </Td>
             </Tr>
@@ -242,6 +243,23 @@ export const ProductTab = () => {
       />
     </Box>
   );
+};
+
+ProductModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  product: PropTypes.shape({
+    title: PropTypes.string,
+    description: PropTypes.string,
+    price: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    category: PropTypes.string,
+    image: PropTypes.string,
+  }),
+  onSave: PropTypes.func.isRequired,
+};
+
+ProductModal.defaultProps = {
+  product: null,
 };
 
 export default ProductTab;

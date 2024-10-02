@@ -38,7 +38,7 @@ const TermsAndConditionsPage = () => {
         <VStack spacing={8} align="stretch">
           <Flex justifyContent="space-between" alignItems="center">
             <Heading as="h1" size="2xl" color={headingColor}>
-              {t('termsAndConditions')}
+              {t('footer.termsAndConditions')}
             </Heading>
             <Button
               leftIcon={<FaHome />}
@@ -46,7 +46,7 @@ const TermsAndConditionsPage = () => {
               onClick={() => navigate('/')}
               size="lg"
             >
-              {t('backToHome')}
+              {t('general.backToHome')}
             </Button>
           </Flex>
 
@@ -54,49 +54,49 @@ const TermsAndConditionsPage = () => {
 
           <Box {...sectionStyle}>
             <Heading as="h2" size="lg" mb={4} color={headingColor}>
-              {t('introduction')}
+              {t('terms.introduction')}
             </Heading>
-            <Text color={textColor}>{t('termsIntroduction')}</Text>
+            <Text color={textColor}>{t('terms.termsIntroduction')}</Text>
           </Box>
 
           <Box {...sectionStyle}>
             <Heading as="h2" size="lg" mb={4} color={headingColor}>
-              {t('useOfService')}
+              {t('terms.useOfService')}
             </Heading>
-            <Text color={textColor}>{t('useOfServiceDescription')}</Text>
+            <Text color={textColor}>{t('terms.useOfServiceDescription')}</Text>
             <UnorderedList mt={4} spacing={2}>
-              <ListItem>{t('useOfServiceItem1')}</ListItem>
-              <ListItem>{t('useOfServiceItem2')}</ListItem>
-              <ListItem>{t('useOfServiceItem3')}</ListItem>
+              <ListItem>{t('terms.useOfServiceItem1')}</ListItem>
+              <ListItem>{t('terms.useOfServiceItem2')}</ListItem>
+              <ListItem>{t('terms.useOfServiceItem3')}</ListItem>
             </UnorderedList>
           </Box>
 
           <Box {...sectionStyle}>
             <Heading as="h2" size="lg" mb={4} color={headingColor}>
-              {t('privacyPolicy')}
+              {t('terms.privacyPolicy')}
             </Heading>
-            <Text color={textColor}>{t('privacyPolicyDescription')}</Text>
+            <Text color={textColor}>{t('terms.privacyPolicyDescription')}</Text>
           </Box>
 
           <Box {...sectionStyle}>
             <Heading as="h2" size="lg" mb={4} color={headingColor}>
-              {t('intellectualProperty')}
+              {t('terms.intellectualProperty')}
             </Heading>
-            <Text color={textColor}>{t('intellectualPropertyDescription')}</Text>
+            <Text color={textColor}>{t('terms.intellectualPropertyDescription')}</Text>
           </Box>
 
           <Box {...sectionStyle}>
             <Heading as="h2" size="lg" mb={4} color={headingColor}>
-              {t('limitationOfLiability')}
+              {t('terms.limitationOfLiability')}
             </Heading>
-            <Text color={textColor}>{t('limitationOfLiabilityDescription')}</Text>
+            <Text color={textColor}>{t('terms.limitationOfLiabilityDescription')}</Text>
           </Box>
 
           <Box {...sectionStyle}>
             <Heading as="h2" size="lg" mb={4} color={headingColor}>
-              {t('governingLaw')}
+              {t('terms.governingLaw')}
             </Heading>
-            <Text color={textColor}>{t('governingLawDescription')}</Text>
+            <Text color={textColor}>{t('terms.governingLawDescription')}</Text>
           </Box>
 
           <Flex justifyContent="center" mt={8}>
@@ -106,7 +106,7 @@ const TermsAndConditionsPage = () => {
               onClick={() => navigate('/')}
               size="lg"
             >
-              {t('backToHome')}
+              {t('general.backToHome')}
             </Button>
           </Flex>
         </VStack>
