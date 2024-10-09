@@ -23,7 +23,7 @@ import env from "../config/env";
 const MotionBox = motion(Box);
 
 const fetchProducts = async () => {
-  const allProductsUrl = env.PRODUCTS.BASE();
+  const allProductsUrl = env.PRODUCTS.BASE
   const { data: {products} } = await axios.get(allProductsUrl);
 
   return products;
