@@ -65,7 +65,7 @@ const CategoriesPage = () => {
             <CategoryItem
               key={category.id}
               category={category}
-              onClick={() => handleCategoryClick(category.id)}
+              onClick={() => handleCategoryClick(category.name)}
             />
           ))}
         </SimpleGrid>

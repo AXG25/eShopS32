@@ -47,7 +47,7 @@ const env = generateFullUrls({
 
   PRODUCTS: {
     BASE: "/products",
-    CATEGORIES: "/store/montallantas/categories",
+    CATEGORIES: "/store/s3/categories",
     SYNC: "/sync",
   },
 

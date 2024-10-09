@@ -17,24 +17,33 @@ import { ChevronDownIcon, ChevronUpIcon, CloseIcon } from "@chakra-ui/icons";
 import { useTranslation } from "react-i18next";
 import CustomButton from "../common/CustomButton";
 import { debounce } from "lodash";
+import axios from "axios";
+import env from "../../config/env";
 
-const FilterBar = ({
-  onFilterChange,
-  onClearFilters,
-  products,
-  currentFilters,
-}) => {
+const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
   const { t } = useTranslation();
   const { isOpen, onToggle } = useDisclosure();
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [category, setCategory] = useState(currentFilters.category || "");
   const [sortBy, setSortBy] = useState(currentFilters.sortBy || "");
+  const [categories, setCategories] = useState([]);
 
-  const categories = [
-    "",
-    ...new Set(products.map((product) => product.category)),
-  ];
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get(env.PRODUCTS.CATEGORIES);
+        // Asegúrate de que todas las categorías sean strings
+        const processedCategories = response.data.map(cat => 
+          typeof cat === 'string' ? cat : JSON.stringify(cat)
+        );
+        setCategories(["", ...processedCategories]);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const debouncedFilterChange = useCallback(
     debounce((filters) => {
@@ -154,7 +163,7 @@ const FilterBar = ({
                 .filter((cat) => cat !== "")
                 .map((cat) => (
                   <option key={cat} value={cat}>
-                    {t(cat.toLowerCase())}
+                    {cat}
                   </option>
                 ))}
             </Select>
@@ -183,16 +192,11 @@ const FilterBar = ({
 FilterBar.propTypes = {
   onFilterChange: PropTypes.func.isRequired,
   onClearFilters: PropTypes.func.isRequired,
-  products: PropTypes.arrayOf(
-    PropTypes.shape({
-      category: PropTypes.string.isRequired,
-      // Puedes agregar más propiedades del producto si es necesario
-    })
-  ).isRequired,
   currentFilters: PropTypes.shape({
     category: PropTypes.string,
     sortBy: PropTypes.string,
     priceRange: PropTypes.arrayOf(PropTypes.number).isRequired,
   }).isRequired,
 };
+
 export default FilterBar;

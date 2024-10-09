@@ -69,7 +69,7 @@ const CartView = () => {
   const [formErrors, setFormErrors] = useState({});
   const [prefixes, setPrefixes] = useState([]);
 
- // const cardBgColor = useColorModeValue("white", "gray.600");
+  // const cardBgColor = useColorModeValue("white", "gray.600");
   const bgColor = useColorModeValue("white", "gray.800");
   const textColor = useColorModeValue("gray.600", "gray.200");
   const formBgColor = useColorModeValue("gray.50", "gray.700");
@@ -180,18 +180,6 @@ const CartView = () => {
   };
 
   const handleCheckout = async () => {
-    if (!isAuthenticated) {
-      toast({
-        title: "Inicia sesión para continuar",
-        description: "Necesitas iniciar sesión para proceder con el pago.",
-        status: "warning",
-        duration: 3000,
-        isClosable: true,
-      });
-      navigate("/login", { state: { from: "/cart" } });
-      return;
-    }
-
     const errors = {};
     if (!validateEmail(orderForm.email)) {
       errors.email = "Email inválido";
@@ -238,9 +226,9 @@ const CartView = () => {
     };
 
     try {
-      await axios.post(env.CREATE_ORDER, orderData);
+      await axios.post(env.CART.CREATE_ORDER, orderData);
 
-      const whatsappMessage = `Nuevo pedido:\n
+     /*  const whatsappMessage = `Nuevo pedido:\n
 Cédula: ${orderForm.IDNumber}
 Teléfono: ${orderForm.phoneNumber}
 Email: ${orderForm.email}
@@ -252,12 +240,12 @@ ${
 Productos:\n${items
         .map((item) => `- ${item.title} (x${item.quantity})`)
         .join("\n")}
-Total: €${getTotalPrice().toFixed(2)}`;
-
-      const whatsappUrl = `https://wa.me/NUMERO_DEL_ADMINISTRADOR?text=${encodeURIComponent(
+Total: €${getTotalPrice().toFixed(2)}`; */
+/* 
+      /*      const whatsappUrl = `https://wa.me/NUMERO_DEL_ADMINISTRADOR?text=${encodeURIComponent(
         whatsappMessage
       )}`;
-      window.open(whatsappUrl, "_blank");
+      window.open(whatsappUrl, "_blank"); */ 
 
       clearCart();
       toast({
@@ -532,9 +520,7 @@ Total: €${getTotalPrice().toFixed(2)}`;
                   _hover={{ transform: "translateY(-2px)", boxShadow: "lg" }}
                   transition="all 0.2s"
                 >
-                  {isAuthenticated
-                    ? "Realizar Pedido"
-                    : "Iniciar Sesión para Comprar"}
+                  Realizar Pedido
                 </CustomButton>
               </Flex>
             </>

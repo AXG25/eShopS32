@@ -22,11 +22,29 @@ import env from "../config/env";
 
 const MotionBox = motion(Box);
 
-const fetchProducts = async () => {
-  const allProductsUrl = env.PRODUCTS.BASE
-  const { data: {products} } = await axios.get(allProductsUrl);
+const fetchProducts = async (filters) => {
+  const { category, priceRange, sortBy, page = 1, limit = 10 } = filters;
+  let url = `${env.PRODUCTS.BASE}?page=${page}&limit=${limit}`;
+console.log('filters', filters)
+  if (category) {
+    url += `&category=${category}`;
+  }
 
-  return products;
+  if (priceRange[0] > 0) {
+    url += `&minPrice=${priceRange[0]}`;
+  }
+
+  if (priceRange[1] < Infinity) {
+    url += `&maxPrice=${priceRange[1]}`;
+  }
+
+  if (sortBy) {
+    const [field, order] = sortBy.split('_');
+    url += `&sortBy=${field}&order=${order}`;
+  }
+
+  const { data } = await axios.get(url);
+  return data;
 };
 
 const HomePage = () => {
@@ -37,25 +55,26 @@ const HomePage = () => {
     priceRange: [0, Infinity],
     category: "",
     sortBy: "",
+    page: 1,
+    limit: 10,
   });
   const toast = useToast();
   const scrollContainerRef = useRef(null);
 
   const {
-    data: products,
+    data: productsData,
     isLoading,
     error,
     refetch,
   } = useQuery({
-    queryKey: ["products"],
-    queryFn: fetchProducts,
+    queryKey: ["products", filters],
+    queryFn: () => fetchProducts(filters),
   });
 
   useEffect(() => {
     const selectedCategory = location.state?.selectedCategory;
     if (selectedCategory) {
       setFilters(prev => ({ ...prev, category: selectedCategory }));
-      // Limpia el estado de la navegación para que no persista al recargar
       navigate(location.pathname, { replace: true, state: {} });
     }
   }, [location.state, navigate]);
@@ -64,6 +83,7 @@ const HomePage = () => {
     setFilters((prevFilters) => ({
       ...prevFilters,
       ...newFilters,
+      page: 1, // Reset page when filters change
     }));
   }, []);
 
@@ -72,32 +92,10 @@ const HomePage = () => {
       priceRange: [0, Infinity],
       category: "",
       sortBy: "",
+      page: 1,
+      limit: 10,
     });
   }, []);
-
-  const filteredProducts = useCallback(() => {
-    if (!products) return [];
-    return products
-      .filter((product) => {
-        const priceInRange =
-          (filters.priceRange[0] === 0 ||
-            product.price >= filters.priceRange[0]) &&
-          (filters.priceRange[1] === Infinity ||
-            product.price <= filters.priceRange[1]);
-        const categoryMatch =
-          !filters.category || product.category.toLowerCase() === filters.category.toLowerCase();
-        return priceInRange && categoryMatch;
-      })
-      .sort((a, b) => {
-        if (filters.sortBy === "price_asc") return a.price - b.price;
-        if (filters.sortBy === "price_desc") return b.price - a.price;
-        if (filters.sortBy === "name_asc")
-          return a.title.localeCompare(b.title);
-        if (filters.sortBy === "name_desc")
-          return b.title.localeCompare(a.title);
-        return 0;
-      });
-  }, [products, filters]);
 
   useEffect(() => {
     if (error) {
@@ -127,8 +125,6 @@ const HomePage = () => {
     },
   };
 
-  const filteredProductsList = filteredProducts();
-
   return (
     <Box
       ref={scrollContainerRef}
@@ -150,7 +146,6 @@ const HomePage = () => {
           <FilterBar
             onFilterChange={handleFilterChange}
             onClearFilters={handleClearFilters}
-            products={products || []}
             currentFilters={filters}
           />
 
@@ -173,7 +168,7 @@ const HomePage = () => {
                 columns={{ base: 1, sm: 2, md: 3, lg: 4 }}
                 spacing={6}
               >
-                {filteredProductsList.map((product) => (
+                {productsData.products.map((product) => (
                   <MotionBox
                     key={product.id}
                     initial={{ opacity: 0, y: 20 }}
@@ -188,7 +183,7 @@ const HomePage = () => {
             </AnimatePresence>
           )}
 
-          {filteredProductsList.length === 0 && !isLoading && (
+          {productsData && productsData.products.length === 0 && !isLoading && (
             <VStack spacing={4} pt={8}>
               <Text
                 fontSize="lg"
@@ -203,6 +198,8 @@ const HomePage = () => {
               </Text>
             </VStack>
           )}
+
+          {/* Aquí puedes agregar la paginación si es necesario */}
         </VStack>
       </Container>
     </Box>
