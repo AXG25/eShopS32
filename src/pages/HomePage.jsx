@@ -11,9 +11,10 @@ import {
   Spinner,
   Flex,
 } from "@chakra-ui/react";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
+import { useInView } from "react-intersection-observer";
 import useStoreConfigStore from "../store/useStoreConfigStore";
 import FilterBar from "../Components/product/FilterBar";
 import ProductCard from "../Components/product/ProductCard";
@@ -22,10 +23,11 @@ import env from "../config/env";
 
 const MotionBox = motion(Box);
 
-const fetchProducts = async (filters) => {
-  const { category, priceRange, sortBy, page = 1, limit = 10 } = filters;
-  let url = `${env.PRODUCTS.BASE}?page=${page}&limit=${limit}`;
-console.log('filters', filters)
+const fetchProducts = async ({ pageParam = 1, queryKey }) => {
+  const [_, filters] = queryKey;
+  const { category, priceRange, sortBy, limit = 10 } = filters;
+  let url = `${env.PRODUCTS.BASE}?page=${pageParam}&limit=${limit}`;
+
   if (category) {
     url += `&category=${category}`;
   }
@@ -55,20 +57,30 @@ const HomePage = () => {
     priceRange: [0, Infinity],
     category: "",
     sortBy: "",
-    page: 1,
-    limit: 10,
+    limit: 12,
   });
   const toast = useToast();
   const scrollContainerRef = useRef(null);
 
+  const { ref, inView } = useInView();
+
   const {
-    data: productsData,
+    data,
     isLoading,
     error,
-    refetch,
-  } = useQuery({
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
     queryKey: ["products", filters],
-    queryFn: () => fetchProducts(filters),
+    queryFn: fetchProducts,
+    getNextPageParam: (lastPage, pages) => {
+      if (lastPage.products.length < filters.limit) {
+        return undefined;
+      }
+      return pages.length + 1;
+    },
+    refetchOnWindowFocus: false
   });
 
   useEffect(() => {
@@ -79,11 +91,16 @@ const HomePage = () => {
     }
   }, [location.state, navigate]);
 
+  useEffect(() => {
+    if (inView && hasNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, fetchNextPage, hasNextPage]);
+
   const handleFilterChange = useCallback((newFilters) => {
     setFilters((prevFilters) => ({
       ...prevFilters,
       ...newFilters,
-      page: 1, // Reset page when filters change
     }));
   }, []);
 
@@ -92,8 +109,7 @@ const HomePage = () => {
       priceRange: [0, Infinity],
       category: "",
       sortBy: "",
-      page: 1,
-      limit: 10,
+      limit: 12,
     });
   }, []);
 
@@ -124,6 +140,8 @@ const HomePage = () => {
       background: "#555",
     },
   };
+
+  const allProducts = data ? data.pages.flatMap(page => page.products) : [];
 
   return (
     <Box
@@ -168,7 +186,7 @@ const HomePage = () => {
                 columns={{ base: 1, sm: 2, md: 3, lg: 4 }}
                 spacing={6}
               >
-                {productsData.products.map((product) => (
+                {allProducts.map((product) => (
                   <MotionBox
                     key={product.id}
                     initial={{ opacity: 0, y: 20 }}
@@ -183,7 +201,7 @@ const HomePage = () => {
             </AnimatePresence>
           )}
 
-          {productsData && productsData.products.length === 0 && !isLoading && (
+          {allProducts.length === 0 && !isLoading && (
             <VStack spacing={4} pt={8}>
               <Text
                 fontSize="lg"
@@ -199,7 +217,13 @@ const HomePage = () => {
             </VStack>
           )}
 
-          {/* Aquí puedes agregar la paginación si es necesario */}
+          {isFetchingNextPage && (
+            <Flex justify="center" mt={4}>
+              <Spinner size="lg" color={config.primaryColor} />
+            </Flex>
+          )}
+
+          <Box ref={ref} h="20px" />
         </VStack>
       </Container>
     </Box>

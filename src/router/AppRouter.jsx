@@ -36,6 +36,7 @@ const AppRouter = () => {
         <Route path="/cart" element={<CartView />} />
         <Route path="/categorias" element={<CategoriesPage />} />
         <Route path="/nosotros" element={<ContactUsPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
       </Route>
 
       {/* Rutas públicas sin ResponsiveLayout*/}
@@ -52,7 +53,7 @@ const AppRouter = () => {
       <Route element={<PrivateRoute />}>
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/orders" element={<OrdersPage />} />
-        <Route path="/settings" element={<SettingsPage />} />
+      
       </Route>
 
       {/* Rutas de administrador */}
