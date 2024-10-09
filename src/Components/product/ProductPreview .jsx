@@ -11,7 +11,6 @@ import {
   Text,
   VStack,
   HStack,
-  Icon,
   SimpleGrid,
   Divider,
   Tooltip,
@@ -23,7 +22,6 @@ import {
   useColorModeValue,
   Flex,
 } from "@chakra-ui/react";
-import {  FaStar, FaRegStar, FaHeart } from "react-icons/fa";
 import CustomButton from "../common/CustomButton";
 
 const ProductPreview = ({
@@ -31,8 +29,6 @@ const ProductPreview = ({
   onClose,
   product,
   onAddToCart,
-  onToggleWishlist,
-  isWishlisted,
 }) => {
   const [selectedSize, setSelectedSize] = useState(null);
   const [selectedColor, setSelectedColor] = useState(null);
@@ -44,30 +40,20 @@ const ProductPreview = ({
   const handleAddToCart = () => {
     onAddToCart({
       ...product,
-      size: selectedSize,
-      color: selectedColor,
       quantity: quantity,
     });
     onClose();
   };
 
-  const formatPrice = (price) => price.toFixed(2);
+  const formatPrice = (price) => {
+    const priceNumber = parseFloat(price, { defaultValu: 0 });
+    return priceNumber.toFixed(2);
+  };
 
   const discountedPrice = product.discount
-    ? product.price * (1 - product.discount / 100)
-    : product.price;
-
-  const renderStars = (rating) => {
-    return Array(5)
-      .fill("")
-      .map((_, i) => (
-        <Icon
-          key={i}
-          as={i < rating ? FaStar : FaRegStar}
-          color={i < rating ? "yellow.400" : "gray.300"}
-        />
-      ));
-  };
+    ? parseFloat(product.price, { defaultValu: 0 }) *
+      (1 - parseFloat(product.discount, { defaultValu: 0 }) / 100)
+    : parseFloat(product.price, { defaultValu: 0 });
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="2xl">
@@ -88,7 +74,6 @@ const ProductPreview = ({
             </Box>
             <VStack align="stretch" flex={1} spacing={4}>
               <VStack align="start" spacing={1}>
-                <HStack>{renderStars(product.rating || 0)}</HStack>
                 <Text fontSize="2xl" fontWeight="bold" color={textColor}>
                   {product.title}
                 </Text>
@@ -173,15 +158,6 @@ const ProductPreview = ({
               </Box>
 
               <Divider />
-
-              <CustomButton
-                leftIcon={<FaHeart color={isWishlisted ? "red" : undefined} />}
-                onClick={onToggleWishlist}
-                variant="outline"
-                width="100%"
-              >
-                {isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
-              </CustomButton>
 
               <CustomButton
                 onClick={handleAddToCart}

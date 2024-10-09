@@ -1,41 +1,48 @@
+// src/store/authStore.js
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import axios from "axios";
+import env from "../config/env";
 
 const useAuthStore = create(
   persist(
-    (set, get) => ({
+    (set) => ({
       user: null,
       token: null,
       permissions: [],
       isAuthenticated: false,
-      setUser: (user) => set({ user, isAuthenticated: true }),
+      setUser: (user) => set({ user, isAuthenticated: !!user }),
       setToken: (token) => set({ token }),
       setPermissions: (permissions) => set({ permissions }),
-      logout: () =>
+      login: async (credentials) => {
+        try {
+          const loginUrl = env.AUTH.LOGIN
+          const response = await axios.post(loginUrl, credentials);
+          const {
+            user,
+            token,
+            user: { permissions = ["user"] },
+          } = response.data ?? {};
+          console.log("permissions", response.data);
+          set({
+            user,
+            token,
+            permissions,
+            isAuthenticated: true,
+          });
+          return response.data;
+        } catch (error) {
+          console.error("Error durante el login:", error);
+          throw error;
+        }
+      },
+      logout: () => {
         set({
           user: null,
           token: null,
           permissions: [],
           isAuthenticated: false,
-        }),
-      login: async (credentials) => {
-        // Simula una llamada a la API
-        const response = await fetch("/api/login", {
-          method: "POST",
-          body: JSON.stringify(credentials),
         });
-        const data = await response.json();
-        if (response.ok) {
-          set({
-            user: data.user,
-            token: data.token,
-            permissions: data.permissions,
-            isAuthenticated: true,
-          });
-          return data;
-        } else {
-          throw new Error(data.message);
-        }
       },
     }),
     {

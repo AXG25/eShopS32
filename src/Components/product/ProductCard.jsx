@@ -26,11 +26,15 @@ const ProductCard = memo(({ product }) => {
   const bgColor = useColorModeValue("white", "gray.700");
   const textColor = useColorModeValue("gray.800", "white");
 
-  const formatPrice = (price) => price.toFixed(2);
+  const formatPrice = (price) => {
+    const priceNumber = parseFloat(price, { defaultValu: 0 });
+    return priceNumber.toFixed(2);
+  };
 
   const discountedPrice = product.discount
-    ? product.price * (1 - product.discount / 100)
-    : product.price;
+    ? parseFloat(product.price, { defaultValu: 0 }) *
+      (1 - parseFloat(product.discount, { defaultValu: 0 }) / 100)
+    : parseFloat(product.price, { defaultValu: 0 });
 
   const handleAddToCart = (productToAdd) => {
     addItemToCart(productToAdd);
@@ -147,7 +151,6 @@ ProductCard.propTypes = {
     description: PropTypes.string,
     image: PropTypes.string.isRequired,
     bgColor: PropTypes.string,
-    rating: PropTypes.oneOfType([PropTypes.string, PropTypes.object, PropTypes.number]).isRequired,
     sizes: PropTypes.arrayOf(PropTypes.string),
     colors: PropTypes.arrayOf(PropTypes.string),
   }).isRequired,

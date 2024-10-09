@@ -1,7 +1,8 @@
 // src/components/product/CategoryNavigation.jsx
 import { useState, useEffect } from "react";
-import { Box, Button, HStack, useColorModeValue } from "@chakra-ui/react";
+import { Box, HStack, useColorModeValue } from "@chakra-ui/react";
 import PropTypes from "prop-types";
+import CustomButton from "../common/CustomButton";
 
 // Simula una llamada a la API para obtener las categorías
 const fetchCategories = () => {
@@ -30,7 +31,7 @@ const CategoryNavigation = ({ onSelectCategory }) => {
     <Box bg={bgColor} p={4} mb={4} overflowX="auto">
       <HStack spacing={4}>
         {categories.map((category) => (
-          <Button
+          <CustomButton
             key={category}
             onClick={() => handleCategoryClick(category)}
             variant={selectedCategory === category ? "solid" : "outline"}
@@ -38,7 +39,7 @@ const CategoryNavigation = ({ onSelectCategory }) => {
             size="sm"
           >
             {category}
-          </Button>
+          </CustomButton>
         ))}
       </HStack>
     </Box>

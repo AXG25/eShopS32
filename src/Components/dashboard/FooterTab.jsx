@@ -4,13 +4,13 @@ import {
   FormControl,
   FormLabel,
   Input,
-  Button,
   IconButton,
   HStack,
   Textarea,
 } from "@chakra-ui/react";
 import { FaPlus, FaTrash } from "react-icons/fa";
 import PropTypes from 'prop-types';
+import CustomButton from "../common/CustomButton";
 
 export const FooterTab = ({ footerConfig, onFooterConfigChange }) => {
   const handleChange = (e, section, index, key) => {
@@ -59,9 +59,9 @@ export const FooterTab = ({ footerConfig, onFooterConfigChange }) => {
           />
         </HStack>
       ))}
-      <Button leftIcon={<FaPlus />} onClick={() => addItem(sectionName)}>
+      <CustomButton leftIcon={<FaPlus />} onClick={() => addItem(sectionName)}>
         Añadir Item
-      </Button>
+      </CustomButton>
     </>
   );
 

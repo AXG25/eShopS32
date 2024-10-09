@@ -20,11 +20,13 @@ const CartHeader = () => {
   return (
     <Popover placement="bottom-end">
       <PopoverTrigger>
- 
-          <CustomButton leftIcon={<FaShoppingCart />} colorScheme="blue" section="header">
-            Carrito ({getTotalItems()})
-          </CustomButton>
-    
+        <CustomButton
+          leftIcon={<FaShoppingCart />}
+          colorScheme="blue"
+          section="header"
+        >
+          Carrito ({getTotalItems()})
+        </CustomButton>
       </PopoverTrigger>
       <Portal>
         <PopoverContent>
@@ -43,7 +45,7 @@ const CartHeader = () => {
                       {item.title}
                     </Text>
                     <Text fontSize="xs">
-                      {item.quantity} x €{item.price.toFixed(2)}
+                      {item.quantity} x €{parseFloat(item.price, { defaultValu: 0 }).toFixed(2)}
                     </Text>
                   </VStack>
                 </HStack>
@@ -53,8 +55,10 @@ const CartHeader = () => {
                   Y {items.length - 3} productos más...
                 </Text>
               )}
-              <Text fontWeight="bold">Total: €{getTotalPrice().toFixed(2)}</Text>
-              <Link to="/cart" style={{ width: '100%' }}>
+              <Text fontWeight="bold">
+                Total: €{getTotalPrice().toFixed(2)}
+              </Text>
+              <Link to="/cart" style={{ width: "100%" }}>
                 <CustomButton colorScheme="blue" width="100%" section="cart">
                   Ver Carrito
                 </CustomButton>

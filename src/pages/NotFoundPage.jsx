@@ -1,7 +1,8 @@
 // src/pages/NotFoundPage.jsx
-import { Box, Heading, Text, Button, VStack, useColorModeValue } from '@chakra-ui/react';
+import { Box, Heading, Text, VStack, useColorModeValue } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import CustomButton from '../Components/common/CustomButton';
 
 const MotionBox = motion(Box);
 
@@ -36,7 +37,7 @@ const NotFoundPage = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <Button
+            <CustomButton
               as={RouterLink}
               to="/"
               colorScheme="teal"
@@ -45,7 +46,7 @@ const NotFoundPage = () => {
               variant="solid"
             >
               Volver a la página de inicio
-            </Button>
+            </CustomButton>
           </MotionBox>
         </VStack>
       </MotionBox>

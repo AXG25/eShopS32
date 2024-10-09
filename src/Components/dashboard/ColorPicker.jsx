@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from "react";
 import PropTypes from "prop-types";
 import {
-  Button,
+
   Popover,
   PopoverTrigger,
   PopoverContent,
@@ -9,6 +9,7 @@ import {
   useColorMode,
 } from "@chakra-ui/react";
 import { debounce } from "lodash";
+import CustomButton from "../common/CustomButton";
 
 const SketchPicker = React.lazy(() => import('react-color').then(module => ({ default: module.SketchPicker })));
 
@@ -44,7 +45,7 @@ const ColorPicker = React.memo(({ color, onChange, label }) => {
   return (
     <Popover>
       <PopoverTrigger>
-        <Button
+        <CustomButton
           height="40px"
           width="100%"
           bg={localColor}
@@ -56,7 +57,7 @@ const ColorPicker = React.memo(({ color, onChange, label }) => {
           }}
         >
           {label}: {localColor}
-        </Button>
+        </CustomButton>
       </PopoverTrigger>
       <PopoverContent>
         <PopoverBody>

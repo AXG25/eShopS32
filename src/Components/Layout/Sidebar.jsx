@@ -1,17 +1,10 @@
 import PropTypes from "prop-types";
 import { Sidebar as ProSidebar, Menu, MenuItem } from "react-pro-sidebar";
-import {
-  Box,
-  Button,
-  Tooltip,
-  VStack,
-  useColorModeValue,
-} from "@chakra-ui/react";
+import { Box, Tooltip, VStack, useColorModeValue } from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
 import {
   FaStore,
   FaCog,
-  FaTachometerAlt,
   FaSignOutAlt,
   FaShoppingCart,
   FaListUl, // Nuevo icono para categorías
@@ -20,6 +13,7 @@ import { IoMdColorPalette } from "react-icons/io";
 import useStoreConfigStore from "../../store/useStoreConfigStore";
 import { useAuth } from "../../hooks/useAuth";
 import { RiCustomerService2Line } from "react-icons/ri";
+import CustomButton from "../common/CustomButton";
 
 const Sidebar = ({ collapsed }) => {
   const { config } = useStoreConfigStore();
@@ -156,7 +150,7 @@ const Sidebar = ({ collapsed }) => {
           </Box>
           {isAuthenticated && (
             <Box width="100%" p={2}>
-              <Button
+              <CustomButton
                 leftIcon={<FaSignOutAlt />}
                 variant="outline"
                 onClick={logout}
@@ -166,7 +160,7 @@ const Sidebar = ({ collapsed }) => {
                 size={collapsed ? "sm" : "md"}
               >
                 {!collapsed && "Cerrar Sesión"}
-              </Button>
+              </CustomButton>
             </Box>
           )}
         </VStack>

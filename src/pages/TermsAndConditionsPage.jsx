@@ -6,7 +6,6 @@ import {
   VStack, 
   UnorderedList, 
   ListItem, 
-  Button, 
   useColorModeValue,
   Divider,
   Flex
@@ -14,6 +13,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { FaHome } from 'react-icons/fa';
+import CustomButton from '../Components/common/CustomButton';
 
 const TermsAndConditionsPage = () => {
   const { t } = useTranslation();
@@ -40,14 +40,14 @@ const TermsAndConditionsPage = () => {
             <Heading as="h1" size="2xl" color={headingColor}>
               {t('footer.termsAndConditions')}
             </Heading>
-            <Button
+            <CustomButton
               leftIcon={<FaHome />}
               colorScheme={buttonColorScheme}
               onClick={() => navigate('/')}
               size="lg"
             >
               {t('general.backToHome')}
-            </Button>
+            </CustomButton>
           </Flex>
 
           <Divider />
@@ -100,14 +100,14 @@ const TermsAndConditionsPage = () => {
           </Box>
 
           <Flex justifyContent="center" mt={8}>
-            <Button
+            <CustomButton
               leftIcon={<FaHome />}
               colorScheme={buttonColorScheme}
               onClick={() => navigate('/')}
               size="lg"
             >
               {t('general.backToHome')}
-            </Button>
+            </CustomButton>
           </Flex>
         </VStack>
       </Container>

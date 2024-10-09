@@ -18,12 +18,15 @@ import useStoreConfigStore from "../store/useStoreConfigStore";
 import FilterBar from "../Components/product/FilterBar";
 import ProductCard from "../Components/product/ProductCard";
 import CustomButton from "../Components/common/CustomButton";
+import env from "../config/env";
 
 const MotionBox = motion(Box);
 
 const fetchProducts = async () => {
-  const { data } = await axios.get(`https://fakestoreapi.com/products`);
-  return data;
+  const allProductsUrl = env.PRODUCTS.BASE();
+  const { data: {products} } = await axios.get(allProductsUrl);
+
+  return products;
 };
 
 const HomePage = () => {

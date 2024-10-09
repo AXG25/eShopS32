@@ -1,4 +1,4 @@
-import React, { forwardRef } from "react";
+import { forwardRef } from "react";
 import PropTypes from "prop-types";
 import { Button, IconButton } from "@chakra-ui/react";
 import useStoreConfigStore from "../../store/useStoreConfigStore";

@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import axios from "axios";
+import env from "../config/env";
+import useAuthStore from "./authStore";
 
 const useProductStore = create(
   devtools(
@@ -16,12 +18,35 @@ const useProductStore = create(
           category: '',
           sortBy: '',
         },
+        syncDatabase: async () => {
+          set({ isLoading: true, error: null });
+          try {
+            const { token, user } = useAuthStore.getState();
+            if (!token || !user) {
+              throw new Error("No se encontró un token válido o información de usuario");
+            }
+
+            const syncUrl = `${env.PRODUCTS.SYNC}/${user.id}`;
+            const response = await axios.post(syncUrl, {}, {
+              headers: {
+                Authorization: `Bearer ${token}`
+              }
+            });
+
+            set({ isLoading: false });
+            return { success: true, message: "Base de datos sincronizada correctamente" };
+          } catch (error) {
+            set({ error: error.message, isLoading: false });
+            return { success: false, message: error.message };
+          }
+        },
         fetchProducts: async () => {
           if (get().products.length > 0) return; // Evita fetchs innecesarios
           set({ isLoading: true });
           try {
-            const response = await axios.get("https://fakestoreapi.com/products");
-            const products = response.data;
+            const allProductsUrl = env.PRODUCTS.BASE();
+            const response = await axios.get(allProductsUrl);
+            const products = response?.data?.products;
             set({ 
               products, 
               filteredProducts: products, 

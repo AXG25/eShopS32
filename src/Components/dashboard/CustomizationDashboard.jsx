@@ -8,10 +8,19 @@ import {
   TabPanels,
   Tab,
   TabPanel,
-  Button,
   useToast,
+  HStack,
+  CircularProgress,
+  CircularProgressLabel,
 } from "@chakra-ui/react";
-import { FaCog, FaPalette, FaBoxOpen, FaList, FaHome } from "react-icons/fa";
+import {
+  FaCog,
+  FaPalette,
+  FaBoxOpen,
+  FaList,
+  FaHome,
+  FaSync,
+} from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 
 import DesignTab from "./DesignTab";
@@ -21,6 +30,7 @@ import { FooterTab } from "./FooterTab";
 import LandingPageTab from "./LandingPageTab"; // Nuevo componente
 import useStoreConfigStore from "../../store/useStoreConfigStore";
 import useProductStore from "../../store/useProductStore";
+import CustomButton from "../common/CustomButton";
 
 const MotionBox = motion(Box);
 
@@ -34,8 +44,10 @@ const CustomizationDashboard = () => {
   const { config, setConfig, saveConfigToBackend, syncConfig } =
     useStoreConfigStore();
   const [localConfig, setLocalConfig] = useState(config);
-  const { products, deleteProduct } = useProductStore();
+  const { products, deleteProduct, syncDatabase } = useProductStore();
   const toast = useToast();
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncProgress, setSyncProgress] = useState(0);
 
   useEffect(() => {
     syncConfig();
@@ -85,6 +97,55 @@ const CustomizationDashboard = () => {
       },
     }));
   }, []);
+
+  const handleSyncDatabase = async () => {
+    setIsSyncing(true);
+    setSyncProgress(0);
+
+    const simulateProgress = () => {
+      setSyncProgress((prevProgress) => {
+        const newProgress = prevProgress + Math.random() * 10;
+        return newProgress > 90 ? 90 : newProgress;
+      });
+    };
+
+    const progressInterval = setInterval(simulateProgress, 200);
+
+    try {
+      const result = await syncDatabase();
+      clearInterval(progressInterval);
+      setSyncProgress(100);
+
+      setTimeout(() => {
+        setIsSyncing(false);
+        setSyncProgress(0);
+
+        if (result.success) {
+          toast({
+            title: "Sincronización exitosa",
+            description: result.message,
+            status: "success",
+            duration: 3000,
+            isClosable: true,
+          });
+        } else {
+          throw new Error(result.message);
+        }
+      }, 500);
+    } catch (error) {
+      clearInterval(progressInterval);
+      setIsSyncing(false);
+      setSyncProgress(0);
+
+      toast({
+        title: "Error en la sincronización",
+        description: error.message,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
 
   return (
     <Container maxW="container.xl" py={8}>
@@ -184,9 +245,46 @@ const CustomizationDashboard = () => {
       </Tabs>
 
       <Box mt={8}>
-        <Button colorScheme="blue" size="lg" onClick={handleSaveConfig}>
-          Guardar y Sincronizar Cambios
-        </Button>
+        <HStack spacing={4}>
+          <CustomButton colorScheme="blue" size="lg" onClick={handleSaveConfig}>
+            Guardar y Sincronizar Cambios
+          </CustomButton>
+          <CustomButton
+            leftIcon={
+              isSyncing ? (
+                <CircularProgress
+                  size="24px"
+                  isIndeterminate
+                  color="green.300"
+                />
+              ) : (
+                <FaSync />
+              )
+            }
+            colorScheme="green"
+            size="lg"
+            onClick={handleSyncDatabase}
+            isDisabled={isSyncing}
+          >
+            {isSyncing ? (
+              <HStack>
+                <span>Sincronizando</span>
+                <CircularProgress
+                  value={syncProgress}
+                  color="green.500"
+                  size="32px"
+                  thickness="16px"
+                >
+                  <CircularProgressLabel>
+                    {Math.round(syncProgress)}%
+                  </CircularProgressLabel>
+                </CircularProgress>
+              </HStack>
+            ) : (
+              "Sincronizar Base de Datos"
+            )}
+          </CustomButton>
+        </HStack>
       </Box>
     </Container>
   );

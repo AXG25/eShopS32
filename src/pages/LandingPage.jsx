@@ -1,10 +1,8 @@
-
 import {
   Box,
   Container,
   Heading,
   Text,
-  Button,
   VStack,
   Image,
   SimpleGrid,
@@ -17,7 +15,8 @@ import { Link as RouterLink } from "react-router-dom";
 import Footer from "../Components/Layout/Footer";
 import ContactUsPage from "./ContactUsPage";
 import useStoreConfigStore from "../store/useStoreConfigStore";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
+import CustomButton from "../Components/common/CustomButton";
 
 const MotionBox = motion(Box);
 
@@ -53,9 +52,9 @@ const LandingPage = () => {
   return (
     <Box bg={bgColor}>
       {/* Hero Section */}
-      <Box 
-        bgGradient={landingPage.heroBgGradient} 
-        color={landingPage.heroTextColor} 
+      <Box
+        bgGradient={landingPage.heroBgGradient}
+        color={landingPage.heroTextColor}
         py={20}
       >
         <Container maxW="container.xl">
@@ -68,17 +67,15 @@ const LandingPage = () => {
               <Heading as="h1" size="2xl">
                 {landingPage.heroTitle}
               </Heading>
-              <Text fontSize="xl">
-                {landingPage.heroSubtitle}
-              </Text>
-              <Button 
-                as={RouterLink} 
-                to="/home" 
+              <Text fontSize="xl">{landingPage.heroSubtitle}</Text>
+              <CustomButton
+                as={RouterLink}
+                to="/home"
                 colorScheme={landingPage.heroButtonColorScheme}
                 size="lg"
               >
                 {landingPage.heroButtonText}
-              </Button>
+              </CustomButton>
             </VStack>
             <Image
               src={landingPage.heroImage}

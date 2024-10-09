@@ -37,11 +37,18 @@ const useCartStore = create(
       },
       clearCart: () => set({ items: [] }),
       getTotalItems: () => {
-        return get().items.reduce((total, item) => total + item.quantity, 0);
+        return get().items.reduce(
+          (total, item) =>
+            total + parseFloat(item.quantity, { defaultValu: 0 }),
+          0
+        );
       },
       getTotalPrice: () => {
         return get().items.reduce(
-          (total, item) => total + item.price * item.quantity,
+          (total, item) =>
+            total +
+            parseFloat(item.price, { defaultValu: 0 }) *
+              parseFloat(item.quantity, { defaultValu: 0 }),
           0
         );
       },

@@ -7,7 +7,6 @@ import {
   FormControl,
   FormLabel,
   Input,
-  Button,
   useToast,
   Text,
   Divider,
@@ -15,6 +14,7 @@ import {
 
 import { useNavigate } from "react-router-dom";
 import useCartStore from "../../store/useCartStore";
+import CustomButton from "../common/CustomButton";
 
 const Checkout = () => {
   const { cartItems, clearCart } = useCartStore();
@@ -117,9 +117,9 @@ const Checkout = () => {
               <FormLabel>CVV</FormLabel>
               <Input name="cvv" value={formData.cvv} onChange={handleChange} />
             </FormControl>
-            <Button type="submit" colorScheme="blue" width="full">
+            <CustomButton type="submit" colorScheme="blue" width="full">
               Realizar Pago
-            </Button>
+            </CustomButton>
           </VStack>
         </form>
       </VStack>

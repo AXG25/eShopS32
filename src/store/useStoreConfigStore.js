@@ -3,6 +3,8 @@ import { persist } from "zustand/middleware";
 import { changeLanguage } from "../i18n";
 import axios from "axios";
 import { FaHeadset, FaRocket, FaUser } from "react-icons/fa";
+import env from "../config/env";
+import useAuthStore from "./authStore";
 
 const defaultConfig = {
   title: "Mi E-commerce",
@@ -62,25 +64,29 @@ const defaultConfig = {
     heroButtonColorScheme: "teal",
     heroImage: "/featured-product.png",
     featuresTitle: "Por qué elegirnos",
-    featuresSubtitle: "16 años de experiencia en la industria del software administrativo y punto de venta nos ha permitido entender y cubrir las necesidades de nuestros clientes",
+    featuresSubtitle:
+      "16 años de experiencia en la industria del software administrativo y punto de venta nos ha permitido entender y cubrir las necesidades de nuestros clientes",
     features: [
       {
         icon: FaUser,
         title: "Implementaciones con compromiso",
-        description: "Al adquirir uno de nuestros productos va a experimentar cómo nuestros analistas de soportes y los distribuidores autorizados le dan el acompañamiento que necesite."
+        description:
+          "Al adquirir uno de nuestros productos va a experimentar cómo nuestros analistas de soportes y los distribuidores autorizados le dan el acompañamiento que necesite.",
       },
       {
         icon: FaRocket,
         title: "System32 es fácil de usar",
-        description: "Nuestra interfaz de usuario está detalladamente trabajada para que su aprendizaje sea intuitivo. Desde su creación nuestro software se ha caracterizado por su diseño."
+        description:
+          "Nuestra interfaz de usuario está detalladamente trabajada para que su aprendizaje sea intuitivo. Desde su creación nuestro software se ha caracterizado por su diseño.",
       },
       {
         icon: FaHeadset,
         title: "Soporte técnico de valor",
-        description: "Constantemente capacitamos a nuestro personal y a nuestros distribuidores con los programas informáticos de System32 para que puedan dar respuesta oportuna y eficaz para evitar que su empresa se mantenga operativa."
-      }
-    ]
-  }
+        description:
+          "Constantemente capacitamos a nuestro personal y a nuestros distribuidores con los programas informáticos de System32 para que puedan dar respuesta oportuna y eficaz para evitar que su empresa se mantenga operativa.",
+      },
+    ],
+  },
 };
 
 const useStoreConfigStore = create(
@@ -115,8 +121,23 @@ const useStoreConfigStore = create(
       },
       saveConfigToBackend: async () => {
         const config = get().config;
+        const {
+          token,
+          user: { id },
+        } = useAuthStore.getState();
+
+        if (!token) {
+          console.error("No se encontro un token válido");
+          return;
+        }
+
         try {
-          await axios.post("/api/store-config", config);
+          await axios.put(`${env.CUSTOMIZED.BASE}/${id}`, config, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
           console.log("Configuración guardada en el backend");
         } catch (error) {
           console.error(

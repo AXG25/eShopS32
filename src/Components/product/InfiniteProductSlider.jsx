@@ -1,8 +1,9 @@
 import { useEffect, useCallback, memo } from "react";
 import PropTypes from "prop-types";
 import Slider from "react-slick";
-import { Box, Image, Text, VStack, Button, Skeleton } from "@chakra-ui/react";
+import { Box, Image, Text, VStack, Skeleton } from "@chakra-ui/react";
 import useProductStore from "../../store/useProductStore";
+import CustomButton from "../common/CustomButton";
 
 const ProductSlide = memo(({ product }) => (
   <Box p={4} textAlign="center">
@@ -18,10 +19,15 @@ const ProductSlide = memo(({ product }) => (
       <Text fontWeight="bold" noOfLines={2}>
         {product.title}
       </Text>
-      <Text>€{product.price.toFixed(2)}</Text>
-      <Button colorScheme="blue" size="sm">
+      <Text>
+        €
+        {parseFloat(product.price, {
+          defaultValu: 0,
+        }).toFixed(2)}
+      </Text>
+      <CustomButton colorScheme="blue" size="sm">
         Ver Detalles
-      </Button>
+      </CustomButton>
     </VStack>
   </Box>
 ));
