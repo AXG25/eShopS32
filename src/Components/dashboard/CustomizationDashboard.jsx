@@ -63,7 +63,7 @@ const CustomizationDashboard = () => {
     toast({
       title: "Configuración guardada",
       description:
-        "Todos los cambios han sido guardados y sincronizados exitosamente.",
+        "Cambios guardados de forma local",
       status: "success",
       duration: 3000,
       isClosable: true,

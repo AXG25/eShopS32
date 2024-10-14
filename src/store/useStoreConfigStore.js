@@ -5,6 +5,7 @@ import axios from "axios";
 import { FaHeadset, FaRocket, FaUser } from "react-icons/fa";
 import env from "../config/env";
 import useAuthStore from "./authStore";
+import toast from "react-hot-toast";
 
 const defaultConfig = {
   title: "Mi E-commerce",
@@ -93,6 +94,11 @@ const useStoreConfigStore = create(
   persist(
     (set, get) => ({
       config: { ...defaultConfig },
+      getConfigValue: (key, defaultValue) => {
+        const state = get();
+        const value = state.config[key];
+        return value !== undefined ? value : defaultValue;
+      },
       setConfig: (newConfig) => {
         set((state) => {
           const updatedConfig = { ...state.config, ...newConfig };
@@ -133,17 +139,12 @@ const useStoreConfigStore = create(
 
         try {
           await axios.put(`${env.CUSTOMIZED.BASE}/${id}`, config, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
           });
-
-          console.log("Configuración guardada en el backend");
+          toast.success("Configuración guardada en el backend");
         } catch (error) {
-          console.error(
-            "Error al guardar la configuración en el backend:",
-            error
-          );
+          toast.error("Error al guardar la configuración en el backend");
+          console.error(error);
         }
       },
       loadConfigFromBackend: async () => {

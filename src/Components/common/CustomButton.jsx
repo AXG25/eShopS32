@@ -17,6 +17,7 @@ const CustomButton = forwardRef(
   ) => {
     const { config } = useStoreConfigStore();
 
+    // Función para obtener el valor de configuración específico de la sección o el valor general
     const getConfigValue = (key) => {
       const sectionKey = `${section}${
         key.charAt(0).toUpperCase() + key.slice(1)
@@ -24,6 +25,7 @@ const CustomButton = forwardRef(
       return config[sectionKey] || config[key];
     };
 
+    // Estilos de botón para cada variante, utilizando los valores específicos de la sección
     const buttonStyles = {
       solid: {
         bg: getConfigValue("buttonColor"),
@@ -55,6 +57,7 @@ const CustomButton = forwardRef(
       },
     };
 
+    // Propiedades comunes para todos los tipos de botones
     const commonProps = {
       ...buttonStyles[variant],
       fontSize: getConfigValue("buttonFontSize"),
@@ -64,6 +67,7 @@ const CustomButton = forwardRef(
       ...props,
     };
 
+    // Renderizar un IconButton si isIconButton es true
     if (isIconButton) {
       return (
         <IconButton
@@ -75,6 +79,7 @@ const CustomButton = forwardRef(
       );
     }
 
+    // Renderizar un Button estándar
     return (
       <Button ref={ref} {...commonProps}>
         {children}

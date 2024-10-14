@@ -88,7 +88,16 @@
     "productUpdated": "Producto actualizado exitosamente",
     "productDeleted": "Producto eliminado exitosamente",
     "confirmDelete": "¿Estás seguro de que quieres eliminar este producto?",
-    "errorLoadingProducts": "Error al cargar los productos"
+    "errorLoadingProducts": "Error al cargar los productos",
+    "off": "DESCUENTO",
+    "details": "Detalles",
+    "size": "TALLA",
+    "color": "COLOR",
+    "quantity": "CANTIDAD",
+    "category": "categoría",
+    "categories": "categorías",
+    "addedToCart": "Añadido al Carrito",
+    "addedToCartDescription": "El producto ha sido añadido a tu carrito."
   },
   "categories": {
     "electronics": "Electrónica",
@@ -98,8 +107,49 @@
     "clothing": "Ropa",
     "books": "Libros"
   },
+  "colors": {
+    "red": "Rojo",
+    "blue": "Azul",
+    "green": "Verde",
+    "yellow": "Amarillo",
+    "black": "Negro",
+    "white": "Blanco"
+  },
   "cart": {
     "checkout": "Finalizar Compra"
+  },
+  "design": {
+    "title": "Diseño",
+    "colors": "Colores",
+    "typography": "Tipografía",
+    "buttons": "Botones",
+    "mainFont": "Fuente Principal",
+    "baseFontSize": "Tamaño de Fuente Base",
+    "buttonColor": "Color de Botón",
+    "buttonTextColor": "Color de Texto de Botón",
+    "hoverOpacity": "Opacidad del Hover",
+    "buttonFontSize": "Tamaño de Fuente del Botón",
+    "buttonBorderRadius": "Radio de Borde del Botón",
+    "preview": "Vista previa",
+    "resetColors": "Restablecer Colores",
+    "resetTypography": "Restablecer Tipografía",
+    "resetButtons": "Restablecer Botones",
+    "resetAllStyles": "Restablecer Todos los Estilos",
+    "generatePalette": "Generar Paleta de Colores",
+    "paletteGenerated": "Paleta de colores generada",
+    "previewTooltip": "Este es un ejemplo de cómo se verán tus estilos",
+    "enterPreviewText": "Ingresa texto para previsualizar",
+    "generalButton": "Botón General",
+    "headerButton": "Botón Encabezado",
+    "productButton": "Botón Producto",
+    "cartButton": "Botón Carrito",
+    "backgroundColor": "Color de Fondo",
+    "headerColor": "Color de Encabezado",
+    "headerTextColor": "Color de Texto del Encabezado",
+    "textColor": "Color de Texto",
+    "primaryColor": "Color Primario",
+    "secondaryColor": "Color Secundario",
+    "asideColor": "Color de Barra Lateral"
   },
   "user": {
     "userProfile": "Perfil de Usuario",

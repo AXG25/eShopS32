@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import { Icon } from "@chakra-ui/react";
-import { FaQuestion } from "react-icons/fa"; // Icono por defecto
+import { TbEyeQuestion } from "react-icons/tb";// Icono por defecto
 
 // Caché para iconos ya cargados
 const iconCache = new Map();
@@ -47,7 +47,7 @@ const iconLibraries = {
 // Mapeo de iconos personalizados
 const customIcons = {
   hose: "GiGardeningHose",
-  // Agrega aquí más mapeos personalizados si es necesario
+ 
 };
 
 /**
@@ -85,7 +85,7 @@ const importIcon = async (iconName) => {
  * <DynamicIcon name="FaHome" color="blue.500" boxSize="24px" />
  */
 const DynamicIcon = ({ name, ...props }) => {
-  const [IconComponent, setIconComponent] = useState(() => FaQuestion);
+  const [IconComponent, setIconComponent] = useState(() => TbEyeQuestion);
 
   const loadIcon = useCallback(async () => {
     if (!name) return;
@@ -105,7 +105,7 @@ const DynamicIcon = ({ name, ...props }) => {
       setIconComponent(() => importedIcon);
     } else {
       console.warn(`Icon ${iconName} not found. Using default icon.`);
-      setIconComponent(() => FaQuestion);
+      setIconComponent(() => TbEyeQuestion);
     }
   }, [name]);
 

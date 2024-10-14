@@ -71,6 +71,7 @@ const HomePage = () => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    refetch
   } = useInfiniteQuery({
     queryKey: ["products", filters],
     queryFn: fetchProducts,

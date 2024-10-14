@@ -9,19 +9,23 @@ import {
   useColorModeValue,
   AspectRatio,
   Badge,
+  useToast,
 } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import { FaShoppingCart, FaInfoCircle } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 import useCartStore from "../../store/useCartStore";
 import ProductPreview from "./ProductPreview ";
-
 import CustomButton from "../common/CustomButton";
+
 const MotionBox = motion(Box);
 
 const ProductCard = memo(({ product }) => {
+  const { t } = useTranslation();
   const { addItemToCart } = useCartStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const toast = useToast();
 
   const bgColor = useColorModeValue("white", "gray.700");
   const textColor = useColorModeValue("gray.800", "white");
@@ -36,8 +40,15 @@ const ProductCard = memo(({ product }) => {
       (1 - parseFloat(product.discount, { defaultValu: 0 }) / 100)
     : parseFloat(product.price, { defaultValu: 0 });
 
-  const handleAddToCart = (productToAdd) => {
-    addItemToCart(productToAdd);
+  const handleAddToCart = () => {
+    addItemToCart({ ...product, quantity: 1 });
+    toast({
+      title: t("products.addedToCart"),
+      description: t("products.addedToCartDescription"),
+      status: "success",
+      duration: 3000,
+      isClosable: true,
+    });
   };
 
   const toggleWishlist = () => {
@@ -68,7 +79,7 @@ const ProductCard = memo(({ product }) => {
             />
             {product.discount > 0 && (
               <Badge position="absolute" top={2} left={2} colorScheme="red">
-                {product.discount}% OFF
+                {product.discount}% {t("products.off")}
               </Badge>
             )}
           </Box>
@@ -91,7 +102,7 @@ const ProductCard = memo(({ product }) => {
               {product.title}
             </Text>
             <Text fontSize="xs" color="gray.500" noOfLines={1}>
-              {product.category}
+              {t("products.category")}: {product.category}
             </Text>
           </VStack>
 
@@ -110,11 +121,11 @@ const ProductCard = memo(({ product }) => {
             <HStack>
               <CustomButton
                 leftIcon={<FaShoppingCart />}
-                onClick={() => setIsModalOpen(true)}
+                onClick={handleAddToCart}
                 size="sm"
                 flex={1}
               >
-                Add to Cart
+                {t("products.addToCart")}
               </CustomButton>
               <CustomButton
                 isIconButton
@@ -122,7 +133,7 @@ const ProductCard = memo(({ product }) => {
                 variant="outline"
                 onClick={() => setIsModalOpen(true)}
                 size="sm"
-                aria-label="Details"
+                aria-label={t("products.details")}
               />
             </HStack>
           </VStack>

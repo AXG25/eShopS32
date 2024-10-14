@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Box,
   VStack,
@@ -22,6 +22,12 @@ import {
   FormErrorMessage,
   Select,
   SimpleGrid,
+  AlertDialogBody,
+  AlertDialog,
+  AlertDialogOverlay,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
 } from "@chakra-ui/react";
 import {
   FaTrash,
@@ -54,6 +60,7 @@ const CartView = () => {
 
   const navigate = useNavigate();
   const toast = useToast();
+  const cancelRef = useRef();
 
   const [orderForm, setOrderForm] = useState({
     IDNumber: "",
@@ -68,6 +75,8 @@ const CartView = () => {
 
   const [formErrors, setFormErrors] = useState({});
   const [prefixes, setPrefixes] = useState([]);
+  const [itemToDelete, setItemToDelete] = useState(null);
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
 
   // const cardBgColor = useColorModeValue("white", "gray.600");
   const bgColor = useColorModeValue("white", "gray.800");
@@ -175,7 +184,8 @@ const CartView = () => {
     if (newQuantity > 0) {
       updateQuantity(productId, newQuantity);
     } else {
-      removeFromCart(productId);
+      setItemToDelete({ id: productId, action: "remove" });
+      setIsAlertOpen(true);
     }
   };
 
@@ -228,7 +238,7 @@ const CartView = () => {
     try {
       await axios.post(env.CART.CREATE_ORDER, orderData);
 
-     /*  const whatsappMessage = `Nuevo pedido:\n
+      /*  const whatsappMessage = `Nuevo pedido:\n
 Cédula: ${orderForm.IDNumber}
 Teléfono: ${orderForm.phoneNumber}
 Email: ${orderForm.email}
@@ -241,11 +251,11 @@ Productos:\n${items
         .map((item) => `- ${item.title} (x${item.quantity})`)
         .join("\n")}
 Total: €${getTotalPrice().toFixed(2)}`; */
-/* 
+      /* 
       /*      const whatsappUrl = `https://wa.me/NUMERO_DEL_ADMINISTRADOR?text=${encodeURIComponent(
         whatsappMessage
       )}`;
-      window.open(whatsappUrl, "_blank"); */ 
+      window.open(whatsappUrl, "_blank"); */
 
       clearCart();
       toast({
@@ -269,14 +279,31 @@ Total: €${getTotalPrice().toFixed(2)}`; */
   };
 
   const handleClearCart = () => {
-    clearCart();
-    toast({
-      title: "Carrito vaciado",
-      description: "Todos los productos han sido eliminados del carrito.",
-      status: "success",
-      duration: 2000,
-      isClosable: true,
-    });
+    setItemToDelete({ action: "clear" });
+    setIsAlertOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (itemToDelete.action === "remove") {
+      removeFromCart(itemToDelete.id);
+      toast({
+        title: "Producto eliminado",
+        description: "El producto ha sido eliminado del carrito.",
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+      });
+    } else if (itemToDelete.action === "clear") {
+      clearCart();
+      toast({
+        title: "Carrito vaciado",
+        description: "Todos los productos han sido eliminados del carrito.",
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+      });
+    }
+    setIsAlertOpen(false);
   };
 
   return (
@@ -374,7 +401,13 @@ Total: €${getTotalPrice().toFixed(2)}`; */
                           />
                           <IconButton
                             icon={<FaTrash />}
-                            onClick={() => removeFromCart(item.id)}
+                            onClick={() => {
+                              setItemToDelete({
+                                id: item.id,
+                                action: "remove",
+                              });
+                              setIsAlertOpen(true);
+                            }}
                             colorScheme="red"
                             size="sm"
                             variant="ghost"
@@ -418,7 +451,7 @@ Total: €${getTotalPrice().toFixed(2)}`; */
                       >
                         {prefixes.map((prefix) => (
                           <option key={prefix.value} value={prefix.value}>
-                            {prefix.value}
+                            {prefix.label}
                           </option>
                         ))}
                       </Select>
@@ -526,6 +559,47 @@ Total: €${getTotalPrice().toFixed(2)}`; */
             </>
           )}
         </VStack>
+
+        <AlertDialog
+          isOpen={isAlertOpen}
+          leastDestructiveRef={cancelRef}
+          onClose={() => setIsAlertOpen(false)}
+        >
+          <AlertDialogOverlay>
+            <AlertDialogContent>
+              <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                {itemToDelete?.action === "clear"
+                  ? "Vaciar Carrito"
+                  : "Eliminar Producto"}
+              </AlertDialogHeader>
+
+              <AlertDialogBody>
+                ¿Estás seguro de que deseas{" "}
+                {itemToDelete?.action === "clear"
+                  ? "vaciar el carrito"
+                  : "eliminar este producto"}
+                ?
+              </AlertDialogBody>
+
+              <AlertDialogFooter>
+                <CustomButton
+                  ref={cancelRef}
+                  onClick={() => setIsAlertOpen(false)}
+                  colorScheme="gray"
+                >
+                  Cancelar
+                </CustomButton>
+                <CustomButton
+                  colorScheme="red"
+                  onClick={handleConfirmDelete}
+                  ml={3}
+                >
+                  {itemToDelete?.action === "clear" ? "Vaciar" : "Eliminar"}
+                </CustomButton>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialogOverlay>
+        </AlertDialog>
       </MotionBox>
     </Container>
   );

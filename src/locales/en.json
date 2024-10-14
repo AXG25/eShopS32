@@ -78,7 +78,11 @@
     "productUpdated": "Product Updated Successfully",
     "productDeleted": "Product Deleted Successfully",
     "confirmDelete": "Are you sure you want to delete this product?",
-    "errorLoadingProducts": "Error Loading Products"
+    "errorLoadingProducts": "Error Loading Products",
+    "off": "DESCUENTO",
+    "details": "Detalles",
+    "addedToCart": "Added to Cart",
+    "addedToCartDescription": "The product has been added to your cart."
   },
   "categories": {
     "electronics": "Electronics",
@@ -146,6 +150,31 @@
     "joinOurTeam": "Join Our Team",
     "joinTeamText": "We're always looking for talented individuals to join our growing team.",
     "viewOpenings": "View Open Positions"
+  },
+  "design": {
+    "title": "Design",
+    "colors": "Colors",
+    "typography": "Typography",
+    "buttons": "Buttons",
+    "mainFont": "Main Font",
+    "baseFontSize": "Base Font Size",
+    "buttonColor": "Button Color",
+    "buttonTextColor": "Button Text Color",
+    "hoverOpacity": "Hover Opacity",
+    "buttonFontSize": "Button Font Size",
+    "buttonBorderRadius": "Button Border Radius",
+    "preview": "Preview",
+    "resetColors": "Reset Colors",
+    "resetTypography": "Reset Typography",
+    "resetButtons": "Reset Buttons",
+    "resetAllStyles": "Reset All Styles",
+    "backgroundColor": "Background Color",
+    "headerColor": "Header Color",
+    "headerTextColor": "Header Text Color",
+    "textColor": "Text Color",
+    "primaryColor": "Primary Color",
+    "secondaryColor": "Secondary Color",
+    "asideColor": "Sidebar Color"
   },
   "terms": {
     "introduction": "Introduction",

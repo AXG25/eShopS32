@@ -101,7 +101,7 @@ const Sidebar = ({ collapsed }) => {
                   Contacto
                 </MenuItem>
               </Tooltip>
-              {isAuthenticated && (
+            {/*   {isAuthenticated && (
                 <Tooltip
                   label="Configuración"
                   aria-label="Configuración"
@@ -115,7 +115,7 @@ const Sidebar = ({ collapsed }) => {
                     Configuración
                   </MenuItem>
                 </Tooltip>
-              )}
+              )} */}
               {hasPermission("admin") && (
                 <>
                   <Tooltip

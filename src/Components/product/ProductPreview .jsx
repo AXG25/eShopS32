@@ -22,14 +22,11 @@ import {
   useColorModeValue,
   Flex,
 } from "@chakra-ui/react";
+import { useTranslation } from "react-i18next"; // Importamos useTranslation
 import CustomButton from "../common/CustomButton";
 
-const ProductPreview = ({
-  isOpen,
-  onClose,
-  product,
-  onAddToCart,
-}) => {
+const ProductPreview = ({ isOpen, onClose, product, onAddToCart }) => {
+  const { t } = useTranslation(); // Inicializamos el hook de traducción
   const [selectedSize, setSelectedSize] = useState(null);
   const [selectedColor, setSelectedColor] = useState(null);
   const [quantity, setQuantity] = useState(1);
@@ -77,7 +74,9 @@ const ProductPreview = ({
                 <Text fontSize="2xl" fontWeight="bold" color={textColor}>
                   {product.title}
                 </Text>
-                <Text color="gray.500">{product.category}</Text>
+                <Text color="gray.500">
+                  {t("products.category")}: {product.category}
+                </Text>
               </VStack>
 
               <Text color={textColor}>{product.description}</Text>
@@ -96,7 +95,7 @@ const ProductPreview = ({
               {product.sizes && (
                 <Box>
                   <Text fontWeight="bold" mb={2} color={textColor}>
-                    SIZE
+                    {t("products.size")}
                   </Text>
                   <SimpleGrid columns={6} spacing={2}>
                     {product.sizes.map((size) => (
@@ -116,11 +115,15 @@ const ProductPreview = ({
               {product.colors && (
                 <Box>
                   <Text fontWeight="bold" mb={2} color={textColor}>
-                    COLOR
+                    {t("products.color")}
                   </Text>
                   <HStack spacing={2}>
                     {product.colors.map((color) => (
-                      <Tooltip key={color} label={color} hasArrow>
+                      <Tooltip
+                        key={color}
+                        label={t(`colors.${color}`)}
+                        hasArrow
+                      >
                         <Box
                           w="30px"
                           h="30px"
@@ -141,7 +144,7 @@ const ProductPreview = ({
 
               <Box>
                 <Text fontWeight="bold" mb={2} color={textColor}>
-                  QUANTITY
+                  {t("products.quantity")}
                 </Text>
                 <NumberInput
                   defaultValue={1}
@@ -167,7 +170,7 @@ const ProductPreview = ({
                 }
                 width="100%"
               >
-                ADD TO CART
+                {t("products.addToCart")}
               </CustomButton>
             </VStack>
           </Flex>
@@ -182,8 +185,6 @@ ProductPreview.propTypes = {
   onClose: PropTypes.func.isRequired,
   product: PropTypes.object.isRequired,
   onAddToCart: PropTypes.func.isRequired,
-  onToggleWishlist: PropTypes.func.isRequired,
-  isWishlisted: PropTypes.bool.isRequired,
 };
 
 export default ProductPreview;
