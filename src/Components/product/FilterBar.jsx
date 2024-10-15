@@ -161,8 +161,8 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
               <option value="">{t("filters.AllCategories")}</option>
               {categories
                 .filter((cat) => cat !== "")
-                .map((cat) => (
-                  <option key={cat} value={cat}>
+                .map((cat, key) => (
+                  <option key={key} value={cat?.value}>
                     {cat?.name}
                   </option>
                 ))}

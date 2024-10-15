@@ -15,71 +15,83 @@ const useProductStore = create(
         error: null,
         filters: {
           priceRange: [0, Infinity],
-          category: '',
-          sortBy: '',
+          category: "",
+          sortBy: "",
+          search: "",
         },
         syncDatabase: async () => {
           set({ isLoading: true, error: null });
           try {
             const { token, user } = useAuthStore.getState();
             if (!token || !user) {
-              throw new Error("No se encontró un token válido o información de usuario");
+              throw new Error(
+                "No se encontró un token válido o información de usuario"
+              );
             }
 
             const syncUrl = `${env.PRODUCTS.SYNC}/${user.id}`;
-            const response = await axios.post(syncUrl, {}, {
-              headers: {
-                Authorization: `Bearer ${token}`
+            const response = await axios.post(
+              syncUrl,
+              {},
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
               }
-            });
+            );
 
             set({ isLoading: false });
-            return { success: true, message: "Base de datos sincronizada correctamente" };
+            return {
+              success: true,
+              message: "Base de datos sincronizada correctamente",
+            };
           } catch (error) {
             set({ error: error.message, isLoading: false });
             return { success: false, message: error.message };
           }
         },
-        fetchProducts: async () => {
-          if (get().products.length > 0) return; // Evita fetchs innecesarios
-          set({ isLoading: true });
+        fetchProducts: async (params = {}) => {
+          set({ isLoading: true, error: null });
           try {
-            const allProductsUrl = env.PRODUCTS.BASE();
-            const response = await axios.get(allProductsUrl);
-            const products = response?.data?.products;
-            set({ 
-              products, 
-              filteredProducts: products, 
+            const {
+              category,
+              priceRange,
+              sortBy,
+              search,
+              page = 1,
+              limit = 12,
+            } = params;
+            let url = `${env.PRODUCTS.BASE}?page=${page}&limit=${limit}`;
+
+            if (category) url += `&category=${encodeURIComponent(category)}`;
+            if (search) url += `&search=${encodeURIComponent(search)}`;
+            if (priceRange && priceRange[0] > 0)
+              url += `&minPrice=${priceRange[0]}`;
+            if (priceRange && priceRange[1] < Infinity)
+              url += `&maxPrice=${priceRange[1]}`;
+            if (sortBy) {
+              const [field, order] = sortBy.split("_");
+              url += `&sortBy=${field}&order=${order}`;
+            }
+
+            const response = await axios.get(url);
+            const products = response.data.products;
+            set({
+              products,
+              filteredProducts: products,
               featuredProducts: products.slice(0, 10),
-              isLoading: false 
+              isLoading: false,
             });
+            return response.data;
           } catch (error) {
             set({ error: error.message, isLoading: false });
+            throw error;
           }
         },
         setFilters: (newFilters) => {
           set((state) => {
             const updatedFilters = { ...state.filters, ...newFilters };
-            const filteredProducts = state.products.filter((product) => {
-              const [min, max] = updatedFilters.priceRange;
-              const priceInRange = product.price >= min && product.price <= max;
-              const categoryMatch = !updatedFilters.category || product.category === updatedFilters.category;
-              return priceInRange && categoryMatch;
-            });
-
-            if (updatedFilters.sortBy) {
-              filteredProducts.sort((a, b) => {
-                switch (updatedFilters.sortBy) {
-                  case 'price_asc': return a.price - b.price;
-                  case 'price_desc': return b.price - a.price;
-                  case 'name_asc': return a.title.localeCompare(b.title);
-                  case 'name_desc': return b.title.localeCompare(a.title);
-                  default: return 0;
-                }
-              });
-            }
-
-            return { filters: updatedFilters, filteredProducts };
+            return { filters: updatedFilters };
           });
         },
         addProduct: (product) =>
@@ -99,7 +111,9 @@ const useProductStore = create(
         deleteProduct: (id) =>
           set((state) => ({
             products: state.products.filter((product) => product.id !== id),
-            filteredProducts: state.filteredProducts.filter((product) => product.id !== id),
+            filteredProducts: state.filteredProducts.filter(
+              (product) => product.id !== id
+            ),
           })),
         updateProductLikes: (id, likes) =>
           set((state) => ({

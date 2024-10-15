@@ -175,7 +175,6 @@
   "footer": {
     "usefulLinks": "Enlaces útiles",
     "aboutUs": "Sobre nosotros",
-    "contactUs": "Contáctanos",
     "faq": "Preguntas frecuentes",
     "followUs": "Síguenos",
     "termsAndConditions": "Términos y Condiciones",
@@ -190,6 +189,19 @@
     "addItem": "Añadir Item",
     "url": "URL",
     "contactInfo": "Información de Contacto"
+  },
+  "contactUs": {
+    "title": "Contáctanos",
+    "sendMessage": "Envíanos un mensaje",
+    "name": "Nombre",
+    "email": "Correo electrónico",
+    "message": "Mensaje",
+    "send": "Enviar",
+    "contactInfo": "Información de Contacto",
+    "successTitle": "Mensaje enviado",
+    "successMessage": "Nos pondremos en contacto contigo pronto.",
+    "errorTitle": "Error al enviar el mensaje",
+    "errorMessage": "Por favor, intenta nuevamente más tarde."
   },
   "about": {
     "aboutUsTitle": "Sobre Nuestra Empresa",

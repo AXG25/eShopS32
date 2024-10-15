@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   Box,
   Container,
@@ -11,75 +12,132 @@ import {
   Textarea,
   useColorModeValue,
   useToast,
-} from '@chakra-ui/react';
-import { useState } from 'react';
-import { FaEnvelope, FaPhone, FaMapMarkerAlt } from 'react-icons/fa';
-import CustomButton from '../Components/common/CustomButton';
+} from "@chakra-ui/react";
+import { FaEnvelope, FaPhone, FaMapMarkerAlt } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
+import CustomButton from "../Components/common/CustomButton";
+import axios from "axios";
+import useStoreConfigStore from "../store/useStoreConfigStore";
 
 const ContactUsPage = () => {
-  const [formData, setFormData] = useState({ name: '', message: '' });
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    message: "",
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const toast = useToast();
-  //const bgColor = useColorModeValue('gray.50', 'gray.800');
-  const textColor = useColorModeValue('gray.600', 'gray.200');
+  const textColor = useColorModeValue("gray.600", "gray.200");
+
+  const { t } = useTranslation();
+  const { config } = useStoreConfigStore();
+  const { footer } = config;
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Aquí iría la lógica para enviar el formulario
-    console.log(formData);
-    toast({
-      title: 'Formulario enviado',
-      description: 'Nos pondremos en contacto contigo pronto.',
-      status: 'success',
-      duration: 5000,
-      isClosable: true,
-    });
-    setFormData({ name: '', message: '' });
+    setIsSubmitting(true);
+
+    try {
+      await axios.post("/api/contact", formData);
+
+      toast({
+        title: t("contactUs.successTitle"),
+        description: t("contactUs.successMessage"),
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+      setFormData({ name: "", email: "", message: "" });
+    } catch (error) {
+      console.error("Error al enviar el mensaje:", error);
+      toast({
+        title: t("contactUs.errorTitle"),
+        description: t("contactUs.errorMessage"),
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <Box  py={12}>
+    <Box py={12}>
       <Container maxW="container.xl">
         <VStack spacing={10} align="stretch">
           <Heading as="h1" size="2xl" textAlign="center">
-            Contáctanos
+            {t("contactUs.title")}
           </Heading>
-          
-          <HStack spacing={8} align="start">
-            <VStack spacing={4} align="stretch" flex={1}>
-              <Heading as="h2" size="lg">Envíanos un mensaje</Heading>
+
+          <HStack
+            spacing={8}
+            align="start"
+            flexDirection={{ base: "column", md: "row" }}
+          >
+            <VStack spacing={4} align="stretch" flex={1} width="100%">
+              <Heading as="h2" size="lg">
+                {t("contactUs.sendMessage")}
+              </Heading>
               <form onSubmit={handleSubmit}>
                 <VStack spacing={4}>
                   <FormControl isRequired>
-                    <FormLabel>Nombre</FormLabel>
-                    <Input name="name" value={formData.name} onChange={handleInputChange} />
+                    <FormLabel>{t("contactUs.name")}</FormLabel>
+                    <Input
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                    />
                   </FormControl>
                   <FormControl isRequired>
-                    <FormLabel>Mensaje</FormLabel>
-                    <Textarea name="message" value={formData.message} onChange={handleInputChange} />
+                    <FormLabel>{t("contactUs.email")}</FormLabel>
+                    <Input
+                      name="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                    />
                   </FormControl>
-                  <CustomButton type="submit" colorScheme="blue" w="100%">Enviar</CustomButton>
+                  <FormControl isRequired>
+                    <FormLabel>{t("contactUs.message")}</FormLabel>
+                    <Textarea
+                      name="message"
+                      value={formData.message}
+                      onChange={handleInputChange}
+                    />
+                  </FormControl>
+                  <CustomButton
+                    type="submit"
+                    colorScheme="blue"
+                    w="100%"
+                    isLoading={isSubmitting}
+                  >
+                    {t("contactUs.send")}
+                  </CustomButton>
                 </VStack>
               </form>
             </VStack>
-            
-            <VStack spacing={6} align="start" flex={1}>
-              <Heading as="h2" size="lg">Información de Contacto</Heading>
+
+            <VStack spacing={6} align="start" flex={1} width="100%">
+              <Heading as="h2" size="lg">
+                {t("contactUs.contactInfo")}
+              </Heading>
               <HStack>
                 <FaEnvelope />
-                <Text color={textColor}>contacto@tuempresa.com</Text>
+                <Text color={textColor}>{footer.contact.email}</Text>
               </HStack>
               <HStack>
                 <FaPhone />
-                <Text color={textColor}>+1 234 567 8900</Text>
+                <Text color={textColor}>{footer.contact.phone}</Text>
               </HStack>
               <HStack>
                 <FaMapMarkerAlt />
-                <Text color={textColor}>123 Calle Principal, Ciudad, País</Text>
+                <Text color={textColor}>{footer.contact.address}</Text>
               </HStack>
             </VStack>
           </HStack>

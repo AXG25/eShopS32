@@ -84,6 +84,19 @@
     "addedToCart": "Added to Cart",
     "addedToCartDescription": "The product has been added to your cart."
   },
+  "contactUs": {
+    "title": "Contact Us",
+    "sendMessage": "Send us a message",
+    "name": "Name",
+    "email": "Email",
+    "message": "Message",
+    "send": "Send",
+    "contactInfo": "Contact Information",
+    "successTitle": "Message sent",
+    "successMessage": "We will get back to you soon.",
+    "errorTitle": "Error sending message",
+    "errorMessage": "Please try again later."
+  },
   "categories": {
     "electronics": "Electronics",
     "jewelery": "Jewelery",
@@ -115,7 +128,6 @@
   "footer": {
     "usefulLinks": "Useful Links",
     "aboutUs": "About Us",
-    "contactUs": "Contact Us",
     "faq": "FAQ",
     "followUs": "Follow Us",
     "termsAndConditions": "Terms and Conditions",
