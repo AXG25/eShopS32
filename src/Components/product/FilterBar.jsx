@@ -158,7 +158,7 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
               value={category}
               onChange={(e) => setCategory(e.target.value)}
             >
-              <option value="">{t("Seleccione una categoria")}</option>
+              <option value="">{t("filters.AllCategories")}</option>
               {categories
                 .filter((cat) => cat !== "")
                 .map((cat) => (
