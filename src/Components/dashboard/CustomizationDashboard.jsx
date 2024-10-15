@@ -153,19 +153,19 @@ const CustomizationDashboard = () => {
       <Tabs colorScheme="blue" variant="enclosed-colored">
         <TabList mb={4}>
           <Tab>
-            <FaCog /> General
+            <FaCog /> <span style={{marginLeft: '4px'}}>General</span>
           </Tab>
           <Tab>
-            <FaPalette /> Diseño
+            <FaPalette /> <span style={{marginLeft: '4px'}}>Diseño</span>
           </Tab>
           <Tab>
-            <FaBoxOpen /> Productos
+            <FaBoxOpen /> <span style={{marginLeft: '4px'}}>Productos</span>
           </Tab>
           <Tab>
-            <FaList /> Footer
+            <FaList /> <span style={{marginLeft: '4px'}}>Footer</span>
           </Tab>
           <Tab>
-            <FaHome /> Landing Page
+            <FaHome /> <span style={{marginLeft: '4px'}}>Landing Page</span>
           </Tab>
         </TabList>
 
