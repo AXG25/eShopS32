@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link as RouterLink } from "react-router-dom";
+import { useNavigate} from "react-router-dom";
 import {
   Box,
   FormControl,
@@ -16,7 +16,6 @@ import {
   useColorModeValue,
   Container,
   Divider,
-  HStack,
 } from "@chakra-ui/react";
 import { ViewIcon, ViewOffIcon, ArrowBackIcon } from "@chakra-ui/icons";
 import { motion } from "framer-motion";
