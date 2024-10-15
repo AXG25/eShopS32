@@ -214,7 +214,7 @@ const LoginPage = () => {
 
               <Divider />
 
-              <HStack justify="center" spacing="1" fontSize="sm">
+             {/*  <HStack justify="center" spacing="1" fontSize="sm">
                 <Text color={textColor}>¿No tienes una cuenta?</Text>
                 <CustomButton
                   variant="link"
@@ -224,7 +224,7 @@ const LoginPage = () => {
                 >
                   Regístrate
                 </CustomButton>
-              </HStack>
+              </HStack> */}
             </VStack>
           </MotionBox>
         </VStack>
