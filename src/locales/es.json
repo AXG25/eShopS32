@@ -169,7 +169,8 @@
     "priceLowToHigh": "Precio: Menor a Mayor",
     "priceHighToLow": "Precio: Mayor a Menor",
     "nameAToZ": "Nombre: A a Z",
-    "nameZToA": "Nombre: Z a A"
+    "nameZToA": "Nombre: Z a A",
+    "allCategories": "Todas las categorias"
   },
   "footer": {
     "usefulLinks": "Enlaces útiles",
