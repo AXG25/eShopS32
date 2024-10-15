@@ -34,10 +34,10 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
       try {
         const response = await axios.get(env.PRODUCTS.CATEGORIES);
         // Asegúrate de que todas las categorías sean strings
-        const processedCategories = response.data.map(cat => 
-          typeof cat === 'string' ? cat : JSON.stringify(cat)
-        );
+        console.log(response)
+        const processedCategories = response?.data
         setCategories(["", ...processedCategories]);
+        console.log(processedCategories);
       } catch (error) {
         console.error("Error fetching categories:", error);
       }
@@ -158,12 +158,12 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
               value={category}
               onChange={(e) => setCategory(e.target.value)}
             >
-              <option value="">{t("allCategories")}</option>
+              <option value="">{t("Seleccione una categoria")}</option>
               {categories
                 .filter((cat) => cat !== "")
                 .map((cat) => (
                   <option key={cat} value={cat}>
-                    {cat}
+                    {cat?.name}
                   </option>
                 ))}
             </Select>
