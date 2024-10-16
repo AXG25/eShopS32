@@ -36,6 +36,7 @@ import {
   FaArrowLeft,
   FaWhatsapp,
 } from "react-icons/fa";
+import { IoLogoWhatsapp } from "react-icons/io";
 import { Link, useNavigate } from "react-router-dom";
 import useCartStore from "../../store/useCartStore";
 import { useAuth } from "../../hooks/useAuth";
@@ -395,6 +396,8 @@ ${items
                             size="sm"
                             variant="outline"
                             borderRadius="full"
+                            borderColor={config.primaryColor}
+                            color={config.primaryColor}
                           />
                           <Text
                             fontWeight="bold"
@@ -411,6 +414,8 @@ ${items
                             size="sm"
                             variant="outline"
                             borderRadius="full"
+                            borderColor={config.primaryColor}
+                            color={config.primaryColor}
                           />
                           <IconButton
                             icon={<FaTrash />}
@@ -424,6 +429,7 @@ ${items
                             colorScheme="red"
                             size="sm"
                             variant="ghost"
+                            color={config.primaryColor}
                           />
                         </HStack>
                       </Flex>
@@ -568,7 +574,7 @@ ${items
                   height="80px"
                   fontSize="30px"
                   onClick={handleCheckout}
-                  leftIcon={<FaWhatsapp />}
+                  leftIcon={<IoLogoWhatsapp />}
                   borderRadius="full"
                   _hover={{ transform: "translateY(-2px)", boxShadow: "lg" }}
                   transition="all 0.2s"
