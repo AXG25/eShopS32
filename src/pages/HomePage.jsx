@@ -28,13 +28,17 @@ const HomePage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [filters, setLocalFilters] = useState({
-    priceRange: [0, Infinity],
+  const [filters, setLocalFilters] = useState(() => ({
+    priceRange: [
+      searchParams.get("minPrice") ? Number(searchParams.get("minPrice")) : 0,
+      searchParams.get("maxPrice") ? Number(searchParams.get("maxPrice")) : Infinity
+    ],
     category: searchParams.get("category") || "",
     sortBy: searchParams.get("sortBy") || "",
     search: searchParams.get("search") || "",
     limit: 12,
-  });
+  }));
+
   const toast = useToast();
   const scrollContainerRef = useRef(null);
 
@@ -83,18 +87,21 @@ const HomePage = () => {
     (newFilters) => {
       setLocalFilters((prevFilters) => {
         const updatedFilters = { ...prevFilters, ...newFilters };
-        setSearchParams(
-          Object.fromEntries(
-            Object.entries(updatedFilters).filter(([_, v]) => v !== "")
-          )
-        );
+        const searchParamsObject = {};
+        
+        if (updatedFilters.category) searchParamsObject.category = updatedFilters.category;
+        if (updatedFilters.sortBy) searchParamsObject.sortBy = updatedFilters.sortBy;
+        if (updatedFilters.search) searchParamsObject.search = updatedFilters.search;
+        if (updatedFilters.priceRange[0] > 0) searchParamsObject.minPrice = updatedFilters.priceRange[0];
+        if (updatedFilters.priceRange[1] < Infinity) searchParamsObject.maxPrice = updatedFilters.priceRange[1];
+
+        setSearchParams(searchParamsObject);
         setFilters(updatedFilters);
         return updatedFilters;
       });
     },
     [setSearchParams, setFilters]
   );
-
   const handleClearFilters = useCallback(() => {
     const clearedFilters = {
       priceRange: [0, Infinity],

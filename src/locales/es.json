@@ -163,6 +163,7 @@
   },
   "filters": {
     "title": "Filtros",
+    "searchPlaceholder": "Búsqueda",
     "priceRange": "Rango de Precio",
     "minPrice": "Precio mínimo",
     "maxPrice": "Precio máximo",

@@ -95,7 +95,7 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
     const filters = [];
     if (search) filters.push({ key: "search", value: search });
     if (category) filters.push({ key: "category", value: category });
-    if (minPrice && minPrice !== "0" || maxPrice && maxPrice !== "Infinity") {
+    if ((minPrice && minPrice !== "0") || (maxPrice && maxPrice !== "Infinity")) {
       filters.push({ key: "price", value: `${minPrice || 0} - ${maxPrice || "∞"}` });
     }
     if (sortBy) filters.push({ key: "sortBy", value: sortBy });
@@ -187,7 +187,7 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
           {getActiveFilters().map((filter) => (
             <WrapItem key={filter.key}>
               <Tag size="md" variant="subtle" colorScheme="blue">
-                <TagLabel>{`${t(`filters.${filter.key}`)}: ${filter.value}`}</TagLabel>
+                <TagLabel>{`${t(`filters.title`)}: ${filter.value}`}</TagLabel>
                 <TagCloseButton onClick={() => removeFilter(filter.key)} />
               </Tag>
             </WrapItem>

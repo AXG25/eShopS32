@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import axios from "axios";
@@ -30,7 +31,7 @@ const useProductStore = create(
             }
 
             const syncUrl = `${env.PRODUCTS.SYNC}/${user.id}`;
-            const response = await axios.post(
+            const res = await axios.post(
               syncUrl,
               {},
               {
