@@ -499,7 +499,7 @@ ${items
                     onChange={handleInputChange}
                     colorScheme="blue"
                   >
-                    ¿Factura Personalizada Requerida?
+                    ¿Usted Requiere Factura Personalizada?
                   </Checkbox>
                   {orderForm.customInvoiceRequired && (
                     <>
