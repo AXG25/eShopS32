@@ -50,10 +50,12 @@ import countryData from "country-telephone-data";
 import env from "../../config/env";
 import { isTransformableToNumber } from "../../utils/numberFormatting";
 import CustomButton from "../common/CustomButton";
+import useStoreConfigStore from "../../store/useStoreConfigStore";
 
 const MotionBox = motion(Box);
 
 const CartView = () => {
+  const { config } = useStoreConfigStore();
   const { items, removeFromCart, updateQuantity, getTotalPrice, clearCart } =
     useCartStore();
   const { isAuthenticated } = useAuth();
@@ -64,12 +66,11 @@ const CartView = () => {
 
   const [orderForm, setOrderForm] = useState({
     IDNumber: "",
-    phonePrefix: "",
+    phonePrefix: "+57",
     phoneNumber: "",
     email: "",
     customInvoiceRequired: false,
     name: "",
-    address: "",
     country: "",
   });
 
@@ -212,9 +213,6 @@ const CartView = () => {
       if (!orderForm.name) {
         errors.name = "Nombre requerido";
       }
-      if (!orderForm.address) {
-        errors.address = "Dirección requerida";
-      }
     }
 
     if (Object.keys(errors).length > 0) {
@@ -238,24 +236,21 @@ const CartView = () => {
     try {
       await axios.post(env.CART.CREATE_ORDER, orderData);
 
-      /*  const whatsappMessage = `Nuevo pedido:\n
-Cédula: ${orderForm.IDNumber}
-Teléfono: ${orderForm.phoneNumber}
-Email: ${orderForm.email}
-${
-  orderForm.customInvoiceRequired
-    ? `Nombre: ${orderForm.name}\nDirección: ${orderForm.address}`
-    : ""
-}
-Productos:\n${items
-        .map((item) => `- ${item.title} (x${item.quantity})`)
-        .join("\n")}
-Total: €${getTotalPrice().toFixed(2)}`; */
-      /* 
-      /*      const whatsappUrl = `https://wa.me/NUMERO_DEL_ADMINISTRADOR?text=${encodeURIComponent(
-        whatsappMessage
-      )}`;
-      window.open(whatsappUrl, "_blank"); */
+      const whatsappMessage = encodeURIComponent(`
+*Nuevo pedido:*
+${orderForm.name ? `Nombre: ${orderForm.name}`:''}
+${orderForm.IDNumber ? `Cédula: ${orderForm.IDNumber}`:''}        
+Teléfono: ${orderForm.phoneNumber}      
+Email: ${orderForm.email}            
+Productos:
+${items.map((item, index) => `*${index + 1}.* ${item.title} - ${item.price} (x${item.quantity})`).join("\n")}
+  *Total: ${getTotalPrice()}*`);
+        
+        const whatsappUrl = `https://wa.me/+573025479797?text=${whatsappMessage}`;
+        
+        setTimeout(() => {
+          window.open(whatsappUrl, "_blank");
+        }, 3000);
 
       clearCart();
       toast({
@@ -509,19 +504,6 @@ Total: €${getTotalPrice().toFixed(2)}`; */
                         />
                         <FormErrorMessage>{formErrors.name}</FormErrorMessage>
                       </FormControl>
-                      <FormControl isInvalid={!!formErrors.address}>
-                        <FormLabel>Dirección de Facturación</FormLabel>
-                        <Textarea
-                          name="address"
-                          value={orderForm.address}
-                          onChange={handleInputChange}
-                          placeholder="Calle Example 123, Piso 4º, 28001 Madrid, España"
-                          bg={inputBgColor}
-                        />
-                        <FormErrorMessage>
-                          {formErrors.address}
-                        </FormErrorMessage>
-                      </FormControl>
                     </>
                   )}
                 </VStack>
@@ -531,8 +513,8 @@ Total: €${getTotalPrice().toFixed(2)}`; */
 
               <Flex justify="space-between" align="center">
                 <VStack align="start" spacing={2}>
-                  <Text fontSize="2xl" fontWeight="bold">
-                    Total: €{getTotalPrice().toFixed(2)}
+                  <Text fontSize="5xl" fontWeight="extrabold" letterSpacing="tight" color={config.primaryColor}>
+                    Total: {getTotalPrice()}
                   </Text>
                   <CustomButton
                     colorScheme="red"
