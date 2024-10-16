@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import {
   Box,
   SimpleGrid,
@@ -13,50 +13,26 @@ import {
 } from "@chakra-ui/react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
-import axios from "axios";
 import { useInView } from "react-intersection-observer";
 import useStoreConfigStore from "../store/useStoreConfigStore";
+import useProductStore from "../store/useProductStore";
 import FilterBar from "../Components/product/FilterBar";
 import ProductCard from "../Components/product/ProductCard";
-import CustomButton from "../Components/common/CustomButton";
-import env from "../config/env";
+import CustomButton from "../components/common/CustomButton";
 
 const MotionBox = motion(Box);
 
-const fetchProducts = async ({ pageParam = 1, queryKey }) => {
-  const [_, filters] = queryKey;
-  const { category, priceRange, sortBy, limit = 10 } = filters;
-  let url = `${env.PRODUCTS.BASE}?page=${pageParam}&limit=${limit}`;
-
-  if (category) {
-    url += `&category=${category}`;
-  }
-
-  if (priceRange[0] > 0) {
-    url += `&minPrice=${priceRange[0]}`;
-  }
-
-  if (priceRange[1] < Infinity) {
-    url += `&maxPrice=${priceRange[1]}`;
-  }
-
-  if (sortBy) {
-    const [field, order] = sortBy.split('_');
-    url += `&sortBy=${field}&order=${order}`;
-  }
-
-  const { data } = await axios.get(url);
-  return data;
-};
-
 const HomePage = () => {
   const { config } = useStoreConfigStore();
+  const { fetchProducts, setFilters } = useProductStore();
   const location = useLocation();
   const navigate = useNavigate();
-  const [filters, setFilters] = useState({
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [filters, setLocalFilters] = useState({
     priceRange: [0, Infinity],
-    category: "",
-    sortBy: "",
+    category: searchParams.get("category") || "",
+    sortBy: searchParams.get("sortBy") || "",
+    search: searchParams.get("search") || "",
     limit: 12,
   });
   const toast = useToast();
@@ -71,26 +47,31 @@ const HomePage = () => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-    refetch
+    refetch,
   } = useInfiniteQuery({
     queryKey: ["products", filters],
-    queryFn: fetchProducts,
+    queryFn: ({ pageParam = 1 }) =>
+      fetchProducts({ ...filters, page: pageParam }),
     getNextPageParam: (lastPage, pages) => {
       if (lastPage.products.length < filters.limit) {
         return undefined;
       }
       return pages.length + 1;
     },
-    refetchOnWindowFocus: false
+    refetchOnWindowFocus: false,
   });
 
   useEffect(() => {
     const selectedCategory = location.state?.selectedCategory;
     if (selectedCategory) {
-      setFilters(prev => ({ ...prev, category: selectedCategory }));
+      setLocalFilters((prev) => ({ ...prev, category: selectedCategory }));
+      setSearchParams({
+        ...Object.fromEntries(searchParams),
+        category: selectedCategory,
+      });
       navigate(location.pathname, { replace: true, state: {} });
     }
-  }, [location.state, navigate]);
+  }, [location.state, navigate, searchParams, setSearchParams]);
 
   useEffect(() => {
     if (inView && hasNextPage) {
@@ -98,21 +79,34 @@ const HomePage = () => {
     }
   }, [inView, fetchNextPage, hasNextPage]);
 
-  const handleFilterChange = useCallback((newFilters) => {
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      ...newFilters,
-    }));
-  }, []);
+  const handleFilterChange = useCallback(
+    (newFilters) => {
+      setLocalFilters((prevFilters) => {
+        const updatedFilters = { ...prevFilters, ...newFilters };
+        setSearchParams(
+          Object.fromEntries(
+            Object.entries(updatedFilters).filter(([_, v]) => v !== "")
+          )
+        );
+        setFilters(updatedFilters);
+        return updatedFilters;
+      });
+    },
+    [setSearchParams, setFilters]
+  );
 
   const handleClearFilters = useCallback(() => {
-    setFilters({
+    const clearedFilters = {
       priceRange: [0, Infinity],
       category: "",
       sortBy: "",
+      search: "",
       limit: 12,
-    });
-  }, []);
+    };
+    setLocalFilters(clearedFilters);
+    setFilters(clearedFilters);
+    setSearchParams({});
+  }, [setSearchParams, setFilters]);
 
   useEffect(() => {
     if (error) {
@@ -142,7 +136,7 @@ const HomePage = () => {
     },
   };
 
-  const allProducts = data ? data.pages.flatMap(page => page.products) : [];
+  const allProducts = data ? data.pages.flatMap((page) => page.products) : [];
 
   return (
     <Box
@@ -159,7 +153,9 @@ const HomePage = () => {
             textAlign="center"
             color={config.primaryColor}
           >
-            {filters.category ? `Productos: ${filters.category}` : "Todos los Productos"}
+            {filters.category
+              ? `Productos: ${filters.category}`
+              : "Todos los Productos"}
           </Heading>
 
           <FilterBar

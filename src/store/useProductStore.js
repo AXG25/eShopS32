@@ -75,13 +75,7 @@ const useProductStore = create(
             }
 
             const response = await axios.get(url);
-            const products = response.data.products;
-            set({
-              products,
-              filteredProducts: products,
-              featuredProducts: products.slice(0, 10),
-              isLoading: false,
-            });
+            set({ isLoading: false });
             return response.data;
           } catch (error) {
             set({ error: error.message, isLoading: false });
@@ -89,11 +83,11 @@ const useProductStore = create(
           }
         },
         setFilters: (newFilters) => {
-          set((state) => {
-            const updatedFilters = { ...state.filters, ...newFilters };
-            return { filters: updatedFilters };
-          });
+          set((state) => ({
+            filters: { ...state.filters, ...newFilters },
+          }));
         },
+
         addProduct: (product) =>
           set((state) => ({
             products: [...state.products, product],

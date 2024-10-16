@@ -8,12 +8,16 @@ import {
   Text,
   HStack,
   VStack,
-  Collapse,
-  useDisclosure,
-  Badge,
-  Divider,
+  InputGroup,
+  InputLeftElement,
+  SimpleGrid,
+  Tag,
+  TagLabel,
+  TagCloseButton,
+  Wrap,
+  WrapItem,
 } from "@chakra-ui/react";
-import { ChevronDownIcon, ChevronUpIcon, CloseIcon } from "@chakra-ui/icons";
+import { SearchIcon } from "@chakra-ui/icons";
 import { useTranslation } from "react-i18next";
 import CustomButton from "../common/CustomButton";
 import { debounce } from "lodash";
@@ -22,22 +26,19 @@ import env from "../../config/env";
 
 const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
   const { t } = useTranslation();
-  const { isOpen, onToggle } = useDisclosure();
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [category, setCategory] = useState(currentFilters.category || "");
   const [sortBy, setSortBy] = useState(currentFilters.sortBy || "");
+  const [search, setSearch] = useState(currentFilters.search || "");
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const response = await axios.get(env.PRODUCTS.CATEGORIES);
-        // Asegúrate de que todas las categorías sean strings
-        console.log(response)
-        const processedCategories = response?.data
+        const processedCategories = response?.data;
         setCategories(["", ...processedCategories]);
-        console.log(processedCategories);
       } catch (error) {
         console.error("Error fetching categories:", error);
       }
@@ -60,13 +61,15 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
       ],
       category,
       sortBy,
+      search,
     };
     debouncedFilterChange(filters);
-  }, [minPrice, maxPrice, category, sortBy, debouncedFilterChange]);
+  }, [minPrice, maxPrice, category, sortBy, search, debouncedFilterChange]);
 
   useEffect(() => {
     setCategory(currentFilters.category || "");
     setSortBy(currentFilters.sortBy || "");
+    setSearch(currentFilters.search || "");
     setMinPrice(
       currentFilters.priceRange[0] === 0
         ? ""
@@ -84,81 +87,62 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
     setMaxPrice("");
     setCategory("");
     setSortBy("");
+    setSearch("");
     onClearFilters();
   };
 
-  const getActiveFiltersCount = () => {
-    let count = 0;
-    if (minPrice || maxPrice) count++;
-    if (category) count++;
-    if (sortBy) count++;
-    return count;
+  const getActiveFilters = () => {
+    const filters = [];
+    if (search) filters.push({ key: "search", value: search });
+    if (category) filters.push({ key: "category", value: category });
+    if (minPrice && minPrice !== "0" || maxPrice && maxPrice !== "Infinity") {
+      filters.push({ key: "price", value: `${minPrice || 0} - ${maxPrice || "∞"}` });
+    }
+    if (sortBy) filters.push({ key: "sortBy", value: sortBy });
+    return filters;
+  };
+
+  const removeFilter = (key) => {
+    switch (key) {
+      case "search":
+        setSearch("");
+        break;
+      case "category":
+        setCategory("");
+        break;
+      case "price":
+        setMinPrice("");
+        setMaxPrice("");
+        break;
+      case "sortBy":
+        setSortBy("");
+        break;
+      default:
+        break;
+    }
   };
 
   return (
-    <Box bg="gray.50" p={4} borderRadius="md" shadow="sm" mb={4}>
-      <Flex justifyContent="space-between" alignItems="center">
-        <HStack>
-          <CustomButton
-            onClick={onToggle}
-            rightIcon={isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
-            variant="ghost"
-          >
-            {t("filters.title")}
-          </CustomButton>
-          {getActiveFiltersCount() > 0 && (
-            <Badge colorScheme="blue" variant="solid" borderRadius="full">
-              {getActiveFiltersCount()}
-            </Badge>
-          )}
-        </HStack>
-        <CustomButton
-          leftIcon={<CloseIcon />}
-          onClick={clearFilters}
-          size="sm"
-          variant="ghost"
-          isDisabled={getActiveFiltersCount() === 0}
-        >
-          {t("general.clearFilters")}
-        </CustomButton>
-      </Flex>
+    <Box bg="white" p={4} borderRadius="md" shadow="sm" mb={4}>
+      <VStack spacing={4} align="stretch">
+        <InputGroup>
+          <InputLeftElement pointerEvents="none">
+            <SearchIcon color="gray.300" />
+          </InputLeftElement>
+          <Input
+            placeholder={t("filters.searchPlaceholder")}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </InputGroup>
 
-      <Collapse in={isOpen} animateOpacity>
-        <VStack spacing={4} align="stretch" mt={4}>
+        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
           <Box>
-            <Text fontWeight="bold" mb={2}>
-              {t("filters.priceRange")}
-            </Text>
-            <HStack>
-              <Input
-                placeholder={t("filters.minPrice")}
-                value={minPrice}
-                onChange={(e) => setMinPrice(e.target.value)}
-                type="number"
-                min="0"
-              />
-              <Text>-</Text>
-              <Input
-                placeholder={t("filters.maxPrice")}
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(e.target.value)}
-                type="number"
-                min="0"
-              />
-            </HStack>
-          </Box>
-
-          <Divider />
-
-          <Box>
-            <Text fontWeight="bold" mb={2}>
-              {t("general.category")}
-            </Text>
             <Select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
+              placeholder={t("filters.AllCategories")}
             >
-              <option value="">{t("filters.AllCategories")}</option>
               {categories
                 .filter((cat) => cat !== "")
                 .map((cat, key) => (
@@ -169,22 +153,55 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
             </Select>
           </Box>
 
-          <Divider />
+          <HStack>
+            <Input
+              placeholder={t("filters.minPrice")}
+              value={minPrice}
+              onChange={(e) => setMinPrice(e.target.value)}
+              type="number"
+              min="0"
+            />
+            <Text>-</Text>
+            <Input
+              placeholder={t("filters.maxPrice")}
+              value={maxPrice}
+              onChange={(e) => setMaxPrice(e.target.value)}
+              type="number"
+              min="0"
+            />
+          </HStack>
 
-          <Box>
-            <Text fontWeight="bold" mb={2}>
-              {t("general.sortBy")}
-            </Text>
-            <Select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-              <option value="">{t("select")}</option>
-              <option value="price_asc">{t("priceLowToHigh")}</option>
-              <option value="price_desc">{t("priceHighToLow")}</option>
-              <option value="name_asc">{t("nameAToZ")}</option>
-              <option value="name_desc">{t("nameZToA")}</option>
-            </Select>
-          </Box>
-        </VStack>
-      </Collapse>
+          <Select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            placeholder={t("general.sortBy")}
+          >
+            <option value="price_asc">{t("priceLowToHigh")}</option>
+            <option value="price_desc">{t("priceHighToLow")}</option>
+            <option value="name_asc">{t("nameAToZ")}</option>
+            <option value="name_desc">{t("nameZToA")}</option>
+          </Select>
+        </SimpleGrid>
+
+        <Wrap spacing={2}>
+          {getActiveFilters().map((filter) => (
+            <WrapItem key={filter.key}>
+              <Tag size="md" variant="subtle" colorScheme="blue">
+                <TagLabel>{`${t(`filters.${filter.key}`)}: ${filter.value}`}</TagLabel>
+                <TagCloseButton onClick={() => removeFilter(filter.key)} />
+              </Tag>
+            </WrapItem>
+          ))}
+        </Wrap>
+
+        {getActiveFilters().length > 0 && (
+          <Flex justifyContent="flex-end">
+            <CustomButton onClick={clearFilters} size="sm" variant="outline">
+              {t("general.clearFilters")}
+            </CustomButton>
+          </Flex>
+        )}
+      </VStack>
     </Box>
   );
 };
@@ -195,6 +212,7 @@ FilterBar.propTypes = {
   currentFilters: PropTypes.shape({
     category: PropTypes.string,
     sortBy: PropTypes.string,
+    search: PropTypes.string,
     priceRange: PropTypes.arrayOf(PropTypes.number).isRequired,
   }).isRequired,
 };
