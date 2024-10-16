@@ -564,7 +564,9 @@ ${items
                 </VStack>
                 <CustomButton
                   colorScheme="blue"
-                  size="lg"
+                  width="300px"
+                  height="80px"
+                  fontSize="30px"
                   onClick={handleCheckout}
                   leftIcon={<FaWhatsapp />}
                   borderRadius="full"
