@@ -50,10 +50,12 @@ import countryData from "country-telephone-data";
 import env from "../../config/env";
 import { isTransformableToNumber } from "../../utils/numberFormatting";
 import CustomButton from "../common/CustomButton";
+import useStoreConfigStore from "../../store/useStoreConfigStore";
 
 const MotionBox = motion(Box);
 
 const CartView = () => {
+  const { config } = useStoreConfigStore();
   const { items, removeFromCart, updateQuantity, getTotalPrice, clearCart } =
     useCartStore();
   const { isAuthenticated } = useAuth();
@@ -511,8 +513,8 @@ ${items.map((item, index) => `*${index + 1}.* ${item.title} - ${item.price} (x${
 
               <Flex justify="space-between" align="center">
                 <VStack align="start" spacing={2}>
-                  <Text fontSize="2xl" fontWeight="bold">
-                    Total: €{getTotalPrice().toFixed(2)}
+                  <Text fontSize="5xl" fontWeight="extrabold" letterSpacing="tight" color={config.primaryColor}>
+                    Total: {getTotalPrice()}
                   </Text>
                   <CustomButton
                     colorScheme="red"
