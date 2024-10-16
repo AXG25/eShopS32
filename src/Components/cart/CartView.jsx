@@ -41,24 +41,19 @@ import useCartStore from "../../store/useCartStore";
 import { useAuth } from "../../hooks/useAuth";
 import { motion } from "framer-motion";
 import axios from "axios";
-import {
-  parsePhoneNumber,
-  getCountryCallingCode,
-  isValidPhoneNumber,
-} from "libphonenumber-js";
+import { parsePhoneNumber, isValidPhoneNumber } from "libphonenumber-js";
 import countryData from "country-telephone-data";
 import env from "../../config/env";
 import { isTransformableToNumber } from "../../utils/numberFormatting";
 import CustomButton from "../common/CustomButton";
 import useStoreConfigStore from "../../store/useStoreConfigStore";
+import { NumericFormat } from "react-number-format";
 
 const MotionBox = motion(Box);
-
 const CartView = () => {
   const { config } = useStoreConfigStore();
   const { items, removeFromCart, updateQuantity, getTotalPrice, clearCart } =
     useCartStore();
-  const { isAuthenticated } = useAuth();
 
   const navigate = useNavigate();
   const toast = useToast();
@@ -238,19 +233,24 @@ const CartView = () => {
 
       const whatsappMessage = encodeURIComponent(`
 *Nuevo pedido:*
-${orderForm.name ? `Nombre: ${orderForm.name}`:''}
-${orderForm.IDNumber ? `Cédula: ${orderForm.IDNumber}`:''}        
+${orderForm.name ? `Nombre: ${orderForm.name}` : ""}
+${orderForm.IDNumber ? `Cédula: ${orderForm.IDNumber}` : ""}        
 Teléfono: ${orderForm.phoneNumber}      
 Email: ${orderForm.email}            
 Productos:
-${items.map((item, index) => `*${index + 1}.* ${item.title} - ${item.price} (x${item.quantity})`).join("\n")}
+${items
+  .map(
+    (item, index) =>
+      `*${index + 1}.* ${item.title} - ${item.price} (x${item.quantity})`
+  )
+  .join("\n")}
   *Total: ${getTotalPrice()}*`);
-        
-        const whatsappUrl = `https://wa.me/+573025479797?text=${whatsappMessage}`;
-        
-        setTimeout(() => {
-          window.open(whatsappUrl, "_blank");
-        }, 3000);
+
+      const whatsappUrl = `https://wa.me/+573025479797?text=${whatsappMessage}`;
+
+      setTimeout(() => {
+        window.open(whatsappUrl, "_blank");
+      }, 3000);
 
       clearCart();
       toast({
@@ -301,6 +301,12 @@ ${items.map((item, index) => `*${index + 1}.* ${item.title} - ${item.price} (x${
     setIsAlertOpen(false);
   };
 
+  const formatPrice = (price) => {
+    return isTransformableToNumber(price)
+      ? parseFloat(price, { defaultValue: 0 }).toFixed(10)
+      : "N/A";
+  };
+
   return (
     <Container maxW="container.xl" py={8}>
       <MotionBox
@@ -332,7 +338,7 @@ ${items.map((item, index) => `*${index + 1}.* ${item.title} - ${item.price} (x${
             <>
               <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
                 <VStack spacing={4} align="stretch">
-                  {items.map((item) => (
+                  {items.map((item, index) => (
                     <MotionBox
                       key={item.id}
                       bg={bgColor}
@@ -344,6 +350,13 @@ ${items.map((item, index) => `*${index + 1}.* ${item.title} - ${item.price} (x${
                     >
                       <Flex justify="space-between" align="center">
                         <HStack spacing={4}>
+                          <Text
+                            fontWeight="bold"
+                            fontSize="lg"
+                            color={config.primaryColor}
+                          >
+                            {index + 1}.
+                          </Text>
                           <Image
                             src={item.image}
                             alt={item.title}
@@ -358,14 +371,19 @@ ${items.map((item, index) => `*${index + 1}.* ${item.title} - ${item.price} (x${
                             <Badge colorScheme="blue" variant="subtle">
                               {item.category}
                             </Badge>
-                            <Text color={textColor} fontWeight="bold">
-                              €
-                              {isTransformableToNumber(item.price)
-                                ? parseFloat(item.price, {
-                                    defaultValu: 0,
-                                  }).toFixed(2)
-                                : "N/A"}
-                            </Text>
+                            <NumericFormat
+                              value={item.price}
+                              displayType={"text"}
+                              prefix={"$"}
+                              thousandSeparator=","
+                              decimalSeparator="."
+                              fixedDecimalScale={true}
+                              renderText={(value) => (
+                                <Text color={textColor} fontWeight="bold">
+                                  {value}
+                                </Text>
+                              )}
+                            />
                           </VStack>
                         </HStack>
                         <HStack>
@@ -412,7 +430,6 @@ ${items.map((item, index) => `*${index + 1}.* ${item.title} - ${item.price} (x${
                     </MotionBox>
                   ))}
                 </VStack>
-
                 <VStack
                   spacing={6}
                   align="stretch"
@@ -513,9 +530,28 @@ ${items.map((item, index) => `*${index + 1}.* ${item.title} - ${item.price} (x${
 
               <Flex justify="space-between" align="center">
                 <VStack align="start" spacing={2}>
-                  <Text fontSize="5xl" fontWeight="extrabold" letterSpacing="tight" color={config.primaryColor}>
-                    Total: {getTotalPrice()}
+                  <Text fontSize="2xl" fontWeight="bold" color={textColor}>
+                    Total del Pedido:
                   </Text>
+                  <NumericFormat
+                    value={getTotalPrice()}
+                    displayType={"text"}
+                    thousandSeparator=","
+                    decimalSeparator="."
+                    prefix={"$"}
+                    fixedDecimalScale={true}
+                    renderText={(value) => (
+                      <Text
+                        fontSize={{ base: "4xl", md: "6xl" }}
+                        fontWeight="extrabold"
+                        letterSpacing="wide"
+                        color={config.primaryColor}
+                        lineHeight="1"
+                      >
+                        {value}
+                      </Text>
+                    )}
+                  />
                   <CustomButton
                     colorScheme="red"
                     variant="outline"
