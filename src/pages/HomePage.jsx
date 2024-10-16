@@ -158,6 +158,8 @@ const HomePage = () => {
             size="2xl"
             textAlign="center"
             color={config.primaryColor}
+            fontWeight="extrabold" 
+            letterSpacing="tight"
           >
             {filters.category ? `Productos: ${filters.category}` : "Todos los Productos"}
           </Heading>
