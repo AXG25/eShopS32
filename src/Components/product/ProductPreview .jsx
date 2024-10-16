@@ -24,6 +24,8 @@ import {
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next"; // Importamos useTranslation
 import CustomButton from "../common/CustomButton";
+import { parseFloat } from "../../utils/numberFormatting";
+import { NumericFormat } from "react-number-format";
 
 const ProductPreview = ({ isOpen, onClose, product, onAddToCart }) => {
   const { t } = useTranslation(); // Inicializamos el hook de traducción
@@ -82,13 +84,33 @@ const ProductPreview = ({ isOpen, onClose, product, onAddToCart }) => {
               <Text color={textColor}>{product.description}</Text>
 
               <HStack justify="space-between">
-                <Text fontSize="3xl" fontWeight="bold" color={textColor}>
-                  €{formatPrice(discountedPrice)}
-                </Text>
+                <NumericFormat
+                  value={formatPrice(discountedPrice)}
+                  displayType={"text"}
+                  prefix={"$"}
+                  thousandSeparator=","
+                  decimalSeparator="."
+                  fixedDecimalScale={true}
+                  renderText={(value) => (
+                    <Text fontSize="3xl" fontWeight="bold" color={textColor}>
+                      {value}
+                    </Text>
+                  )}
+                />
                 {product.discount > 0 && (
-                  <Text as="s" fontSize="xl" color="gray.500">
-                    €{formatPrice(product.price)}
-                  </Text>
+                  <NumericFormat
+                    value={formatPrice(product.price)}
+                    displayType={"text"}
+                    prefix={"$"}
+                    thousandSeparator=","
+                    decimalSeparator="."
+                    fixedDecimalScale={true}
+                    renderText={(value) => (
+                      <Text as="s" fontSize="xl" color="gray.500">
+                        {value}
+                      </Text>
+                    )}
+                  />
                 )}
               </HStack>
 

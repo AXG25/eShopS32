@@ -16,6 +16,8 @@ import {
   TagCloseButton,
   Wrap,
   WrapItem,
+  FormControl,
+  FormErrorMessage,
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
 import { useTranslation } from "react-i18next";
@@ -32,6 +34,7 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
   const [sortBy, setSortBy] = useState(currentFilters.sortBy || "");
   const [search, setSearch] = useState(currentFilters.search || "");
   const [categories, setCategories] = useState([]);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -46,9 +49,32 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
     fetchCategories();
   }, []);
 
+  const validateInputs = () => {
+    const newErrors = {};
+    if (minPrice && isNaN(parseFloat(minPrice))) {
+      newErrors.minPrice = t("errors.invalidNumber");
+    }
+    if (maxPrice && isNaN(parseFloat(maxPrice))) {
+      newErrors.maxPrice = t("errors.invalidNumber");
+    }
+    if (parseFloat(minPrice) < 0) {
+      newErrors.minPrice = t("errors.negativeNumber");
+    }
+    if (parseFloat(maxPrice) < 0) {
+      newErrors.maxPrice = t("errors.negativeNumber");
+    }
+    if (parseFloat(minPrice) > parseFloat(maxPrice) && maxPrice !== "") {
+      newErrors.priceRange = t("errors.minGreaterThanMax");
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const debouncedFilterChange = useCallback(
     debounce((filters) => {
-      onFilterChange(filters);
+      if (validateInputs()) {
+        onFilterChange(filters);
+      }
     }, 300),
     [onFilterChange]
   );
@@ -88,6 +114,7 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
     setCategory("");
     setSortBy("");
     setSearch("");
+    setErrors({});
     onClearFilters();
   };
 
@@ -95,8 +122,14 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
     const filters = [];
     if (search) filters.push({ key: "search", value: search });
     if (category) filters.push({ key: "category", value: category });
-    if ((minPrice && minPrice !== "0") || (maxPrice && maxPrice !== "Infinity")) {
-      filters.push({ key: "price", value: `${minPrice || 0} - ${maxPrice || "∞"}` });
+    if (
+      (minPrice && minPrice !== "0") ||
+      (maxPrice && maxPrice !== "Infinity")
+    ) {
+      filters.push({
+        key: "price",
+        value: `${minPrice || 0} - ${maxPrice || "∞"}`,
+      });
     }
     if (sortBy) filters.push({ key: "sortBy", value: sortBy });
     return filters;
@@ -113,6 +146,7 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
       case "price":
         setMinPrice("");
         setMaxPrice("");
+        setErrors({});
         break;
       case "sortBy":
         setSortBy("");
@@ -153,23 +187,30 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
             </Select>
           </Box>
 
-          <HStack>
-            <Input
-              placeholder={t("filters.minPrice")}
-              value={minPrice}
-              onChange={(e) => setMinPrice(e.target.value)}
-              type="number"
-              min="0"
-            />
-            <Text>-</Text>
-            <Input
-              placeholder={t("filters.maxPrice")}
-              value={maxPrice}
-              onChange={(e) => setMaxPrice(e.target.value)}
-              type="number"
-              min="0"
-            />
-          </HStack>
+          <FormControl
+            isInvalid={errors.priceRange || errors.minPrice || errors.maxPrice}
+          >
+            <HStack>
+              <Input
+                placeholder={t("filters.minPrice")}
+                value={minPrice}
+                onChange={(e) => setMinPrice(e.target.value)}
+                type="number"
+                min="0"
+              />
+              <Text>-</Text>
+              <Input
+                placeholder={t("filters.maxPrice")}
+                value={maxPrice}
+                onChange={(e) => setMaxPrice(e.target.value)}
+                type="number"
+                min="0"
+              />
+            </HStack>
+            <FormErrorMessage>
+              {errors.priceRange || errors.minPrice || errors.maxPrice}
+            </FormErrorMessage>
+          </FormControl>
 
           <Select
             value={sortBy}
@@ -187,7 +228,9 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
           {getActiveFilters().map((filter) => (
             <WrapItem key={filter.key}>
               <Tag size="md" variant="subtle" colorScheme="blue">
-                <TagLabel>{`${t(`filters.title`)}: ${filter.value}`}</TagLabel>
+                <TagLabel>{`${t(`filters.${filter.key}`)}: ${
+                  filter.value
+                }`}</TagLabel>
                 <TagCloseButton onClick={() => removeFilter(filter.key)} />
               </Tag>
             </WrapItem>

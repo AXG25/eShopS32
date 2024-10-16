@@ -17,6 +17,8 @@ import { useTranslation } from "react-i18next";
 import useCartStore from "../../store/useCartStore";
 import ProductPreview from "./ProductPreview ";
 import CustomButton from "../common/CustomButton";
+import { parseFloat } from "../../utils/numberFormatting";
+import { NumericFormat } from "react-number-format";
 
 const MotionBox = motion(Box);
 
@@ -108,13 +110,33 @@ const ProductCard = memo(({ product }) => {
 
           <VStack align="stretch" spacing={2}>
             <HStack justify="space-between">
-              <Text fontWeight="bold" fontSize="lg" color="blue.500">
-                €{formatPrice(discountedPrice)}
-              </Text>
+              <NumericFormat
+                value={formatPrice(discountedPrice)}
+                displayType={"text"}
+                prefix={"$"}
+                thousandSeparator=","
+                decimalSeparator="."
+                fixedDecimalScale={true}
+                renderText={(value) => (
+                  <Text color={textColor} fontWeight="bold">
+                    {value}
+                  </Text>
+                )}
+              />
               {product.discount > 0 && (
-                <Text as="s" fontSize="sm" color="gray.500">
-                  €{formatPrice(product.price)}
-                </Text>
+                <NumericFormat
+                  value={formatPrice(product.price)}
+                  displayType={"text"}
+                  prefix={"$"}
+                  thousandSeparator=","
+                  decimalSeparator="."
+                  fixedDecimalScale={true}
+                  renderText={(value) => (
+                    <Text color={textColor} fontWeight="bold">
+                      {value}
+                    </Text>
+                  )}
+                />
               )}
             </HStack>
 

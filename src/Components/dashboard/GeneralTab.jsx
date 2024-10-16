@@ -54,13 +54,17 @@ export const GeneralTab = ({ localConfig, setLocalConfig }) => {
   // Manejadores de cambios en la configuración
   const handleConfigChange = (e) => {
     const { name, value } = e.target;
-    setLocalConfig((prev) => ({ ...prev, [name]: value }));
+    if (localConfig[name] !== value) {
+      setLocalConfig((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleLanguageChange = (e) => {
     const newLanguage = e.target.value;
-    setPreviewLanguage(newLanguage);
-    setLocalConfig((prev) => ({ ...prev, language: newLanguage }));
+    if (localConfig.language !== newLanguage) {
+      setPreviewLanguage(newLanguage);
+      setLocalConfig((prev) => ({ ...prev, language: newLanguage }));
+    }
   };
 
   // Efecto para cambiar el idioma temporalmente para previsualización

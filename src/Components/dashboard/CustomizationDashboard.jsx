@@ -58,17 +58,23 @@ const CustomizationDashboard = () => {
   }, [config]);
 
   const handleSaveConfig = useCallback(async () => {
-    setConfig(localConfig);
+    const changedValues = {};
+    Object.keys(localConfig).forEach((key) => {
+      if (JSON.stringify(localConfig[key]) !== JSON.stringify(config[key])) {
+        changedValues[key] = localConfig[key];
+      }
+    });
+
+    setConfig(changedValues);
     await saveConfigToBackend();
     toast({
       title: "Configuración guardada",
-      description:
-        "Cambios guardados de forma local",
+      description: "Cambios guardados en el backend",
       status: "success",
       duration: 3000,
       isClosable: true,
     });
-  }, [localConfig, setConfig, saveConfigToBackend, toast]);
+  }, [localConfig, config, setConfig, saveConfigToBackend, toast]);
 
   const handleDeleteProduct = useCallback(
     (id) => {
@@ -153,19 +159,19 @@ const CustomizationDashboard = () => {
       <Tabs colorScheme="blue" variant="enclosed-colored">
         <TabList mb={4}>
           <Tab>
-            <FaCog /> <span style={{marginLeft: '4px'}}>General</span>
+            <FaCog /> <span style={{ marginLeft: "4px" }}>General</span>
           </Tab>
           <Tab>
-            <FaPalette /> <span style={{marginLeft: '4px'}}>Diseño</span>
+            <FaPalette /> <span style={{ marginLeft: "4px" }}>Diseño</span>
           </Tab>
           <Tab>
-            <FaBoxOpen /> <span style={{marginLeft: '4px'}}>Productos</span>
+            <FaBoxOpen /> <span style={{ marginLeft: "4px" }}>Productos</span>
           </Tab>
           <Tab>
-            <FaList /> <span style={{marginLeft: '4px'}}>Footer</span>
+            <FaList /> <span style={{ marginLeft: "4px" }}>Footer</span>
           </Tab>
           <Tab>
-            <FaHome /> <span style={{marginLeft: '4px'}}>Landing Page</span>
+            <FaHome /> <span style={{ marginLeft: "4px" }}>Landing Page</span>
           </Tab>
         </TabList>
 

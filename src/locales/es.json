@@ -204,7 +204,13 @@
     "errorTitle": "Error al enviar el mensaje",
     "errorMessage": "Por favor, intenta nuevamente más tarde."
   },
+  "errors": {
+    "invalidNumber": "Por favor, ingrese un número válido",
+    "negativeNumber": "El precio no puede ser negativo",
+    "minGreaterThanMax": "El precio mínimo no puede ser mayor que el máximo"
+  },
   "about": {
+    "aboutUs": "Nosotros",
     "aboutUsTitle": "Sobre Nuestra Empresa",
     "ourHistory": "Nuestra Historia",
     "historyText": "Fundada en [año], nuestra empresa comenzó con una idea simple: [describe la idea inicial]. Desde entonces, hemos crecido hasta convertirnos en [describe el estado actual de la empresa].",

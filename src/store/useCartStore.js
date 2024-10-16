@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { parseFloat } from "../utils/numberFormatting";
 
 const useCartStore = create(
   persist(

@@ -44,7 +44,7 @@ import axios from "axios";
 import { parsePhoneNumber, isValidPhoneNumber } from "libphonenumber-js";
 import countryData from "country-telephone-data";
 import env from "../../config/env";
-import { isTransformableToNumber } from "../../utils/numberFormatting";
+import { isTransformableToNumber, parseFloat } from "../../utils/numberFormatting";
 import CustomButton from "../common/CustomButton";
 import useStoreConfigStore from "../../store/useStoreConfigStore";
 import { NumericFormat } from "react-number-format";
@@ -303,7 +303,7 @@ ${items
 
   const formatPrice = (price) => {
     return isTransformableToNumber(price)
-      ? parseFloat(price, { defaultValue: 0 }).toFixed(10)
+      ? parseFloat(price, { defaultValue: 0 })
       : "N/A";
   };
 
@@ -372,7 +372,7 @@ ${items
                               {item.category}
                             </Badge>
                             <NumericFormat
-                              value={item.price}
+                              value={formatPrice(item.price)}
                               displayType={"text"}
                               prefix={"$"}
                               thousandSeparator=","

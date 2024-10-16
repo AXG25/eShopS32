@@ -8,10 +8,12 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
+  HStack,
 } from "@chakra-ui/react";
 import { HamburgerIcon } from "@chakra-ui/icons";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { IoMdLogIn, IoMdInformationCircle } from "react-icons/io";
 
 import useStoreConfigStore from "../../store/useStoreConfigStore";
 import { useAuth } from "../../hooks/useAuth";
@@ -19,7 +21,6 @@ import CartHeader from "../cart/CartHeader";
 import DefaultLogo from "../Layout/DefaultLogo";
 import CustomButton from "../common/CustomButton";
 import ProfileButton from "../common/ProfileButton";
-import { IoMdLogIn } from "react-icons/io";
 
 /**
  * Header component for the e-commerce application.
@@ -77,7 +78,17 @@ const Header = ({ onToggleSidebar }) => {
         </Flex>
       </Flex>
 
-      <Flex align="center">
+      <HStack spacing={4}>
+        {/* New "Nosotros" button */}
+        <CustomButton
+          leftIcon={<IoMdInformationCircle />}
+          onClick={() => navigate("/")}
+          variant="ghost"
+          section="header"
+        >
+          {t("about.aboutUs")}
+        </CustomButton>
+
         <CartHeader />
         {isAuthenticated ? (
           <Menu>
@@ -100,7 +111,7 @@ const Header = ({ onToggleSidebar }) => {
             Iniciar Sesión
           </CustomButton>
         )}
-      </Flex>
+      </HStack>
     </Flex>
   );
 };

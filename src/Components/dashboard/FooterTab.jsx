@@ -9,7 +9,7 @@ import {
   Textarea,
 } from "@chakra-ui/react";
 import { FaPlus, FaTrash } from "react-icons/fa";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 import CustomButton from "../common/CustomButton";
 
 export const FooterTab = ({ footerConfig, onFooterConfigChange }) => {
@@ -17,13 +17,18 @@ export const FooterTab = ({ footerConfig, onFooterConfigChange }) => {
     const { value } = e.target;
     const newFooterConfig = { ...footerConfig };
     if (section === "contact") {
-      newFooterConfig.contact[key] = value;
+      if (newFooterConfig.contact[key] !== value) {
+        newFooterConfig.contact[key] = value;
+        onFooterConfigChange({ contact: newFooterConfig.contact });
+      }
     } else {
-      newFooterConfig[section][index][key] = value;
+      if (newFooterConfig[section][index][key] !== value) {
+        newFooterConfig[section][index][key] = value;
+        onFooterConfigChange({ [section]: newFooterConfig[section] });
+      }
     }
-    onFooterConfigChange(newFooterConfig);
   };
-
+  
   const addItem = (section) => {
     const newFooterConfig = { ...footerConfig };
     newFooterConfig[section].push({ name: "", url: "" });

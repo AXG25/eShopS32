@@ -13,6 +13,8 @@ import { FaShoppingCart } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import useCartStore from "../../store/useCartStore";
 import CustomButton from "../common/CustomButton";
+import { NumericFormat } from "react-number-format";
+import { parseFloat } from "../../utils/numberFormatting";
 
 const CartHeader = () => {
   const { items, getTotalItems, getTotalPrice } = useCartStore();
@@ -44,9 +46,20 @@ const CartHeader = () => {
                     <Text fontWeight="bold" fontSize="sm">
                       {item.title}
                     </Text>
-                    <Text fontSize="xs">
-                      {item.quantity} x €{parseFloat(item.price, { defaultValu: 0 }).toFixed(2)}
-                    </Text>
+                    <NumericFormat
+                      value={parseFloat(item.price, { defaultValu: 0 })}
+                      displayType={"text"}
+                      prefix={"$"}
+                      thousandSeparator=","
+                      decimalSeparator="."
+                      fixedDecimalScale={true}
+                      renderText={(value) => (
+                        <Text fontSize="xs" >
+                          {" "}
+                          {item.quantity} x {value}
+                        </Text>
+                      )}
+                    />
                   </VStack>
                 </HStack>
               ))}
@@ -55,9 +68,15 @@ const CartHeader = () => {
                   Y {items.length - 3} productos más...
                 </Text>
               )}
-              <Text fontWeight="bold">
-                Total: €{getTotalPrice().toFixed(2)}
-              </Text>
+              <NumericFormat
+                value={getTotalPrice()}
+                displayType={"text"}
+                prefix={"$"}
+                thousandSeparator=","
+                decimalSeparator="."
+                fixedDecimalScale={true}
+                renderText={(value) => <Text fontWeight="bold">{value}</Text>}
+              />
               <Link to="/cart" style={{ width: "100%" }}>
                 <CustomButton colorScheme="blue" width="100%" section="cart">
                   Ver Carrito

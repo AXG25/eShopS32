@@ -126,19 +126,31 @@ const useStoreConfigStore = create(
         applyStyleChanges(defaultConfig);
       },
       saveConfigToBackend: async () => {
-        const config = get().config;
+        const currentConfig = get().config;
+        const changedValues = {};
+
+        // Comparar cada propiedad y solo incluir las que han cambiado
+        Object.keys(currentConfig).forEach((key) => {
+          if (
+            JSON.stringify(currentConfig[key]) !==
+            JSON.stringify(defaultConfig[key])
+          ) {
+            changedValues[key] = currentConfig[key];
+          }
+        });
+
         const {
           token,
           user: { id },
         } = useAuthStore.getState();
 
         if (!token) {
-          console.error("No se encontro un token válido");
+          console.error("No se encontró un token válido");
           return;
         }
 
         try {
-          await axios.put(`${env.CUSTOMIZED.BASE}/${id}`, config, {
+          await axios.put(`${env.CUSTOMIZED.BASE}/${id}`, changedValues, {
             headers: { Authorization: `Bearer ${token}` },
           });
           toast.success("Configuración guardada en el backend");
