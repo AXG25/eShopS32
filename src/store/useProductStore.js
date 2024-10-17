@@ -72,7 +72,8 @@ const useProductStore = create(
               url += `&maxPrice=${priceRange[1]}`;
             if (sortBy) {
               const [field, order] = sortBy.split("_");
-              url += `&sortBy=${field}&order=${order}`;
+              const sortField = field === 'name' ? 'title' : field;
+              url += `&sortBy=${sortField}&order=${order}`;
             }
 
             const response = await axios.get(url);
