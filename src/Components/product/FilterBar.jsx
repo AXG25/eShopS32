@@ -219,8 +219,8 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
           >
             <option value="price_asc">{t("priceLowToHigh")}</option>
             <option value="price_desc">{t("priceHighToLow")}</option>
-            <option value="name_asc">{t("nameAToZ")}</option>
-            <option value="name_desc">{t("nameZToA")}</option>
+            <option value="asc">{t("nameAToZ")}</option>
+            <option value="desc">{t("nameZToA")}</option>
           </Select>
         </SimpleGrid>
 
