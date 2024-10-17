@@ -1,10 +1,9 @@
 import PropTypes from "prop-types";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Box,
   Flex,
   Select,
-  Input,
   Text,
   HStack,
   VStack,
@@ -18,39 +17,26 @@ import {
   WrapItem,
   FormControl,
   FormErrorMessage,
+  Input,
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
 import { useTranslation } from "react-i18next";
+import { NumericFormat } from "react-number-format";
 import CustomButton from "../common/CustomButton";
 import { debounce } from "lodash";
 import axios from "axios";
 import env from "../../config/env";
-import {
-  parseFloat,
-  isTransformableToNumber,
-} from "../../utils/numberFormatting";
 
 const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
   const { t } = useTranslation();
-  const [minPrice, setMinPrice] = useState(() => {
-    const minPriceValue = currentFilters.priceRange?.[0];
-    return minPriceValue != null && minPriceValue !== 0
-      ? minPriceValue.toString()
-      : "";
-  });
-
-  const [maxPrice, setMaxPrice] = useState(() => {
-    const maxPriceValue = currentFilters.priceRange?.[1];
-    return maxPriceValue != null && maxPriceValue !== Infinity
-      ? maxPriceValue.toString()
-      : "";
-  });
-
   const [category, setCategory] = useState(currentFilters.category || "");
   const [sortBy, setSortBy] = useState(currentFilters.sortBy || "");
   const [search, setSearch] = useState(currentFilters.search || "");
   const [categories, setCategories] = useState([]);
   const [errors, setErrors] = useState({});
+
+  const [debouncedFilters, setDebouncedFilters] = useState(currentFilters);
+  const debouncedFilterChangeRef = useRef(null);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -66,92 +52,69 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
     fetchCategories();
   }, []);
 
-  const validateInputs = useCallback(() => {
-    const newErrors = {};
-    if (minPrice && !isTransformableToNumber(minPrice)) {
-      newErrors.minPrice = t("errors.invalidNumber");
-    }
-
-    if (maxPrice && !isTransformableToNumber(maxPrice)) {
-      newErrors.maxPrice = t("errors.invalidNumber");
-    }
-
-    const minPriceValue = parseFloat(minPrice, { defaultValue: 0 });
-    const maxPriceValue = parseFloat(maxPrice, { defaultValue: Infinity });
-
-    if (minPriceValue < 0) {
-      newErrors.minPrice = t("errors.negativeNumber");
-    }
-
-    if (maxPriceValue < 0) {
-      newErrors.maxPrice = t("errors.negativeNumber");
-    }
-
-    if (minPriceValue > maxPriceValue) {
-      newErrors.priceRange = t("errors.minGreaterThanMax");
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  }, [minPrice, maxPrice, t]);
-
-  const debouncedFilterChange = useCallback(
-    debounce((filters) => {
-      if (validateInputs()) {
-        onFilterChange(filters);
+  useEffect(() => {
+    debouncedFilterChangeRef.current = debounce((newFilters) => {
+      if (validateInputs(newFilters)) {
+        onFilterChange(newFilters);
       }
-    }, 300),
-    [onFilterChange, validateInputs]
+    }, 500);
+
+    return () => {
+      if (debouncedFilterChangeRef.current) {
+        debouncedFilterChangeRef.current.cancel();
+      }
+    };
+  }, [onFilterChange]);
+
+  const validateInputs = useCallback(
+    (filters) => {
+      const newErrors = {};
+      const minPriceValue = filters.priceRange[0];
+      const maxPriceValue = filters.priceRange[1];
+
+      if (minPriceValue < 0) {
+        newErrors.minPrice = t("errors.negativeNumber");
+      }
+
+      if (maxPriceValue < 0) {
+        newErrors.maxPrice = t("errors.negativeNumber");
+      }
+
+      if (minPriceValue > maxPriceValue) {
+        newErrors.priceRange = t("errors.minGreaterThanMax");
+      }
+
+      setErrors(newErrors);
+      return Object.keys(newErrors).length === 0;
+    },
+    [t]
   );
 
-  useEffect(() => {
-    const filters = {
-      priceRange: [
-        minPrice ? parseFloat(minPrice) : 0,
-        maxPrice ? parseFloat(maxPrice) : Infinity,
-      ],
-      category,
-      sortBy,
-      search,
-    };
-
-    if (JSON.stringify(filters) !== JSON.stringify(currentFilters)) {
-      debouncedFilterChange(filters);
-    }
-  }, [
-    minPrice,
-    maxPrice,
-    category,
-    sortBy,
-    search,
-    debouncedFilterChange,
-    currentFilters,
-  ]);
-
-  useEffect(() => {
-    setCategory(currentFilters.category || "");
-    setSortBy(currentFilters.sortBy || "");
-    setSearch(currentFilters.search || "");
-    setMinPrice(
-      currentFilters.priceRange?.[0] != null &&
-        currentFilters.priceRange[0] !== 0
-        ? currentFilters.priceRange[0].toString()
-        : ""
-    );
-    setMaxPrice(
-      currentFilters.priceRange?.[1] != null &&
-        currentFilters.priceRange[1] !== Infinity
-        ? currentFilters.priceRange[1].toString()
-        : ""
-    );
-  }, [currentFilters]);
+  const handleInputChange = useCallback((key, value) => {
+    setDebouncedFilters((prev) => {
+      const newFilters = { ...prev };
+      if (key === "minPrice" || key === "maxPrice") {
+        const index = key === "minPrice" ? 0 : 1;
+        newFilters.priceRange = [...prev.priceRange];
+        newFilters.priceRange[index] =
+          value === "" ? (index === 0 ? 0 : Infinity) : value;
+      } else {
+        newFilters[key] = value;
+      }
+      if (debouncedFilterChangeRef.current) {
+        debouncedFilterChangeRef.current(newFilters);
+      }
+      return newFilters;
+    });
+  }, []);
 
   const clearFilters = () => {
-    setMinPrice("");
-    setMaxPrice("");
-    setCategory("");
-    setSortBy("");
-    setSearch("");
+    setDebouncedFilters({
+      priceRange: [0, Infinity],
+      category: "",
+      sortBy: "",
+      search: "",
+    });
     setErrors({});
     onClearFilters();
   };
@@ -160,10 +123,17 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
     const filters = [];
     if (search) filters.push({ key: "search", value: search });
     if (category) filters.push({ key: "category", value: category });
-    if (minPrice || maxPrice) {
+    if (
+      debouncedFilters.priceRange[0] > 0 ||
+      debouncedFilters.priceRange[1] < Infinity
+    ) {
       filters.push({
         key: "price",
-        value: `${minPrice || 0} - ${maxPrice || "∞"}`,
+        value: `${debouncedFilters.priceRange[0]} - ${
+          debouncedFilters.priceRange[1] === Infinity
+            ? "∞"
+            : debouncedFilters.priceRange[1]
+        }`,
       });
     }
     if (sortBy) filters.push({ key: "sortBy", value: sortBy });
@@ -174,17 +144,20 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
     switch (key) {
       case "search":
         setSearch("");
+        handleInputChange("search", "");
         break;
       case "category":
         setCategory("");
+        handleInputChange("category", "");
         break;
       case "price":
-        setMinPrice("");
-        setMaxPrice("");
+        handleInputChange("minPrice", 0);
+        handleInputChange("maxPrice", Infinity);
         setErrors({});
         break;
       case "sortBy":
         setSortBy("");
+        handleInputChange("sortBy", "");
         break;
       default:
         break;
@@ -201,15 +174,21 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
           <Input
             placeholder={t("filters.searchPlaceholder")}
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              handleInputChange("search", e.target.value);
+            }}
           />
         </InputGroup>
 
         <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
           <Box>
-          <Select
+            <Select
               value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              onChange={(e) => {
+                setCategory(e.target.value);
+                handleInputChange("category", e.target.value);
+              }}
               placeholder={t("filters.AllCategories")}
             >
               {categories
@@ -226,20 +205,36 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
             isInvalid={errors.priceRange || errors.minPrice || errors.maxPrice}
           >
             <HStack>
-              <Input
+              <NumericFormat
+                customInput={Input}
+                thousandSeparator={true}
+                prefix="$"
                 placeholder={t("filters.minPrice")}
-                value={minPrice}
-                onChange={(e) => setMinPrice(e.target.value)}
-                type="number"
-                min="0"
+                value={
+                  debouncedFilters.priceRange[0] === 0
+                    ? ""
+                    : debouncedFilters.priceRange[0]
+                }
+                onValueChange={(values) => {
+                  handleInputChange("minPrice", values.floatValue || 0);
+                }}
+                allowNegative={false}
               />
               <Text>-</Text>
-              <Input
+              <NumericFormat
+                customInput={Input}
+                thousandSeparator={true}
+                prefix="$"
                 placeholder={t("filters.maxPrice")}
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(e.target.value)}
-                type="number"
-                min="0"
+                value={
+                  debouncedFilters.priceRange[1] === Infinity
+                    ? ""
+                    : debouncedFilters.priceRange[1]
+                }
+                onValueChange={(values) => {
+                  handleInputChange("maxPrice", values.floatValue || Infinity);
+                }}
+                allowNegative={false}
               />
             </HStack>
             <FormErrorMessage>
@@ -249,7 +244,10 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
 
           <Select
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
+            onChange={(e) => {
+              setSortBy(e.target.value);
+              handleInputChange("sortBy", e.target.value);
+            }}
             placeholder={t("general.sortBy")}
           >
             <option value="price_asc">{t("priceLowToHigh")}</option>
