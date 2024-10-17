@@ -1,3 +1,4 @@
+import React, { useState, useMemo, useCallback } from "react";
 import {
   VStack,
   FormControl,
@@ -7,151 +8,241 @@ import {
   Heading,
   SimpleGrid,
   Box,
-  Select,
-} from '@chakra-ui/react';
-import { FaPlus, FaTrash } from 'react-icons/fa';
-import PropTypes from 'prop-types';
-import { useTranslation } from 'react-i18next';
-import CustomButton from '../common/CustomButton';
-import ImageUpload from '../common/ImageUpload';
-import ColorPicker from './ColorPicker';
+} from "@chakra-ui/react";
+import { FaPlus, FaTrash } from "react-icons/fa";
+import PropTypes from "prop-types";
+import { useTranslation } from "react-i18next";
+import { debounce } from "lodash";
+import CustomButton from "../common/CustomButton";
+import ImageUpload from "../common/ImageUpload";
+import ColorPicker from "./ColorPicker";
+import IconSelect from "../common/IconSelect";
 
 const LandingPageTab = ({ landingPageConfig, onLandingPageConfigChange }) => {
   const { t } = useTranslation();
+  const [localConfig, setLocalConfig] = useState(landingPageConfig);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    onLandingPageConfigChange({ [name]: value });
-  };
+  const debouncedConfigChange = useCallback(
+    debounce((newConfig) => {
+      onLandingPageConfigChange(newConfig);
+    }, 300),
+    [onLandingPageConfigChange]
+  );
 
-  const handleColorChange = (key, color) => {
-    onLandingPageConfigChange({ [key]: color });
-  };
+  const handleChange = useCallback(
+    (e) => {
+      const { name, value } = e.target;
+      setLocalConfig((prev) => {
+        const newConfig = { ...prev, [name]: value };
+        debouncedConfigChange(newConfig);
+        return newConfig;
+      });
+    },
+    [debouncedConfigChange]
+  );
 
-  const handleFeatureChange = (index, field, value) => {
-    const updatedFeatures = [...landingPageConfig.features];
-    updatedFeatures[index][field] = value;
-    onLandingPageConfigChange({ features: updatedFeatures });
-  };
+  const handleColorChange = useCallback(
+    (key, color) => {
+      setLocalConfig((prev) => {
+        const newConfig = { ...prev, [key]: color };
+        debouncedConfigChange(newConfig);
+        return newConfig;
+      });
+    },
+    [debouncedConfigChange]
+  );
 
-  const addFeature = () => {
-    const newFeature = { icon: 'FaUser', title: '', description: '' };
-    onLandingPageConfigChange({ features: [...landingPageConfig.features, newFeature] });
-  };
+  const handleFeatureChange = useCallback(
+    (index, field, value) => {
+      setLocalConfig((prev) => {
+        const newFeatures = [...prev.features];
+        newFeatures[index] = { ...newFeatures[index], [field]: value };
+        const newConfig = { ...prev, features: newFeatures };
+        debouncedConfigChange(newConfig);
+        return newConfig;
+      });
+    },
+    [debouncedConfigChange]
+  );
 
-  const removeFeature = (index) => {
-    const updatedFeatures = landingPageConfig.features.filter((_, i) => i !== index);
-    onLandingPageConfigChange({ features: updatedFeatures });
-  };
+  const addFeature = useCallback(() => {
+    setLocalConfig((prev) => {
+      const newConfig = {
+        ...prev,
+        features: [
+          ...prev.features,
+          { icon: "FaUser", title: "", description: "" },
+        ],
+      };
+      debouncedConfigChange(newConfig);
+      return newConfig;
+    });
+  }, [debouncedConfigChange]);
 
-  const handleImageUpload = (imageData) => {
-    onLandingPageConfigChange({ heroImage: imageData });
-  };
+  const removeFeature = useCallback(
+    (index) => {
+      setLocalConfig((prev) => {
+        const newConfig = {
+          ...prev,
+          features: prev.features.filter((_, i) => i !== index),
+        };
+        debouncedConfigChange(newConfig);
+        return newConfig;
+      });
+    },
+    [debouncedConfigChange]
+  );
 
-  return (
-    <VStack spacing={6} align="stretch">
-      <Heading size="md">{t('landingPageConfig')}</Heading>
+  const handleImageUpload = useCallback(
+    (imageData) => {
+      setLocalConfig((prev) => {
+        const newConfig = { ...prev, heroImage: imageData };
+        debouncedConfigChange(newConfig);
+        return newConfig;
+      });
+    },
+    [debouncedConfigChange]
+  );
 
-      <Box>
-        <Heading size="sm" mb={4}>{t('heroSection')}</Heading>
+  const renderFeatures = useMemo(() => {
+    return localConfig.features.map((feature, index) => (
+      <Box key={index} mt={4} p={4} borderWidth={1} borderRadius="md">
+        <Heading size="xs" mb={2}>
+          {t("landingPageConfig.feature")} {index + 1}
+        </Heading>
         <SimpleGrid columns={2} spacing={4}>
+          <IconSelect
+            value={feature.icon}
+            onChange={(e) => handleFeatureChange(index, "icon", e.target.value)}
+          />
           <FormControl>
-            <FormLabel>{t('heroTitle')}</FormLabel>
-            <Input name="heroTitle" value={landingPageConfig.heroTitle} onChange={handleChange} />
-          </FormControl>
-          <FormControl>
-            <FormLabel>{t('heroSubtitle')}</FormLabel>
-            <Input name="heroSubtitle" value={landingPageConfig.heroSubtitle} onChange={handleChange} />
-          </FormControl>
-          <FormControl>
-            <FormLabel>{t('heroButtonText')}</FormLabel>
-            <Input name="heroButtonText" value={landingPageConfig.heroButtonText} onChange={handleChange} />
-          </FormControl>
-          <FormControl>
-            <FormLabel>{t('heroButtonColor')}</FormLabel>
-            <Select name="heroButtonColorScheme" value={landingPageConfig.heroButtonColorScheme} onChange={handleChange}>
-              <option value="teal">Teal</option>
-              <option value="blue">Blue</option>
-              <option value="green">Green</option>
-              <option value="red">Red</option>
-            </Select>
-          </FormControl>
-          <FormControl>
-            <FormLabel>{t('heroBgGradient')}</FormLabel>
-            <Input name="heroBgGradient" value={landingPageConfig.heroBgGradient} onChange={handleChange} />
-          </FormControl>
-          <FormControl>
-            <FormLabel>{t('heroTextColor')}</FormLabel>
-            <ColorPicker
-              color={landingPageConfig.heroTextColor}
-              onChange={(color) => handleColorChange('heroTextColor', color)}
-              label={t('heroTextColor')}
+            <FormLabel>{t("landingPageConfig.title")}</FormLabel>
+            <Input
+              value={feature.title}
+              onChange={(e) =>
+                handleFeatureChange(index, "title", e.target.value)
+              }
             />
           </FormControl>
           <FormControl gridColumn="span 2">
-            <FormLabel>{t('heroImage')}</FormLabel>
+            <FormLabel>{t("general.description")}</FormLabel>
+            <Textarea
+              value={feature.description}
+              onChange={(e) =>
+                handleFeatureChange(index, "description", e.target.value)
+              }
+            />
+          </FormControl>
+        </SimpleGrid>
+        <CustomButton
+          leftIcon={<FaTrash />}
+          colorScheme="red"
+          size="sm"
+          mt={2}
+          onClick={() => removeFeature(index)}
+        >
+          {t("landingPageConfig.removeFeature")}
+        </CustomButton>
+      </Box>
+    ));
+  }, [localConfig.features, handleFeatureChange, removeFeature, t]);
+
+  return (
+    <VStack spacing={6} align="stretch">
+      <Heading size="md">{t("landingPageConfig.titleConfig")}</Heading>
+
+      <Box>
+        <Heading size="sm" mb={4}>
+          {t("landingPageConfig.heroSection")}
+        </Heading>
+        <SimpleGrid columns={2} spacing={4}>
+          <FormControl>
+            <FormLabel>{t("landingPageConfig.heroTitle")}</FormLabel>
+            <Input
+              name="heroTitle"
+              value={localConfig.heroTitle}
+              onChange={handleChange}
+            />
+          </FormControl>
+          <FormControl>
+            <FormLabel>{t("landingPageConfig.heroSubtitle")}</FormLabel>
+            <Input
+              name="heroSubtitle"
+              value={localConfig.heroSubtitle}
+              onChange={handleChange}
+            />
+          </FormControl>
+          <FormControl>
+            <FormLabel>{t("landingPageConfig.heroButtonText")}</FormLabel>
+            <Input
+              name="heroButtonText"
+              value={localConfig.heroButtonText}
+              onChange={handleChange}
+            />
+          </FormControl>
+          <FormControl>
+            <FormLabel>{t("landingPageConfig.heroButtonColor")}</FormLabel>
+            <ColorPicker
+              color={localConfig.heroButtonColor}
+              onChange={(color) => handleColorChange("heroButtonColor", color)}
+              label={t("landingPageConfig.heroButtonColor")}
+            />
+          </FormControl>
+          <FormControl>
+            <FormLabel>{t("landingPageConfig.heroBgGradient")}</FormLabel>
+            <ColorPicker
+              color={landingPageConfig.heroBgGradient}
+              onChange={(color) => handleColorChange("heroBgGradient", color)}
+              label={t("landingPageConfig.heroBgGradient")}
+            />
+          </FormControl>
+          <FormControl>
+            <FormLabel>{t("landingPageConfig.heroTextColor")}</FormLabel>
+            <ColorPicker
+              color={localConfig.heroTextColor}
+              onChange={(color) => handleColorChange("heroTextColor", color)}
+              label={t("landingPageConfig.heroTextColor")}
+            />
+          </FormControl>
+          <FormControl gridColumn="span 2">
+            <FormLabel>{t("landingPageConfig.heroImage")}</FormLabel>
             <ImageUpload
               onImageUpload={handleImageUpload}
-              initialImage={landingPageConfig.heroImage}
+              initialImage={localConfig.heroImage}
             />
           </FormControl>
         </SimpleGrid>
       </Box>
-
       <Box>
-        <Heading size="sm" mb={4}>{t('featuresSection')}</Heading>
+        <Heading size="sm" mb={4}>
+          {t("landingPageConfig.featuresSection")}
+        </Heading>
         <FormControl>
-          <FormLabel>{t('featuresTitle')}</FormLabel>
-          <Input name="featuresTitle" value={landingPageConfig.featuresTitle} onChange={handleChange} />
+          <FormLabel>{t("landingPageConfig.featuresTitle")}</FormLabel>
+          <Input
+            name="featuresTitle"
+            value={localConfig.featuresTitle}
+            onChange={handleChange}
+          />
         </FormControl>
         <FormControl mt={4}>
-          <FormLabel>{t('featuresSubtitle')}</FormLabel>
-          <Textarea name="featuresSubtitle" value={landingPageConfig.featuresSubtitle} onChange={handleChange} />
+          <FormLabel>{t("landingPageConfig.featuresSubtitle")}</FormLabel>
+          <Textarea
+            name="featuresSubtitle"
+            value={localConfig.featuresSubtitle}
+            onChange={handleChange}
+          />
         </FormControl>
 
-        {landingPageConfig.features.map((feature, index) => (
-          <Box key={index} mt={4} p={4} borderWidth={1} borderRadius="md">
-            <Heading size="xs" mb={2}>{t('feature')} {index + 1}</Heading>
-            <SimpleGrid columns={2} spacing={4}>
-              <FormControl>
-                <FormLabel>{t('icon')}</FormLabel>
-                <Select
-                  value={feature.icon}
-                  onChange={(e) => handleFeatureChange(index, 'icon', e.target.value)}
-                >
-                  <option value="FaUser">{t('user')}</option>
-                  <option value="FaRocket">{t('rocket')}</option>
-                  <option value="FaHeadset">{t('headset')}</option>
-                </Select>
-              </FormControl>
-              <FormControl>
-                <FormLabel>{t('title')}</FormLabel>
-                <Input
-                  value={feature.title}
-                  onChange={(e) => handleFeatureChange(index, 'title', e.target.value)}
-                />
-              </FormControl>
-              <FormControl gridColumn="span 2">
-                <FormLabel>{t('description')}</FormLabel>
-                <Textarea
-                  value={feature.description}
-                  onChange={(e) => handleFeatureChange(index, 'description', e.target.value)}
-                />
-              </FormControl>
-            </SimpleGrid>
-            <CustomButton
-              leftIcon={<FaTrash />}
-              colorScheme="red"
-              size="sm"
-              mt={2}
-              onClick={() => removeFeature(index)}
-            >
-              {t('removeFeature')}
-            </CustomButton>
-          </Box>
-        ))}
-        <CustomButton leftIcon={<FaPlus />} colorScheme="blue" mt={4} onClick={addFeature}>
-          {t('addFeature')}
+        {renderFeatures}
+
+        <CustomButton
+          leftIcon={<FaPlus />}
+          colorScheme="blue"
+          mt={4}
+          onClick={addFeature}
+        >
+          {t("landingPageConfig.addFeature")}
         </CustomButton>
       </Box>
     </VStack>
@@ -163,4 +254,4 @@ LandingPageTab.propTypes = {
   onLandingPageConfigChange: PropTypes.func.isRequired,
 };
 
-export default LandingPageTab;
+export default React.memo(LandingPageTab);

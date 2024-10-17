@@ -45,10 +45,14 @@ import axios from "axios";
 import { parsePhoneNumber, isValidPhoneNumber } from "libphonenumber-js";
 import countryData from "country-telephone-data";
 import env from "../../config/env";
-import { isTransformableToNumber, parseFloat } from "../../utils/numberFormatting";
+import {
+  isTransformableToNumber,
+  parseFloat,
+} from "../../utils/numberFormatting";
 import CustomButton from "../common/CustomButton";
 import useStoreConfigStore from "../../store/useStoreConfigStore";
 import { NumericFormat } from "react-number-format";
+import { sendWhatsAppMessage } from "../../utils/sendWhatsAppMessage";
 
 const MotionBox = motion(Box);
 const CartView = () => {
@@ -232,36 +236,33 @@ const CartView = () => {
     try {
       await axios.post(env.CART.CREATE_ORDER, orderData);
 
-      const whatsappMessage = encodeURIComponent(`
-*Nuevo pedido:*
-${orderForm.name ? `Nombre: ${orderForm.name}` : ""}
-${orderForm.IDNumber ? `Cédula: ${orderForm.IDNumber}` : ""}        
-Teléfono: ${orderForm.phoneNumber}      
-Email: ${orderForm.email}            
-Productos:
-${items
-  .map(
-    (item, index) =>
-      `*${index + 1}.* ${item.title} - ${item.price} (x${item.quantity})`
-  )
-  .join("\n")}
-  *Total: ${getTotalPrice()}*`);
-
-      const whatsappUrl = `https://wa.me/+573025479797?text=${whatsappMessage}`;
+      const whatsappMessage = `
+      *Nuevo pedido:*
+      ${orderForm.name ? `Nombre: ${orderForm.name}` : ""}
+      ${orderForm.IDNumber ? `Cédula: ${orderForm.IDNumber}` : ""}        
+      Teléfono: ${orderForm.phoneNumber}      
+      Email: ${orderForm.email}            
+      Productos:
+      ${items
+        .map(
+          (item, index) =>
+            `*${index + 1}.* ${item.title} - ${item.price} (x${item.quantity})`
+        )
+        .join("\n")}
+        *Total: ${getTotalPrice()}*`;
+      sendWhatsAppMessage(config.whatsappNumber, whatsappMessage);
 
       setTimeout(() => {
-        window.open(whatsappUrl, "_blank");
+        clearCart();
+        toast({
+          title: "Pedido realizado con éxito",
+          description: "Tu pedido ha sido enviado. Te contactaremos pronto.",
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        });
+        navigate("/home");
       }, 3000);
-
-      clearCart();
-      toast({
-        title: "Pedido realizado con éxito",
-        description: "Tu pedido ha sido enviado. Te contactaremos pronto.",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-      });
-      navigate("/home");
     } catch (error) {
       toast({
         title: "Error al procesar el pedido",

@@ -69,7 +69,7 @@ const CustomizationDashboard = () => {
     await saveConfigToBackend();
     toast({
       title: "Configuración guardada",
-      description: "Cambios guardados en el backend",
+      description: "Cambios guardados localmente",
       status: "success",
       duration: 3000,
       isClosable: true,

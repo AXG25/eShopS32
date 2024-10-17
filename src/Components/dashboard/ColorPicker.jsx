@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useEffect } from "react";
 import PropTypes from "prop-types";
 import {
-
   Popover,
   PopoverTrigger,
   PopoverContent,
@@ -11,9 +10,14 @@ import {
 import { debounce } from "lodash";
 import CustomButton from "../common/CustomButton";
 
-const SketchPicker = React.lazy(() => import('react-color').then(module => ({ default: module.SketchPicker })));
+const SketchPicker = React.lazy(() =>
+  import("react-color").then((module) => ({ default: module.SketchPicker }))
+);
 
 const getContrastColor = (hexColor) => {
+  if (!hexColor || typeof hexColor !== "string" || hexColor.length !== 7) {
+    return "#000000"; // Default to black if the input is invalid
+  }
   const r = parseInt(hexColor.slice(1, 3), 16);
   const g = parseInt(hexColor.slice(3, 5), 16);
   const b = parseInt(hexColor.slice(5, 7), 16);
@@ -23,7 +27,7 @@ const getContrastColor = (hexColor) => {
 
 const ColorPicker = React.memo(({ color, onChange, label }) => {
   const { colorMode } = useColorMode();
-  const [localColor, setLocalColor] = useState(color);
+  const [localColor, setLocalColor] = useState(color || "#000000"); // Provide a default color
   const textColor = getContrastColor(localColor);
 
   const debouncedOnChange = useCallback(
@@ -34,13 +38,17 @@ const ColorPicker = React.memo(({ color, onChange, label }) => {
   );
 
   useEffect(() => {
-    setLocalColor(color);
+    setLocalColor(color || "#000000"); // Update local color when prop changes, with a default
   }, [color]);
 
-  const handleChangeComplete = useCallback((newColor) => {
-    setLocalColor(newColor.hex);
-    debouncedOnChange(newColor.hex);
-  }, [debouncedOnChange]);
+  const handleChangeComplete = useCallback(
+    (newColor) => {
+      const hexColor = newColor.hex;
+      setLocalColor(hexColor);
+      debouncedOnChange(hexColor);
+    },
+    [debouncedOnChange]
+  );
 
   return (
     <Popover>
@@ -61,7 +69,7 @@ const ColorPicker = React.memo(({ color, onChange, label }) => {
       </PopoverTrigger>
       <PopoverContent>
         <PopoverBody>
-          <React.Suspense fallback={<div>Cargando...</div>}>
+          <React.Suspense fallback={<div>Loading...</div>}>
             <SketchPicker color={localColor} onChange={handleChangeComplete} />
           </React.Suspense>
         </PopoverBody>
@@ -70,10 +78,10 @@ const ColorPicker = React.memo(({ color, onChange, label }) => {
   );
 });
 
-ColorPicker.displayName = 'ColorPicker';
+ColorPicker.displayName = "ColorPicker";
 
 ColorPicker.propTypes = {
-  color: PropTypes.string.isRequired,
+  color: PropTypes.string,
   onChange: PropTypes.func.isRequired,
   label: PropTypes.string.isRequired,
 };

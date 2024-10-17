@@ -29,8 +29,8 @@
     "image": "Imagen",
     "category": "Categoría",
     "backToHome": "Volver al inicio",
-    "icon": "Icono",
-    "title": "Título"
+    "title": "Título",
+    "icon": "Icono"
   },
   "navigation": {
     "home": "Inicio",
@@ -69,7 +69,10 @@
     "darkMode": "Modo Oscuro",
     "information": "Información de la Tienda",
     "enterTitle": "Ingrese el título de la tienda",
-    "enterDescription": "Ingrese la descripción de la tienda"
+    "enterDescription": "Ingrese la descripción de la tienda",
+    "whatsappConfig": "Configuración de WhatsApp",
+    "whatsappNumber": "Número de WhatsApp",
+    "enterWhatsappNumber": "Ingrese el número de WhatsApp de la empresa"
   },
   "language": {
     "title": "Idioma",
@@ -208,6 +211,25 @@
     "invalidNumber": "Por favor, ingrese un número válido",
     "negativeNumber": "El precio no puede ser negativo",
     "minGreaterThanMax": "El precio mínimo no puede ser mayor que el máximo"
+  },
+  "landingPageConfig": {
+    "titleConfig": "Configuración de la Página de Inicio",
+    "heroSection": "Sección Principal",
+    "heroTitle": "Título Principal",
+    "heroSubtitle": "Subtítulo Principal",
+    "heroButtonText": "Texto del Botón Principal",
+    "heroButtonColor": "Color del Botón Principal",
+    "heroBgGradient": "Gradiente de Fondo Principal",
+    "heroTextColor": "Color del Texto Principal",
+    "heroImage": "Imagen Principal",
+    "featuresSection": "Sección de Características",
+    "featuresTitle": "Título de Características",
+    "featuresSubtitle": "Subtítulo de Características",
+    "feature": "Característica",
+    "selectedIcon": "Icono seleccionado",
+    "title": "Título",
+    "removeFeature": "Eliminar Característica",
+    "addFeature": "Añadir Característica"
   },
   "about": {
     "aboutUs": "Nosotros",

@@ -63,7 +63,10 @@
     "language": "Language",
     "mainLanguage": "Main Language",
     "appearance": "Appearance",
-    "darkMode": "Dark Mode"
+    "darkMode": "Dark Mode",
+    "whatsappConfig": "WhatsApp Configuration",
+    "whatsappNumber": "WhatsApp Number",
+    "enterWhatsappNumber": "Enter the company's WhatsApp number"
   },
   "products": {
     "addNewProduct": "Add New Product",

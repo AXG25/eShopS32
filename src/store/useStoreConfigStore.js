@@ -2,10 +2,10 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { changeLanguage } from "../i18n";
 import axios from "axios";
-import { FaHeadset, FaRocket, FaUser } from "react-icons/fa";
 import env from "../config/env";
 import useAuthStore from "./authStore";
 import toast from "react-hot-toast";
+import { isValidPhoneNumber, parsePhoneNumber } from "libphonenumber-js";
 
 const defaultConfig = {
   title: "Mi E-commerce",
@@ -25,6 +25,7 @@ const defaultConfig = {
   language: "es",
   currency: "EUR",
   mainFont: "'Roboto', sans-serif",
+  whatsappNumber: "+573025479797",
   footer: {
     storeInfo: [
       { name: "Sobre Nosotros", url: "/about" },
@@ -69,19 +70,19 @@ const defaultConfig = {
       "16 años de experiencia en la industria del software administrativo y punto de venta nos ha permitido entender y cubrir las necesidades de nuestros clientes",
     features: [
       {
-        icon: FaUser,
+        icon: "FaUser",
         title: "Implementaciones con compromiso",
         description:
           "Al adquirir uno de nuestros productos va a experimentar cómo nuestros analistas de soportes y los distribuidores autorizados le dan el acompañamiento que necesite.",
       },
       {
-        icon: FaRocket,
+        icon: "FaRocket",
         title: "System32 es fácil de usar",
         description:
           "Nuestra interfaz de usuario está detalladamente trabajada para que su aprendizaje sea intuitivo. Desde su creación nuestro software se ha caracterizado por su diseño.",
       },
       {
-        icon: FaHeadset,
+        icon: "FaHeadset",
         title: "Soporte técnico de valor",
         description:
           "Constantemente capacitamos a nuestro personal y a nuestros distribuidores con los programas informáticos de System32 para que puedan dar respuesta oportuna y eficaz para evitar que su empresa se mantenga operativa.",
@@ -102,6 +103,20 @@ const useStoreConfigStore = create(
       setConfig: (newConfig) => {
         set((state) => {
           const updatedConfig = { ...state.config, ...newConfig };
+          if (newConfig.whatsappNumber) {
+            try {
+              if (isValidPhoneNumber(newConfig.whatsappNumber)) {
+                const parsedNumber = parsePhoneNumber(newConfig.whatsappNumber);
+                updatedConfig.whatsappNumber = parsedNumber.number;
+              } else {
+                console.error("Número de WhatsApp inválido");
+                updatedConfig.whatsappNumber = state.config.whatsappNumber;
+              }
+            } catch (error) {
+              console.error("Error al procesar el número de WhatsApp:", error);
+              updatedConfig.whatsappNumber = state.config.whatsappNumber;
+            }
+          }
           if (
             newConfig.language &&
             newConfig.language !== state.config.language
@@ -109,12 +124,12 @@ const useStoreConfigStore = create(
             changeLanguage(newConfig.language);
           }
 
-          // Aplicar cambios inmediatamente
           applyStyleChanges(updatedConfig);
 
           return { config: updatedConfig };
         });
       },
+
       setLogo: (logoUrl) => {
         set((state) => ({
           config: { ...state.config, logo: logoUrl },
@@ -130,18 +145,31 @@ const useStoreConfigStore = create(
         const changedValues = {};
 
         Object.keys(currentConfig).forEach((key) => {
-          if (key === 'landingPage') {
+          if (key === "landingPage") {
             Object.keys(currentConfig[key]).forEach((landingPageKey) => {
-              if (landingPageKey === 'features') {
+              if (landingPageKey === "features") {
                 // Convertir features a JSON
-                changedValues[landingPageKey] = JSON.stringify(currentConfig[key][landingPageKey]);
+                changedValues[landingPageKey] = JSON.stringify(
+                  currentConfig[key][landingPageKey]
+                );
+              } else if (key === "whatsappNumber") {
+                if (
+                  currentConfig.whatsappNumber !== defaultConfig.whatsappNumber
+                ) {
+                  changedValues.whatsappNumber = currentConfig.whatsappNumber;
+                }
               } else if (
                 JSON.stringify(currentConfig[key][landingPageKey]) !==
                 JSON.stringify(defaultConfig[key][landingPageKey])
               ) {
-                changedValues[landingPageKey] = currentConfig[key][landingPageKey];
+                changedValues[landingPageKey] =
+                  currentConfig[key][landingPageKey];
               }
             });
+
+            if (currentConfig.whatsappNumber !== defaultConfig.whatsappNumber) {
+              changedValues.whatsappNumber = currentConfig.whatsappNumber;
+            }
           } else if (
             JSON.stringify(currentConfig[key]) !==
             JSON.stringify(defaultConfig[key])
@@ -174,12 +202,37 @@ const useStoreConfigStore = create(
         try {
           const response = await axios.get("/api/store-config");
           const loadedConfig = { ...defaultConfig, ...response.data };
-          
+
+          // Asegurarse de que el número de WhatsApp sea válido
+          if (loadedConfig.whatsappNumber) {
+            try {
+              if (isValidPhoneNumber(loadedConfig.whatsappNumber)) {
+                const parsedNumber = parsePhoneNumber(
+                  loadedConfig.whatsappNumber
+                );
+                loadedConfig.whatsappNumber = parsedNumber.number;
+              } else {
+                console.error(
+                  "Número de WhatsApp cargado inválido, usando el valor por defecto"
+                );
+                loadedConfig.whatsappNumber = defaultConfig.whatsappNumber;
+              }
+            } catch (error) {
+              console.error(
+                "Error al procesar el número de WhatsApp cargado:",
+                error
+              );
+              loadedConfig.whatsappNumber = defaultConfig.whatsappNumber;
+            }
+          }
+
           // Parsear features de JSON a objeto si existe
           if (loadedConfig.landingPage && loadedConfig.landingPage.features) {
-            loadedConfig.landingPage.features = JSON.parse(loadedConfig.landingPage.features);
+            loadedConfig.landingPage.features = JSON.parse(
+              loadedConfig.landingPage.features
+            );
           }
-          
+
           set({ config: loadedConfig });
           applyStyleChanges(loadedConfig);
           console.log("Configuración cargada desde el backend");
@@ -190,6 +243,7 @@ const useStoreConfigStore = create(
           );
         }
       },
+
       syncConfig: async () => {
         const localConfig = get().config;
         try {

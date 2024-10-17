@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Box,
   Container,
@@ -16,8 +16,8 @@ import {
 import { FaEnvelope, FaPhone, FaMapMarkerAlt } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 import CustomButton from "../Components/common/CustomButton";
-import axios from "axios";
 import useStoreConfigStore from "../store/useStoreConfigStore";
+import { sendWhatsAppMessage } from "../utils/sendWhatsAppMessage";
 
 const ContactUsPage = () => {
   const [formData, setFormData] = useState({
@@ -31,7 +31,7 @@ const ContactUsPage = () => {
 
   const { t } = useTranslation();
   const { config } = useStoreConfigStore();
-  const { footer } = config;
+  const { footer, whatsappNumber } = config;
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -43,7 +43,14 @@ const ContactUsPage = () => {
     setIsSubmitting(true);
 
     try {
-      await axios.post("/api/contact", formData);
+      const message = `
+*Nuevo mensaje de contacto:*
+Nombre: ${formData.name}
+Email: ${formData.email}
+Mensaje: ${formData.message}
+      `;
+
+      sendWhatsAppMessage(config.whatsappNumber, message);
 
       toast({
         title: t("contactUs.successTitle"),

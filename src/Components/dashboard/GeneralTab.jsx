@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   Box,
   VStack,
@@ -11,39 +11,148 @@ import {
   Divider,
   Tooltip,
   Heading,
+  FormControl,
+  FormLabel,
+  FormErrorMessage,
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
-import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
-import { FaStore, FaLanguage, FaUpload } from "react-icons/fa";
+import { FaStore, FaLanguage, FaUpload, FaWhatsapp } from "react-icons/fa";
 import useStoreConfigStore from "../../store/useStoreConfigStore";
 import PropTypes from "prop-types";
-
-/**
- * GeneralTab - Componente para la configuración general de la tienda
- *
- * @param {Object} props - Propiedades del componente
- * @param {Object} props.localConfig - Configuración local de la tienda
- * @param {Function} props.setLocalConfig - Función para actualizar la configuración local
- */
+import { debounce } from "lodash";
+import { parsePhoneNumber, isValidPhoneNumber } from "libphonenumber-js";
+import countryData from "country-telephone-data";
 
 export const GeneralTab = ({ localConfig, setLocalConfig }) => {
   const { t, i18n } = useTranslation();
   const { config } = useStoreConfigStore();
 
   const [previewLanguage, setPreviewLanguage] = useState(config.language);
+  const [phoneError, setPhoneError] = useState("");
   const bgColor = useColorModeValue("white", "gray.700");
   const sectionBgColor = useColorModeValue("gray.50", "gray.600");
 
-  // Manejo de carga de imagen para el logo
-  const onDrop = useCallback((acceptedFiles) => {
-    const file = acceptedFiles[0];
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      setLocalConfig((prev) => ({ ...prev, logo: event.target.result }));
-    };
-    reader.readAsDataURL(file);
+  const countries = useMemo(() => {
+    return countryData.allCountries.map((country) => ({
+      name: country.name,
+      iso2: country.iso2,
+      dialCode: country.dialCode,
+    }));
   }, []);
+
+  const [selectedCountry, setSelectedCountry] = useState(() => {
+    if (localConfig.whatsappNumber) {
+      try {
+        const phoneNumber = parsePhoneNumber(localConfig.whatsappNumber);
+        return phoneNumber ? phoneNumber.country : "CO";
+      } catch (error) {
+        console.error("Error parsing phone number:", error);
+        return "CO";
+      }
+    }
+    return "CO";
+  });
+
+  const [phoneInput, setPhoneInput] = useState(() => {
+    if (localConfig.whatsappNumber) {
+      try {
+        const phoneNumber = parsePhoneNumber(localConfig.whatsappNumber);
+        return phoneNumber ? phoneNumber.nationalNumber : "";
+      } catch (error) {
+        console.error("Error getting national number:", error);
+        return "";
+      }
+    }
+    return "";
+  });
+
+  useEffect(() => {
+    if (localConfig.whatsappNumber) {
+      try {
+        const phoneNumber = parsePhoneNumber(localConfig.whatsappNumber);
+        if (phoneNumber) {
+          setSelectedCountry(phoneNumber.country);
+          setPhoneInput(phoneNumber.nationalNumber);
+        }
+      } catch (error) {
+        console.error("Error updating phone number:", error);
+        setSelectedCountry("CO");
+        setPhoneInput("");
+      }
+    } else {
+      setSelectedCountry("CO");
+      setPhoneInput("");
+    }
+  }, [localConfig.whatsappNumber]);
+
+  const debouncedSetLocalConfig = useMemo(
+    () =>
+      debounce(
+        (updates) => setLocalConfig((prev) => ({ ...prev, ...updates })),
+        300
+      ),
+    [setLocalConfig]
+  );
+
+  const handleConfigChange = useCallback(
+    (e) => {
+      const { name, value } = e.target;
+      debouncedSetLocalConfig({ [name]: value });
+    },
+    [debouncedSetLocalConfig]
+  );
+
+  const handleLanguageChange = useCallback(
+    (e) => {
+      const newLanguage = e.target.value;
+      setPreviewLanguage(newLanguage);
+      setLocalConfig((prev) => ({ ...prev, language: newLanguage }));
+    },
+    [setLocalConfig]
+  );
+
+  const handleCountryChange = useCallback((e) => {
+    setSelectedCountry(e.target.value);
+  }, []);
+
+  const handlePhoneChange = useCallback(
+    (e) => {
+      const input = e.target.value;
+      setPhoneInput(input);
+      const fullNumber = `+${
+        countries.find((c) => c.iso2 === selectedCountry).dialCode
+      }${input}`;
+
+      try {
+        if (isValidPhoneNumber(fullNumber)) {
+          const parsedNumber = parsePhoneNumber(fullNumber);
+          setPhoneError("");
+          setLocalConfig((prev) => ({
+            ...prev,
+            whatsappNumber: parsedNumber.number,
+          }));
+        } else {
+          setPhoneError(t("store.invalidPhoneNumber"));
+        }
+      } catch (error) {
+        setPhoneError(t("store.invalidPhoneNumber"));
+      }
+    },
+    [selectedCountry, countries, setLocalConfig, t]
+  );
+
+  const onDrop = useCallback(
+    (acceptedFiles) => {
+      const file = acceptedFiles[0];
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setLocalConfig((prev) => ({ ...prev, logo: event.target.result }));
+      };
+      reader.readAsDataURL(file);
+    },
+    [setLocalConfig]
+  );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -51,35 +160,39 @@ export const GeneralTab = ({ localConfig, setLocalConfig }) => {
     maxFiles: 1,
   });
 
-  // Manejadores de cambios en la configuración
-  const handleConfigChange = (e) => {
-    const { name, value } = e.target;
-    if (localConfig[name] !== value) {
-      setLocalConfig((prev) => ({ ...prev, [name]: value }));
-    }
-  };
-
-  const handleLanguageChange = (e) => {
-    const newLanguage = e.target.value;
-    if (localConfig.language !== newLanguage) {
-      setPreviewLanguage(newLanguage);
-      setLocalConfig((prev) => ({ ...prev, language: newLanguage }));
-    }
-  };
-
-  // Efecto para cambiar el idioma temporalmente para previsualización
   useEffect(() => {
     i18n.changeLanguage(previewLanguage);
-
     return () => {
       i18n.changeLanguage(config.language);
     };
   }, [previewLanguage, config.language, i18n]);
 
-  /* const handleDarkModeChange = useCallback((e) => {
-    const newDarkMode = e.target.checked;
-    setLocalConfig((prev) => ({ ...prev, darkMode: newDarkMode }));
-  }, []); */
+  const [whatsappNumber, setWhatsappNumber] = useState(
+    localConfig.whatsappNumber || ""
+  );
+
+  const handleWhatsappNumberChange = useCallback(
+    (e) => {
+      const input = e.target.value;
+      setWhatsappNumber(input);
+
+      try {
+        if (isValidPhoneNumber(input)) {
+          const parsedNumber = parsePhoneNumber(input);
+          setPhoneError("");
+          setLocalConfig((prev) => ({
+            ...prev,
+            whatsappNumber: parsedNumber.number,
+          }));
+        } else {
+          setPhoneError(t("store.invalidPhoneNumber"));
+        }
+      } catch (error) {
+        setPhoneError(t("store.invalidPhoneNumber"));
+      }
+    },
+    [setLocalConfig, t]
+  );
 
   return (
     <VStack
@@ -90,6 +203,7 @@ export const GeneralTab = ({ localConfig, setLocalConfig }) => {
       borderRadius="lg"
       boxShadow="md"
     >
+      {/* Store Information Section */}
       <Box>
         <HStack mb={4}>
           <FaStore size="24px" />
@@ -164,7 +278,7 @@ export const GeneralTab = ({ localConfig, setLocalConfig }) => {
       </Box>
 
       <Divider />
-
+      {/* Language Section */}
       <Box>
         <HStack mb={4}>
           <FaLanguage size="24px" />
@@ -193,20 +307,34 @@ export const GeneralTab = ({ localConfig, setLocalConfig }) => {
               <option value="fr">Français</option>
             </Select>
           </Box>
-          {/* <Box>
-            <Text fontWeight="semibold" mb={2}>
-              {t("currency")}
-            </Text>
-            <Select
-              name="currency"
-              value={localConfig.currency}
-              onChange={handleConfigChange}
+          <Divider />
+
+          {/* WhatsApp Configuration Section */}
+          <Box>
+            <HStack mb={4}>
+              <FaWhatsapp size="24px" />
+              <Heading as="h2" size="lg">
+                {t("store.whatsappConfig")}
+              </Heading>
+            </HStack>
+            <VStack
+              spacing={4}
+              align="stretch"
+              bg={sectionBgColor}
+              p={4}
+              borderRadius="md"
             >
-              <option value="EUR">Euro (€)</option>
-              <option value="USD">US Dollar ($)</option>
-              <option value="GBP">British Pound (£)</option>
-            </Select>
-          </Box> */}
+              <FormControl isInvalid={!!phoneError}>
+                <FormLabel>{t("store.whatsappNumber")}</FormLabel>
+                <Input
+                  value={whatsappNumber}
+                  onChange={handleWhatsappNumberChange}
+                  placeholder={t("store.enterWhatsappNumber")}
+                />
+                <FormErrorMessage>{phoneError}</FormErrorMessage>
+              </FormControl>
+            </VStack>
+          </Box>
         </VStack>
       </Box>
     </VStack>

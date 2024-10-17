@@ -7,7 +7,6 @@ import {
   Image,
   SimpleGrid,
   useColorModeValue,
-  Icon,
   Flex,
 } from "@chakra-ui/react";
 import { motion } from "framer-motion";
@@ -17,6 +16,7 @@ import ContactUsPage from "./ContactUsPage";
 import useStoreConfigStore from "../store/useStoreConfigStore";
 import PropTypes from "prop-types";
 import CustomButton from "../Components/common/CustomButton";
+import DynamicIcon from "../Components/common/DynamicIcon";
 
 const MotionBox = motion(Box);
 
@@ -28,7 +28,7 @@ const FeatureCard = ({ icon, title, description }) => (
     boxShadow="md"
     bg={useColorModeValue("white", "gray.700")}
   >
-    <Icon as={icon} w={10} h={10} color="teal.500" mb={4} />
+    <DynamicIcon name={icon} w={10} h={10} color="teal.500" mb={4} />
     <Heading size="md" mb={2}>
       {title}
     </Heading>
