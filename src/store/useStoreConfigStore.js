@@ -129,9 +129,20 @@ const useStoreConfigStore = create(
         const currentConfig = get().config;
         const changedValues = {};
 
-        // Comparar cada propiedad y solo incluir las que han cambiado
         Object.keys(currentConfig).forEach((key) => {
-          if (
+          if (key === 'landingPage') {
+            Object.keys(currentConfig[key]).forEach((landingPageKey) => {
+              if (landingPageKey === 'features') {
+                // Convertir features a JSON
+                changedValues[landingPageKey] = JSON.stringify(currentConfig[key][landingPageKey]);
+              } else if (
+                JSON.stringify(currentConfig[key][landingPageKey]) !==
+                JSON.stringify(defaultConfig[key][landingPageKey])
+              ) {
+                changedValues[landingPageKey] = currentConfig[key][landingPageKey];
+              }
+            });
+          } else if (
             JSON.stringify(currentConfig[key]) !==
             JSON.stringify(defaultConfig[key])
           ) {
@@ -163,6 +174,12 @@ const useStoreConfigStore = create(
         try {
           const response = await axios.get("/api/store-config");
           const loadedConfig = { ...defaultConfig, ...response.data };
+          
+          // Parsear features de JSON a objeto si existe
+          if (loadedConfig.landingPage && loadedConfig.landingPage.features) {
+            loadedConfig.landingPage.features = JSON.parse(loadedConfig.landingPage.features);
+          }
+          
           set({ config: loadedConfig });
           applyStyleChanges(loadedConfig);
           console.log("Configuración cargada desde el backend");
