@@ -24,25 +24,30 @@ const MotionBox = motion(Box);
 
 const HomePage = () => {
   const { config } = useStoreConfigStore();
-  const { fetchProducts, setFilters } = useProductStore();
+  const { fetchProducts, filters, setFilters, clearFilters } =
+    useProductStore();
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [filters, setLocalFilters] = useState(() => ({
-    priceRange: [
-      searchParams.get("minPrice") ? Number(searchParams.get("minPrice")) : 0,
-      searchParams.get("maxPrice") ? Number(searchParams.get("maxPrice")) : Infinity
-    ],
-    category: searchParams.get("category") || "",
-    sortBy: searchParams.get("sortBy") || "",
-    search: searchParams.get("search") || "",
-    limit: 12,
-  }));
+  const [localFilters, setLocalFilters] = useState(() => {
+    return {
+      priceRange: [
+        searchParams.get("minPrice") ? Number(searchParams.get("minPrice")) : 0,
+        searchParams.get("maxPrice")
+          ? Number(searchParams.get("maxPrice"))
+          : Infinity,
+      ],
+      category: searchParams.get("category") || "",
+      sortBy: searchParams.get("sortBy") || "",
+      search: searchParams.get("search") || "",
+      limit: 12,
+    };
+  });
 
   const toast = useToast();
   const scrollContainerRef = useRef(null);
-
   const { ref, inView } = useInView();
+  const prevFiltersRef = useRef(localFilters);
 
   const {
     data,
@@ -53,11 +58,11 @@ const HomePage = () => {
     isFetchingNextPage,
     refetch,
   } = useInfiniteQuery({
-    queryKey: ["products", filters],
+    queryKey: ["products", localFilters],
     queryFn: ({ pageParam = 1 }) =>
-      fetchProducts({ ...filters, page: pageParam }),
+      fetchProducts({ ...localFilters, page: pageParam }),
     getNextPageParam: (lastPage, pages) => {
-      if (lastPage.products.length < filters.limit) {
+      if (lastPage.products.length < localFilters.limit) {
         return undefined;
       }
       return pages.length + 1;
@@ -69,13 +74,14 @@ const HomePage = () => {
     const selectedCategory = location.state?.selectedCategory;
     if (selectedCategory) {
       setLocalFilters((prev) => ({ ...prev, category: selectedCategory }));
+      setFilters({ ...filters, category: selectedCategory });
       setSearchParams({
         ...Object.fromEntries(searchParams),
         category: selectedCategory,
       });
       navigate(location.pathname, { replace: true, state: {} });
     }
-  }, [location.state, navigate, searchParams, setSearchParams]);
+  }, [location.state, navigate, searchParams, setSearchParams, setFilters]);
 
   useEffect(() => {
     if (inView && hasNextPage) {
@@ -87,33 +93,50 @@ const HomePage = () => {
     (newFilters) => {
       setLocalFilters((prevFilters) => {
         const updatedFilters = { ...prevFilters, ...newFilters };
-        const searchParamsObject = {};
-        
-        if (updatedFilters.category) searchParamsObject.category = updatedFilters.category;
-        if (updatedFilters.sortBy) searchParamsObject.sortBy = updatedFilters.sortBy;
-        if (updatedFilters.search) searchParamsObject.search = updatedFilters.search;
-        if (updatedFilters.priceRange[0] > 0) searchParamsObject.minPrice = updatedFilters.priceRange[0];
-        if (updatedFilters.priceRange[1] < Infinity) searchParamsObject.maxPrice = updatedFilters.priceRange[1];
 
-        setSearchParams(searchParamsObject);
-        setFilters(updatedFilters);
+        // Comparar los nuevos filtros con los anteriores
+        if (
+          JSON.stringify(updatedFilters) !==
+          JSON.stringify(prevFiltersRef.current)
+        ) {
+          prevFiltersRef.current = updatedFilters;
+
+          const searchParamsObject = {};
+          if (updatedFilters.category)
+            searchParamsObject.category = updatedFilters.category;
+          if (updatedFilters.sortBy)
+            searchParamsObject.sortBy = updatedFilters.sortBy;
+          if (updatedFilters.search)
+            searchParamsObject.search = updatedFilters.search;
+          if (updatedFilters.priceRange[0] > 0)
+            searchParamsObject.minPrice = updatedFilters.priceRange[0];
+          if (
+            updatedFilters.priceRange[1] < Infinity &&
+            updatedFilters.priceRange[1] !== updatedFilters.priceRange[0]
+          ) {
+            searchParamsObject.maxPrice = updatedFilters.priceRange[1];
+          }
+
+          const searchParams = new URLSearchParams(searchParamsObject);
+          navigate(`?${searchParams.toString()}`, { replace: true });
+          setFilters(updatedFilters);
+        }
         return updatedFilters;
       });
     },
-    [setSearchParams, setFilters]
+    [navigate, setFilters]
   );
   const handleClearFilters = useCallback(() => {
-    const clearedFilters = {
+    clearFilters();
+    setLocalFilters({
       priceRange: [0, Infinity],
       category: "",
       sortBy: "",
       search: "",
       limit: 12,
-    };
-    setLocalFilters(clearedFilters);
-    setFilters(clearedFilters);
+    });
     setSearchParams({});
-  }, [setSearchParams, setFilters]);
+  }, [setSearchParams, clearFilters]);
 
   useEffect(() => {
     if (error) {
@@ -159,7 +182,7 @@ const HomePage = () => {
             size="2xl"
             textAlign="center"
             color={config.primaryColor}
-            fontWeight="extrabold" 
+            fontWeight="extrabold"
             letterSpacing="tight"
           >
             {filters.category

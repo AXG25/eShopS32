@@ -72,8 +72,8 @@ const useProductStore = create(
               url += `&maxPrice=${priceRange[1]}`;
             if (sortBy) {
               const [field, order] = sortBy.split("_");
-              const sortField = field === 'name' ? 'title' : field;
-              url += `&sortBy=${sortField}&order=${order ?? ''}`;
+              const sortField = field === "name" ? "title" : field;
+              url += `&sortBy=${sortField}&order=${order ?? ""}`;
             }
 
             const response = await axios.get(url);
@@ -89,7 +89,16 @@ const useProductStore = create(
             filters: { ...state.filters, ...newFilters },
           }));
         },
-
+        clearFilters: () => {
+          set((state) => ({
+            filters: {
+              priceRange: [0, Infinity],
+              category: "",
+              sortBy: "",
+              search: "",
+            },
+          }));
+        },
         addProduct: (product) =>
           set((state) => ({
             products: [...state.products, product],
@@ -125,6 +134,9 @@ const useProductStore = create(
       {
         name: "product-storage",
         getStorage: () => localStorage,
+        partialize: (state) => ({
+          filters: state.filters,
+        }),
       }
     )
   )

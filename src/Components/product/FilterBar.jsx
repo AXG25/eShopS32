@@ -25,11 +25,27 @@ import CustomButton from "../common/CustomButton";
 import { debounce } from "lodash";
 import axios from "axios";
 import env from "../../config/env";
+import {
+  parseFloat,
+  isTransformableToNumber,
+} from "../../utils/numberFormatting";
 
 const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
   const { t } = useTranslation();
-  const [minPrice, setMinPrice] = useState("");
-  const [maxPrice, setMaxPrice] = useState("");
+  const [minPrice, setMinPrice] = useState(() => {
+    const minPriceValue = currentFilters.priceRange?.[0];
+    return minPriceValue != null && minPriceValue !== 0
+      ? minPriceValue.toString()
+      : "";
+  });
+
+  const [maxPrice, setMaxPrice] = useState(() => {
+    const maxPriceValue = currentFilters.priceRange?.[1];
+    return maxPriceValue != null && maxPriceValue !== Infinity
+      ? maxPriceValue.toString()
+      : "";
+  });
+
   const [category, setCategory] = useState(currentFilters.category || "");
   const [sortBy, setSortBy] = useState(currentFilters.sortBy || "");
   const [search, setSearch] = useState(currentFilters.search || "");
@@ -40,35 +56,44 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
     const fetchCategories = async () => {
       try {
         const response = await axios.get(env.PRODUCTS.CATEGORIES);
-        const processedCategories = response?.data;
+        const processedCategories = response?.data || [];
         setCategories(["", ...processedCategories]);
       } catch (error) {
         console.error("Error fetching categories:", error);
+        setCategories([]);
       }
     };
     fetchCategories();
   }, []);
 
-  const validateInputs = () => {
+  const validateInputs = useCallback(() => {
     const newErrors = {};
-    if (minPrice && isNaN(parseFloat(minPrice))) {
+    if (minPrice && !isTransformableToNumber(minPrice)) {
       newErrors.minPrice = t("errors.invalidNumber");
     }
-    if (maxPrice && isNaN(parseFloat(maxPrice))) {
+
+    if (maxPrice && !isTransformableToNumber(maxPrice)) {
       newErrors.maxPrice = t("errors.invalidNumber");
     }
-    if (parseFloat(minPrice) < 0) {
+
+    const minPriceValue = parseFloat(minPrice, { defaultValue: 0 });
+    const maxPriceValue = parseFloat(maxPrice, { defaultValue: Infinity });
+
+    if (minPriceValue < 0) {
       newErrors.minPrice = t("errors.negativeNumber");
     }
-    if (parseFloat(maxPrice) < 0) {
+
+    if (maxPriceValue < 0) {
       newErrors.maxPrice = t("errors.negativeNumber");
     }
-    if (parseFloat(minPrice) > parseFloat(maxPrice) && maxPrice !== "") {
+
+    if (minPriceValue > maxPriceValue) {
       newErrors.priceRange = t("errors.minGreaterThanMax");
     }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  };
+  }, [minPrice, maxPrice, t]);
 
   const debouncedFilterChange = useCallback(
     debounce((filters) => {
@@ -76,7 +101,7 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
         onFilterChange(filters);
       }
     }, 300),
-    [onFilterChange]
+    [onFilterChange, validateInputs]
   );
 
   useEffect(() => {
@@ -89,22 +114,35 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
       sortBy,
       search,
     };
-    debouncedFilterChange(filters);
-  }, [minPrice, maxPrice, category, sortBy, search, debouncedFilterChange]);
+
+    if (JSON.stringify(filters) !== JSON.stringify(currentFilters)) {
+      debouncedFilterChange(filters);
+    }
+  }, [
+    minPrice,
+    maxPrice,
+    category,
+    sortBy,
+    search,
+    debouncedFilterChange,
+    currentFilters,
+  ]);
 
   useEffect(() => {
     setCategory(currentFilters.category || "");
     setSortBy(currentFilters.sortBy || "");
     setSearch(currentFilters.search || "");
     setMinPrice(
-      currentFilters.priceRange[0] === 0
-        ? ""
-        : currentFilters.priceRange[0].toString()
+      currentFilters.priceRange?.[0] != null &&
+        currentFilters.priceRange[0] !== 0
+        ? currentFilters.priceRange[0].toString()
+        : ""
     );
     setMaxPrice(
-      currentFilters.priceRange[1] === Infinity
-        ? ""
-        : currentFilters.priceRange[1].toString()
+      currentFilters.priceRange?.[1] != null &&
+        currentFilters.priceRange[1] !== Infinity
+        ? currentFilters.priceRange[1].toString()
+        : ""
     );
   }, [currentFilters]);
 
@@ -122,10 +160,7 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
     const filters = [];
     if (search) filters.push({ key: "search", value: search });
     if (category) filters.push({ key: "category", value: category });
-    if (
-      (minPrice && minPrice !== "0") ||
-      (maxPrice && maxPrice !== "Infinity")
-    ) {
+    if (minPrice || maxPrice) {
       filters.push({
         key: "price",
         value: `${minPrice || 0} - ${maxPrice || "∞"}`,
@@ -172,7 +207,7 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
 
         <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
           <Box>
-            <Select
+          <Select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               placeholder={t("filters.AllCategories")}
