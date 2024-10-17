@@ -73,7 +73,7 @@ const useProductStore = create(
             if (sortBy) {
               const [field, order] = sortBy.split("_");
               const sortField = field === 'name' ? 'title' : field;
-              url += `&sortBy=${sortField}&order=${order}`;
+              url += `&sortBy=${sortField}&order=${order ?? ''}`;
             }
 
             const response = await axios.get(url);
