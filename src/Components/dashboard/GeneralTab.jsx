@@ -22,86 +22,34 @@ import useStoreConfigStore from "../../store/useStoreConfigStore";
 import PropTypes from "prop-types";
 import { debounce } from "lodash";
 import { parsePhoneNumber, isValidPhoneNumber } from "libphonenumber-js";
-import countryData from "country-telephone-data";
 
 export const GeneralTab = ({ localConfig, setLocalConfig }) => {
   const { t, i18n } = useTranslation();
   const { config } = useStoreConfigStore();
 
+  const [localInputs, setLocalInputs] = useState({
+    title: localConfig.title,
+    description: localConfig.description,
+    whatsappNumber: localConfig.whatsappNumber || "",
+  });
   const [previewLanguage, setPreviewLanguage] = useState(config.language);
   const [phoneError, setPhoneError] = useState("");
   const bgColor = useColorModeValue("white", "gray.700");
   const sectionBgColor = useColorModeValue("gray.50", "gray.600");
 
-  const countries = useMemo(() => {
-    return countryData.allCountries.map((country) => ({
-      name: country.name,
-      iso2: country.iso2,
-      dialCode: country.dialCode,
-    }));
-  }, []);
-
-  const [selectedCountry, setSelectedCountry] = useState(() => {
-    if (localConfig.whatsappNumber) {
-      try {
-        const phoneNumber = parsePhoneNumber(localConfig.whatsappNumber);
-        return phoneNumber ? phoneNumber.country : "CO";
-      } catch (error) {
-        console.error("Error parsing phone number:", error);
-        return "CO";
-      }
-    }
-    return "CO";
-  });
-
-  const [phoneInput, setPhoneInput] = useState(() => {
-    if (localConfig.whatsappNumber) {
-      try {
-        const phoneNumber = parsePhoneNumber(localConfig.whatsappNumber);
-        return phoneNumber ? phoneNumber.nationalNumber : "";
-      } catch (error) {
-        console.error("Error getting national number:", error);
-        return "";
-      }
-    }
-    return "";
-  });
-
-  useEffect(() => {
-    if (localConfig.whatsappNumber) {
-      try {
-        const phoneNumber = parsePhoneNumber(localConfig.whatsappNumber);
-        if (phoneNumber) {
-          setSelectedCountry(phoneNumber.country);
-          setPhoneInput(phoneNumber.nationalNumber);
-        }
-      } catch (error) {
-        console.error("Error updating phone number:", error);
-        setSelectedCountry("CO");
-        setPhoneInput("");
-      }
-    } else {
-      setSelectedCountry("CO");
-      setPhoneInput("");
-    }
-  }, [localConfig.whatsappNumber]);
-
   const debouncedSetLocalConfig = useMemo(
-    () =>
-      debounce(
-        (updates) => setLocalConfig((prev) => ({ ...prev, ...updates })),
-        300
-      ),
+    () => debounce(setLocalConfig, 300),
     [setLocalConfig]
   );
 
-  const handleConfigChange = useCallback(
-    (e) => {
-      const { name, value } = e.target;
-      debouncedSetLocalConfig({ [name]: value });
-    },
-    [debouncedSetLocalConfig]
-  );
+  const handleInputChange = useCallback((e) => {
+    const { name, value } = e.target;
+    setLocalInputs((prev) => ({ ...prev, [name]: value }));
+  }, []);
+
+  useEffect(() => {
+    debouncedSetLocalConfig({ ...localConfig, ...localInputs });
+  }, [localInputs, localConfig, debouncedSetLocalConfig]);
 
   const handleLanguageChange = useCallback(
     (e) => {
@@ -112,23 +60,16 @@ export const GeneralTab = ({ localConfig, setLocalConfig }) => {
     [setLocalConfig]
   );
 
-  const handleCountryChange = useCallback((e) => {
-    setSelectedCountry(e.target.value);
-  }, []);
-
-  const handlePhoneChange = useCallback(
+  const handleWhatsappNumberChange = useCallback(
     (e) => {
       const input = e.target.value;
-      setPhoneInput(input);
-      const fullNumber = `+${
-        countries.find((c) => c.iso2 === selectedCountry).dialCode
-      }${input}`;
+      setLocalInputs((prev) => ({ ...prev, whatsappNumber: input }));
 
       try {
-        if (isValidPhoneNumber(fullNumber)) {
-          const parsedNumber = parsePhoneNumber(fullNumber);
+        if (isValidPhoneNumber(input)) {
+          const parsedNumber = parsePhoneNumber(input);
           setPhoneError("");
-          setLocalConfig((prev) => ({
+          debouncedSetLocalConfig((prev) => ({
             ...prev,
             whatsappNumber: parsedNumber.number,
           }));
@@ -139,7 +80,7 @@ export const GeneralTab = ({ localConfig, setLocalConfig }) => {
         setPhoneError(t("store.invalidPhoneNumber"));
       }
     },
-    [selectedCountry, countries, setLocalConfig, t]
+    [debouncedSetLocalConfig, t]
   );
 
   const onDrop = useCallback(
@@ -166,33 +107,6 @@ export const GeneralTab = ({ localConfig, setLocalConfig }) => {
       i18n.changeLanguage(config.language);
     };
   }, [previewLanguage, config.language, i18n]);
-
-  const [whatsappNumber, setWhatsappNumber] = useState(
-    localConfig.whatsappNumber || ""
-  );
-
-  const handleWhatsappNumberChange = useCallback(
-    (e) => {
-      const input = e.target.value;
-      setWhatsappNumber(input);
-
-      try {
-        if (isValidPhoneNumber(input)) {
-          const parsedNumber = parsePhoneNumber(input);
-          setPhoneError("");
-          setLocalConfig((prev) => ({
-            ...prev,
-            whatsappNumber: parsedNumber.number,
-          }));
-        } else {
-          setPhoneError(t("store.invalidPhoneNumber"));
-        }
-      } catch (error) {
-        setPhoneError(t("store.invalidPhoneNumber"));
-      }
-    },
-    [setLocalConfig, t]
-  );
 
   return (
     <VStack
@@ -224,8 +138,8 @@ export const GeneralTab = ({ localConfig, setLocalConfig }) => {
             </Text>
             <Input
               name="title"
-              value={localConfig.title}
-              onChange={handleConfigChange}
+              value={localInputs.title}
+              onChange={handleInputChange}
               placeholder={t("store.enterTitle")}
             />
           </Box>
@@ -235,8 +149,8 @@ export const GeneralTab = ({ localConfig, setLocalConfig }) => {
             </Text>
             <Input
               name="description"
-              value={localConfig.description}
-              onChange={handleConfigChange}
+              value={localInputs.description}
+              onChange={handleInputChange}
               placeholder={t("store.enterDescription")}
             />
           </Box>
@@ -327,7 +241,7 @@ export const GeneralTab = ({ localConfig, setLocalConfig }) => {
               <FormControl isInvalid={!!phoneError}>
                 <FormLabel>{t("store.whatsappNumber")}</FormLabel>
                 <Input
-                  value={whatsappNumber}
+                  value={localInputs.whatsappNumber}
                   onChange={handleWhatsappNumberChange}
                   placeholder={t("store.enterWhatsappNumber")}
                 />
@@ -344,6 +258,7 @@ export const GeneralTab = ({ localConfig, setLocalConfig }) => {
 GeneralTab.propTypes = {
   localConfig: PropTypes.shape({
     title: PropTypes.string.isRequired,
+    whatsappNumber: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     description: PropTypes.string.isRequired,
     logo: PropTypes.string,
     language: PropTypes.string.isRequired,
