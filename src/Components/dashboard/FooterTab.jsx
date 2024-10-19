@@ -69,15 +69,15 @@ export const FooterTab = ({ footerConfig, onFooterConfigChange }) => {
             value={item.url}
             onChange={(e) => handleChange(e, sectionName, index, "url")}
           />
-          <IconButton
+          {/* <IconButton
             icon={<FaTrash />}
             onClick={() => removeItem(sectionName, index)}
-          />
+          /> */}
         </HStack>
       ))}
-      <CustomButton leftIcon={<FaPlus />} onClick={() => addItem(sectionName)}>
+      {/* <CustomButton leftIcon={<FaPlus />} onClick={() => addItem(sectionName)}>
         Añadir Item
-      </CustomButton>
+      </CustomButton> */}
     </>
   );
 
