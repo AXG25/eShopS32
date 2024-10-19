@@ -13,9 +13,31 @@ import useStoreConfigStore from "./store/useStoreConfigStore";
 
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { Toaster } from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: (failureCount, error) => {
+        if (error?.response?.status === 401) return false;
+
+        return failureCount < 3;
+      },
+      onError: (error) => {
+        if (error?.response?.status !== 401) {
+          toast.error(`Error: ${error.message}`);
+        }
+      },
+    },
+    mutations: {
+      onError: (error) => {
+        if (error?.response?.status !== 401) {
+          toast.error(`Error: ${error.message}`);
+        }
+      },
+    },
+  },
+});
 
 function App() {
   const { config } = useStoreConfigStore();
@@ -27,7 +49,7 @@ function App() {
           <ColorModeScript
             initialColorMode={config.darkMode ? "dark" : "light"}
           />
-             <Toaster position="top-right" />
+          <Toaster position="top-right" />
           <BrowserRouter>
             <AuthProvider>
               <AppRouter />

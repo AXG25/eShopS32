@@ -15,30 +15,41 @@ import CustomButton from "../common/CustomButton";
 export const FooterTab = ({ footerConfig, onFooterConfigChange }) => {
   const handleChange = (e, section, index, key) => {
     const { value } = e.target;
-    const newFooterConfig = { ...footerConfig };
     if (section === "contact") {
-      if (newFooterConfig.contact[key] !== value) {
-        newFooterConfig.contact[key] = value;
-        onFooterConfigChange({ contact: newFooterConfig.contact });
-      }
+      onFooterConfigChange({
+        ...footerConfig,
+        contact: {
+          ...footerConfig.contact,
+          [key]: value,
+        },
+      });
     } else {
-      if (newFooterConfig[section][index][key] !== value) {
-        newFooterConfig[section][index][key] = value;
-        onFooterConfigChange({ [section]: newFooterConfig[section] });
-      }
+      const updatedSection = [...footerConfig[section]];
+      updatedSection[index] = {
+        ...updatedSection[index],
+        [key]: value,
+      };
+      onFooterConfigChange({
+        ...footerConfig,
+        [section]: updatedSection,
+      });
     }
   };
-  
+
   const addItem = (section) => {
-    const newFooterConfig = { ...footerConfig };
-    newFooterConfig[section].push({ name: "", url: "" });
-    onFooterConfigChange(newFooterConfig);
+    const updatedSection = [...footerConfig[section], { name: "", url: "" }];
+    onFooterConfigChange({
+      ...footerConfig,
+      [section]: updatedSection,
+    });
   };
 
   const removeItem = (section, index) => {
-    const newFooterConfig = { ...footerConfig };
-    newFooterConfig[section].splice(index, 1);
-    onFooterConfigChange(newFooterConfig);
+    const updatedSection = footerConfig[section].filter((_, i) => i !== index);
+    onFooterConfigChange({
+      ...footerConfig,
+      [section]: updatedSection,
+    });
   };
 
   const renderSection = (sectionName, sectionTitle) => (
@@ -72,9 +83,6 @@ export const FooterTab = ({ footerConfig, onFooterConfigChange }) => {
 
   return (
     <VStack spacing={6} align="stretch">
-      {renderSection("storeInfo", "Información de la Tienda")}
-      {renderSection("customerService", "Atención al Cliente")}
-      {renderSection("myAccount", "Mi Cuenta")}
       {renderSection("socialLinks", "Redes Sociales")}
 
       <Heading size="md" mt={4}>

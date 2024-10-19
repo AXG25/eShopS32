@@ -28,6 +28,10 @@ import {
   Flex,
   useToast,
   Spinner,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
+  Alert,
 } from "@chakra-ui/react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -237,73 +241,100 @@ export const ProductTab = () => {
     );
 
   return (
-    <Box>
-      <CustomButton
-        onClick={() => {
-          setCurrentProduct(null);
-          onOpen();
-        }}
+    <Box position="relative">
+      <Alert
+        status="info"
+        variant="subtle"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        textAlign="center"
+        height="auto"
+        bg="blue.50"
+        borderRadius="md"
         mb={4}
+        p={4}
       >
-        {t("products.addNewProduct")}
-      </CustomButton>
+        <AlertIcon boxSize="40px" mr={0} />
+        <AlertTitle mt={4} mb={1} fontSize="lg">
+          {t("general.inDevelopment")}
+        </AlertTitle>
+        <AlertDescription maxWidth="sm">
+          {t("general.noFunctionalityMessage")}
+        </AlertDescription>
+      </Alert>
 
-      <Table variant="simple">
-        <Thead>
-          <Tr>
-            <Th>{t("general.image")}</Th>
-            <Th>{t("general.name")}</Th>
-            <Th>{t("general.price")}</Th>
-            <Th>{t("general.category")}</Th>
-            <Th>{t("general.actions")}</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {products.map((product) => (
-            <Tr key={product.id}>
-              <Td>
-                <Image
-                  src={product.image}
-                  alt={product.title}
-                  boxSize="50px"
-                  objectFit="cover"
-                />
-              </Td>
-              <Td>{product.title}</Td>
-              <Td>
-                $
-                {parseFloat(product.price, {
-                  defaultValu: 0,
-                }).toFixed(2)}
-              </Td>
-              <Td>{product.category}</Td>
-              <Td>
-                <CustomButton
-                  size="sm"
-                  onClick={() => handleEdit(product)}
-                  mr={2}
-                >
-                  {t("general.edit")}
-                </CustomButton>
-                <CustomButton
-                  size="sm"
-                  colorScheme="red"
-                  onClick={() => handleDelete(product.id)}
-                >
-                  {t("general.delete")}
-                </CustomButton>
-              </Td>
+      <Box opacity={0.6} pointerEvents="none">
+        <CustomButton
+          onClick={() => {
+            setCurrentProduct(null);
+            onOpen();
+          }}
+          mb={4}
+          isDisabled
+        >
+          {t("products.addNewProduct")}
+        </CustomButton>
+
+        <Table variant="simple">
+          <Thead>
+            <Tr>
+              <Th>{t("general.image")}</Th>
+              <Th>{t("general.name")}</Th>
+              <Th>{t("general.price")}</Th>
+              <Th>{t("general.category")}</Th>
+              <Th>{t("general.actions")}</Th>
             </Tr>
-          ))}
-        </Tbody>
-      </Table>
+          </Thead>
+          <Tbody>
+            {products.map((product) => (
+              <Tr key={product.id}>
+                <Td>
+                  <Image
+                    src={product.image}
+                    alt={product.title}
+                    boxSize="50px"
+                    objectFit="cover"
+                  />
+                </Td>
+                <Td>{product.title}</Td>
+                <Td>
+                  $
+                  {parseFloat(product.price, {
+                    defaultValue: 0,
+                  }).toFixed(2)}
+                </Td>
+                <Td>{product.category}</Td>
+                <Td>
+                  <CustomButton
+                    size="sm"
+                    onClick={() => handleEdit(product)}
+                    mr={2}
+                    isDisabled
+                  >
+                    {t("general.edit")}
+                  </CustomButton>
+                  <CustomButton
+                    size="sm"
+                    colorScheme="red"
+                    onClick={() => handleDelete(product.id)}
+                    isDisabled
+                  >
+                    {t("general.delete")}
+                  </CustomButton>
+                </Td>
+              </Tr>
+            ))}
+          </Tbody>
+        </Table>
 
-      <ProductModal
-        isOpen={isOpen}
-        onClose={onClose}
-        product={currentProduct}
-        onSave={handleSave}
-      />
+        <ProductModal
+          isOpen={isOpen}
+          onClose={onClose}
+          product={currentProduct}
+          onSave={handleSave}
+        />
+      </Box>
     </Box>
   );
 };

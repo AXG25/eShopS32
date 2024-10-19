@@ -53,10 +53,8 @@ const defaultConfig = {
       { name: "Facebook", url: "https://facebook.com" },
       { name: "Twitter", url: "https://twitter.com" },
       { name: "Instagram", url: "https://instagram.com" },
-      { name: "Pinterest", url: "https://pinterest.com" },
     ],
   },
-  // Nueva sección para la configuración de la Landing Page
   landingPage: {
     heroBgGradient: "linear(to-r, teal.500, blue.500)",
     heroTextColor: "white",
@@ -193,9 +191,8 @@ const useStoreConfigStore = create(
             headers: { Authorization: `Bearer ${token}` },
           });
           toast.success("Configuración guardada en el backend");
-        } catch (error) {
-          toast.error("Error al guardar la configuración en el backend");
-          console.error(error);
+        } catch ({ response: { data } }) {
+          toast.error(data.message);
         }
       },
       loadConfigFromBackend: async () => {

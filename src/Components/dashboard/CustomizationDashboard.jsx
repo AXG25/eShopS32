@@ -8,7 +8,6 @@ import {
   TabPanels,
   Tab,
   TabPanel,
-  useToast,
   HStack,
   CircularProgress,
   CircularProgressLabel,
@@ -31,6 +30,7 @@ import LandingPageTab from "./LandingPageTab"; // Nuevo componente
 import useStoreConfigStore from "../../store/useStoreConfigStore";
 import useProductStore from "../../store/useProductStore";
 import CustomButton from "../common/CustomButton";
+import toast from "react-hot-toast";
 
 const MotionBox = motion(Box);
 
@@ -45,7 +45,7 @@ const CustomizationDashboard = () => {
     useStoreConfigStore();
   const [localConfig, setLocalConfig] = useState(config);
   const { products, deleteProduct, syncDatabase } = useProductStore();
-  const toast = useToast();
+
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncProgress, setSyncProgress] = useState(0);
 
@@ -67,12 +67,8 @@ const CustomizationDashboard = () => {
 
     setConfig(changedValues);
     await saveConfigToBackend();
-    toast({
-      title: "Configuración guardada",
-      description: "Cambios guardados localmente",
-      status: "success",
+    toast.success("Cambios guardados localmente", {
       duration: 3000,
-      isClosable: true,
     });
   }, [localConfig, config, setConfig, saveConfigToBackend, toast]);
 
@@ -127,12 +123,8 @@ const CustomizationDashboard = () => {
         setSyncProgress(0);
 
         if (result.success) {
-          toast({
-            title: "Sincronización exitosa",
-            description: result.message,
-            status: "success",
+          toast.success("Sincronización exitosa", {
             duration: 3000,
-            isClosable: true,
           });
         } else {
           throw new Error(result.message);
@@ -143,12 +135,8 @@ const CustomizationDashboard = () => {
       setIsSyncing(false);
       setSyncProgress(0);
 
-      toast({
-        title: "Error en la sincronización",
-        description: error.message,
-        status: "error",
+      toast.error("Error en la sincronización", {
         duration: 3000,
-        isClosable: true,
       });
     }
   };

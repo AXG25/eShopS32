@@ -20,12 +20,8 @@ const Footer = () => {
 
   const socialIcons = {
     twitter: FaTwitter,
-    youtube: FaYoutube,
     instagram: FaInstagram,
-    linkedin: FaLinkedin,
-    github: FaGithub,
     facebook: FaFacebook,
-    pinterest: FaPinterest,
   };
 
   return (

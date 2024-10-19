@@ -29,25 +29,22 @@ const HomePage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [localFilters, setLocalFilters] = useState(() => {
-    return {
-      priceRange: [
-        searchParams.get("minPrice") ? Number(searchParams.get("minPrice")) : 0,
-        searchParams.get("maxPrice")
-          ? Number(searchParams.get("maxPrice"))
-          : Infinity,
-      ],
-      category: searchParams.get("category") || "",
-      sortBy: searchParams.get("sortBy") || "",
-      search: searchParams.get("search") || "",
-      limit: 12,
-    };
-  });
+  const [localFilters, setLocalFilters] = useState(() => ({
+    priceRange: [
+      searchParams.get("minPrice") ? Number(searchParams.get("minPrice")) : 0,
+      searchParams.get("maxPrice")
+        ? Number(searchParams.get("maxPrice"))
+        : Infinity,
+    ],
+    category: searchParams.get("category") || "",
+    sortBy: searchParams.get("sortBy") || "",
+    search: searchParams.get("search") || "",
+    limit: 12,
+  }));
 
   const toast = useToast();
   const scrollContainerRef = useRef(null);
   const { ref, inView } = useInView();
-  const prevFiltersRef = useRef(localFilters);
 
   const {
     data,
@@ -91,41 +88,28 @@ const HomePage = () => {
 
   const handleFilterChange = useCallback(
     (newFilters) => {
-      setLocalFilters((prevFilters) => {
-        const updatedFilters = { ...prevFilters, ...newFilters };
+      setLocalFilters(newFilters);
+      setFilters(newFilters);
 
-        // Comparar los nuevos filtros con los anteriores
-        if (
-          JSON.stringify(updatedFilters) !==
-          JSON.stringify(prevFiltersRef.current)
-        ) {
-          prevFiltersRef.current = updatedFilters;
+      const searchParamsObject = {};
+      if (newFilters.category)
+        searchParamsObject.category = newFilters.category;
+      if (newFilters.sortBy) searchParamsObject.sortBy = newFilters.sortBy;
+      if (newFilters.search) searchParamsObject.search = newFilters.search;
+      if (newFilters.priceRange[0] > 0)
+        searchParamsObject.minPrice = newFilters.priceRange[0];
+      if (
+        newFilters.priceRange[1] < Infinity &&
+        newFilters.priceRange[1] !== newFilters.priceRange[0]
+      ) {
+        searchParamsObject.maxPrice = newFilters.priceRange[1];
+      }
 
-          const searchParamsObject = {};
-          if (updatedFilters.category)
-            searchParamsObject.category = updatedFilters.category;
-          if (updatedFilters.sortBy)
-            searchParamsObject.sortBy = updatedFilters.sortBy;
-          if (updatedFilters.search)
-            searchParamsObject.search = updatedFilters.search;
-          if (updatedFilters.priceRange[0] > 0)
-            searchParamsObject.minPrice = updatedFilters.priceRange[0];
-          if (
-            updatedFilters.priceRange[1] < Infinity &&
-            updatedFilters.priceRange[1] !== updatedFilters.priceRange[0]
-          ) {
-            searchParamsObject.maxPrice = updatedFilters.priceRange[1];
-          }
-
-          const searchParams = new URLSearchParams(searchParamsObject);
-          navigate(`?${searchParams.toString()}`, { replace: true });
-          setFilters(updatedFilters);
-        }
-        return updatedFilters;
-      });
+      setSearchParams(searchParamsObject);
     },
-    [navigate, setFilters]
+    [setFilters, setSearchParams]
   );
+
   const handleClearFilters = useCallback(() => {
     clearFilters();
     setLocalFilters({
@@ -185,15 +169,15 @@ const HomePage = () => {
             fontWeight="extrabold"
             letterSpacing="tight"
           >
-            {filters.category
-              ? `Productos: ${filters.category}`
+            {localFilters.category
+              ? `Productos: ${localFilters.category}`
               : "Todos los Productos"}
           </Heading>
 
           <FilterBar
             onFilterChange={handleFilterChange}
             onClearFilters={handleClearFilters}
-            currentFilters={filters}
+            currentFilters={localFilters}
           />
 
           {isLoading ? (

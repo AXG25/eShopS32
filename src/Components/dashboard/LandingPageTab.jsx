@@ -189,14 +189,6 @@ const LandingPageTab = ({ landingPageConfig, onLandingPageConfigChange }) => {
             />
           </FormControl>
           <FormControl>
-            <FormLabel>{t("landingPageConfig.heroBgGradient")}</FormLabel>
-            <ColorPicker
-              color={landingPageConfig.heroBgGradient}
-              onChange={(color) => handleColorChange("heroBgGradient", color)}
-              label={t("landingPageConfig.heroBgGradient")}
-            />
-          </FormControl>
-          <FormControl>
             <FormLabel>{t("landingPageConfig.heroTextColor")}</FormLabel>
             <ColorPicker
               color={localConfig.heroTextColor}

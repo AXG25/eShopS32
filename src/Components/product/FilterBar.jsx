@@ -1,9 +1,8 @@
 import PropTypes from "prop-types";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Flex,
-  Select,
   Text,
   HStack,
   VStack,
@@ -22,49 +21,43 @@ import {
 import { SearchIcon } from "@chakra-ui/icons";
 import { useTranslation } from "react-i18next";
 import { NumericFormat } from "react-number-format";
+import Select from "react-select";
 import CustomButton from "../common/CustomButton";
-import { debounce } from "lodash";
+import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import env from "../../config/env";
 
+const fetchCategories = async () => {
+  const response = await axios.get(env.PRODUCTS.CATEGORIES);
+  return response.data || [];
+};
+
 const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
   const { t } = useTranslation();
-  const [category, setCategory] = useState(currentFilters.category || "");
-  const [sortBy, setSortBy] = useState(currentFilters.sortBy || "");
-  const [search, setSearch] = useState(currentFilters.search || "");
-  const [categories, setCategories] = useState([]);
+  const [localFilters, setLocalFilters] = useState(currentFilters);
   const [errors, setErrors] = useState({});
 
-  const [debouncedFilters, setDebouncedFilters] = useState(currentFilters);
-  const debouncedFilterChangeRef = useRef(null);
+  const { data: categories = [] } = useQuery({
+    queryKey: ["categories"],
+    queryFn: fetchCategories,
+  });
+
+  const categoryOptions = [
+    { value: t("filters.AllCategories"), label: t("filters.AllCategories") },
+    ...categories.map((cat) => ({ value: cat.name, label: cat.name })),
+  ];
+
+  const sortOptions = [
+    { value: "", label: t("general.sortBy") },
+    { value: "price_asc", label: t("filters.priceLowToHigh") },
+    { value: "price_desc", label: t("filters.priceHighToLow") },
+    { value: "name_asc", label: t("filters.nameAToZ") },
+    { value: "name_desc", label: t("filters.nameZToA") },
+  ];
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await axios.get(env.PRODUCTS.CATEGORIES);
-        const processedCategories = response?.data || [];
-        setCategories(["", ...processedCategories]);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-        setCategories([]);
-      }
-    };
-    fetchCategories();
-  }, []);
-
-  useEffect(() => {
-    debouncedFilterChangeRef.current = debounce((newFilters) => {
-      if (validateInputs(newFilters)) {
-        onFilterChange(newFilters);
-      }
-    }, 500);
-
-    return () => {
-      if (debouncedFilterChangeRef.current) {
-        debouncedFilterChangeRef.current.cancel();
-      }
-    };
-  }, [onFilterChange]);
+    setLocalFilters(currentFilters);
+  }, [currentFilters]);
 
   const validateInputs = useCallback(
     (filters) => {
@@ -90,64 +83,70 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
     [t]
   );
 
-  const handleInputChange = useCallback((key, value) => {
-    setDebouncedFilters((prev) => {
-      const newFilters = { ...prev };
-      if (key === "minPrice" || key === "maxPrice") {
-        const index = key === "minPrice" ? 0 : 1;
-        newFilters.priceRange = [...prev.priceRange];
-        newFilters.priceRange[index] =
-          value === "" ? (index === 0 ? 0 : Infinity) : value;
-      } else {
-        newFilters[key] = value;
-      }
-      if (debouncedFilterChangeRef.current) {
-        debouncedFilterChangeRef.current(newFilters);
-      }
-      return newFilters;
-    });
-  }, []);
+  const handleInputChange = useCallback(
+    (key, value) => {
+      setLocalFilters((prev) => {
+        const newFilters = { ...prev, [key]: value };
+        if (key === "minPrice" || key === "maxPrice") {
+          const index = key === "minPrice" ? 0 : 1;
+          newFilters.priceRange = [...prev.priceRange];
+          newFilters.priceRange[index] =
+            value === "" ? (index === 0 ? 0 : Infinity) : Number(value);
+        }
+        if (validateInputs(newFilters)) {
+          onFilterChange(newFilters);
+        }
+        return newFilters;
+      });
+    },
+    [onFilterChange, validateInputs]
+  );
 
   const clearFilters = () => {
-    setDebouncedFilters({
+    const clearedFilters = {
       priceRange: [0, Infinity],
       category: "",
       sortBy: "",
       search: "",
-    });
+    };
+    setLocalFilters(clearedFilters);
     setErrors({});
     onClearFilters();
   };
 
   const getActiveFilters = () => {
     const filters = [];
-    if (search) filters.push({ key: "search", value: search });
-    if (category) filters.push({ key: "category", value: category });
+    if (localFilters.search)
+      filters.push({ key: "search", value: localFilters.search });
     if (
-      debouncedFilters.priceRange[0] > 0 ||
-      debouncedFilters.priceRange[1] < Infinity
+      localFilters.category &&
+      localFilters.category !== t("filters.AllCategories")
+    )
+      filters.push({ key: "category", value: localFilters.category });
+    if (
+      localFilters.priceRange[0] > 0 ||
+      localFilters.priceRange[1] < Infinity
     ) {
       filters.push({
         key: "price",
-        value: `${debouncedFilters.priceRange[0]} - ${
-          debouncedFilters.priceRange[1] === Infinity
+        value: `${localFilters.priceRange[0]} - ${
+          localFilters.priceRange[1] === Infinity
             ? "∞"
-            : debouncedFilters.priceRange[1]
+            : localFilters.priceRange[1]
         }`,
       });
     }
-    if (sortBy) filters.push({ key: "sortBy", value: sortBy });
+    if (localFilters.sortBy)
+      filters.push({ key: "sortBy", value: localFilters.sortBy });
     return filters;
   };
 
   const removeFilter = (key) => {
     switch (key) {
       case "search":
-        setSearch("");
         handleInputChange("search", "");
         break;
       case "category":
-        setCategory("");
         handleInputChange("category", "");
         break;
       case "price":
@@ -156,7 +155,6 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
         setErrors({});
         break;
       case "sortBy":
-        setSortBy("");
         handleInputChange("sortBy", "");
         break;
       default:
@@ -173,32 +171,29 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
           </InputLeftElement>
           <Input
             placeholder={t("filters.searchPlaceholder")}
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              handleInputChange("search", e.target.value);
-            }}
+            value={localFilters.search}
+            onChange={(e) => handleInputChange("search", e.target.value)}
           />
         </InputGroup>
 
         <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
           <Box>
             <Select
-              value={category}
-              onChange={(e) => {
-                setCategory(e.target.value);
-                handleInputChange("category", e.target.value);
-              }}
+              options={categoryOptions}
+              value={
+                categoryOptions.find(
+                  (option) => option.value === localFilters.category
+                ) || categoryOptions[0]
+              }
+              onChange={(selectedOption) =>
+                handleInputChange(
+                  "category",
+                  selectedOption ? selectedOption.value : ""
+                )
+              }
               placeholder={t("filters.AllCategories")}
-            >
-              {categories
-                .filter((cat) => cat !== "")
-                .map((cat, key) => (
-                  <option key={key} value={cat?.value}>
-                    {cat?.name}
-                  </option>
-                ))}
-            </Select>
+              isClearable
+            />
           </Box>
 
           <FormControl
@@ -211,13 +206,13 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
                 prefix="$"
                 placeholder={t("filters.minPrice")}
                 value={
-                  debouncedFilters.priceRange[0] === 0
+                  localFilters.priceRange[0] === 0
                     ? ""
-                    : debouncedFilters.priceRange[0]
+                    : localFilters.priceRange[0]
                 }
-                onValueChange={(values) => {
-                  handleInputChange("minPrice", values.floatValue || 0);
-                }}
+                onValueChange={(values) =>
+                  handleInputChange("minPrice", values.floatValue || 0)
+                }
                 allowNegative={false}
               />
               <Text>-</Text>
@@ -227,13 +222,13 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
                 prefix="$"
                 placeholder={t("filters.maxPrice")}
                 value={
-                  debouncedFilters.priceRange[1] === Infinity
+                  localFilters.priceRange[1] === Infinity
                     ? ""
-                    : debouncedFilters.priceRange[1]
+                    : localFilters.priceRange[1]
                 }
-                onValueChange={(values) => {
-                  handleInputChange("maxPrice", values.floatValue || Infinity);
-                }}
+                onValueChange={(values) =>
+                  handleInputChange("maxPrice", values.floatValue || Infinity)
+                }
                 allowNegative={false}
               />
             </HStack>
@@ -243,18 +238,19 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
           </FormControl>
 
           <Select
-            value={sortBy}
-            onChange={(e) => {
-              setSortBy(e.target.value);
-              handleInputChange("sortBy", e.target.value);
-            }}
+            options={sortOptions}
+            value={sortOptions.find(
+              (option) => option.value === localFilters.sortBy
+            )}
+            onChange={(selectedOption) =>
+              handleInputChange(
+                "sortBy",
+                selectedOption ? selectedOption.value : ""
+              )
+            }
             placeholder={t("general.sortBy")}
-          >
-            <option value="price_asc">{t("priceLowToHigh")}</option>
-            <option value="price_desc">{t("priceHighToLow")}</option>
-            <option value="name_asc">{t("nameAToZ")}</option>
-            <option value="name_desc">{t("nameZToA")}</option>
-          </Select>
+            isClearable
+          />
         </SimpleGrid>
 
         <Wrap spacing={2}>

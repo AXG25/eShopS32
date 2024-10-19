@@ -27,7 +27,9 @@
     "total": "Total",
     "image": "Image",
     "category": "Category",
-    "backToHome": "Back to Home"
+    "backToHome": "Back to Home",
+    "inDevelopment": "View in development",
+    "noFunctionalityMessage": "This tab is currently under development and will not have functionality until further notice. We apologize for any inconvenience."
   },
   "navigation": {
     "home": "Home",

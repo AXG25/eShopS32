@@ -30,7 +30,9 @@
     "category": "Categoría",
     "backToHome": "Volver al inicio",
     "title": "Título",
-    "icon": "Icono"
+    "icon": "Icono",
+    "inDevelopment": "Vista en desarrollo",
+    "noFunctionalityMessage": "Esta pestaña está actualmente en desarrollo y no tendrá funcionalidad hasta nuevo aviso. Disculpe las molestias."
   },
   "navigation": {
     "home": "Inicio",
@@ -61,6 +63,7 @@
     "myEcommerce": "Mi E-commerce",
     "searchProducts": "Buscar productos",
     "allRightsReserved": "Todos los derechos reservados",
+    "invalidPhoneNumber": "El número de teléfono ingresado no es válido. Por favor, verifica que tenga el formato correcto e intenta de nuevo.",
     "storeInfo": "Información de la Tienda",
     "currency": "Moneda",
     "language": "Idioma",
