@@ -76,7 +76,7 @@ const Footer = () => {
           justify={{ md: "space-between" }}
           align={{ md: "center" }}
         >
-          <Text color={"white"}>© {new Date().getFullYear()} {config.title}. {t("footer.allRightsReserved")}</Text>
+          <Text color={"white"}>© {new Date().getFullYear()} {config.title}. {t("store.allRightsReserved")}</Text>
           <Stack direction={"row"} spacing={6}>
             {config.footer.socialLinks.map((social, index) => {
               const SocialIcon = socialIcons[social.name.toLowerCase()];

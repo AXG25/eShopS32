@@ -17,6 +17,7 @@ import CustomButton from "../common/CustomButton";
 import ImageUpload from "../common/ImageUpload";
 import ColorPicker from "./ColorPicker";
 import IconSelect from "../common/IconSelect";
+import GradientGenerator from "../common/GradientGenerator";
 
 const LandingPageTab = ({ landingPageConfig, onLandingPageConfigChange }) => {
   const { t } = useTranslation();
@@ -188,6 +189,13 @@ const LandingPageTab = ({ landingPageConfig, onLandingPageConfigChange }) => {
               label={t("landingPageConfig.heroButtonColor")}
             />
           </FormControl>
+          <FormControl>
+  <FormLabel>{t("landingPageConfig.heroBgGradient")}</FormLabel>
+  <GradientGenerator
+    value={landingPageConfig.heroBgGradient}
+    onChange={(newGradient) => handleColorChange("heroBgGradient", newGradient)}
+  />
+</FormControl>
           <FormControl>
             <FormLabel>{t("landingPageConfig.heroTextColor")}</FormLabel>
             <ColorPicker
