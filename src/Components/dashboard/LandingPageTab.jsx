@@ -181,21 +181,16 @@ const LandingPageTab = ({ landingPageConfig, onLandingPageConfigChange }) => {
               onChange={handleChange}
             />
           </FormControl>
+
           <FormControl>
-            <FormLabel>{t("landingPageConfig.heroButtonColor")}</FormLabel>
-            <ColorPicker
-              color={localConfig.heroButtonColor}
-              onChange={(color) => handleColorChange("heroButtonColor", color)}
-              label={t("landingPageConfig.heroButtonColor")}
+            <FormLabel>{t("landingPageConfig.heroBgGradient")}</FormLabel>
+            <GradientGenerator
+              value={landingPageConfig.heroBgGradient}
+              onChange={(newGradient) =>
+                handleColorChange("heroBgGradient", newGradient)
+              }
             />
           </FormControl>
-          <FormControl>
-  <FormLabel>{t("landingPageConfig.heroBgGradient")}</FormLabel>
-  <GradientGenerator
-    value={landingPageConfig.heroBgGradient}
-    onChange={(newGradient) => handleColorChange("heroBgGradient", newGradient)}
-  />
-</FormControl>
           <FormControl>
             <FormLabel>{t("landingPageConfig.heroTextColor")}</FormLabel>
             <ColorPicker

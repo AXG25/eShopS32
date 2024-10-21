@@ -6,17 +6,18 @@ import {
   PopoverContent,
   PopoverBody,
   useColorMode,
+  Box,
+  Flex,
+  Input,
+  VStack,
 } from "@chakra-ui/react";
 import { debounce } from "lodash";
 import CustomButton from "../common/CustomButton";
-
-const SketchPicker = React.lazy(() =>
-  import("react-color").then((module) => ({ default: module.SketchPicker }))
-);
+import { RgbaStringColorPicker } from "react-colorful";
 
 const getContrastColor = (hexColor) => {
   if (!hexColor || typeof hexColor !== "string" || hexColor.length !== 7) {
-    return "#000000"; // Default to black if the input is invalid
+    return "#000000";
   }
   const r = parseInt(hexColor.slice(1, 3), 16);
   const g = parseInt(hexColor.slice(3, 5), 16);
@@ -25,38 +26,52 @@ const getContrastColor = (hexColor) => {
   return luminance > 0.5 ? "#000000" : "#FFFFFF";
 };
 
+const hexToRgba = (hex) => {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, 1)`;
+};
+
+const rgbaToHex = (rgba) => {
+  const parts = rgba.substring(rgba.indexOf("(") + 1, rgba.lastIndexOf(")")).split(/,\s*/);
+  const r = parseInt(parts[0]).toString(16).padStart(2, '0');
+  const g = parseInt(parts[1]).toString(16).padStart(2, '0');
+  const b = parseInt(parts[2]).toString(16).padStart(2, '0');
+  return `#${r}${g}${b}`;
+};
+
 const ColorPicker = React.memo(({ color, onChange, label }) => {
   const { colorMode } = useColorMode();
-  const [localColor, setLocalColor] = useState(color || "#000000"); // Provide a default color
-  const textColor = getContrastColor(localColor);
+  const [localColor, setLocalColor] = useState(hexToRgba(color || "#000000"));
+  const textColor = getContrastColor(rgbaToHex(localColor));
 
   const debouncedOnChange = useCallback(
     debounce((newColor) => {
-      onChange(newColor);
+      onChange(rgbaToHex(newColor));
     }, 200),
     [onChange]
   );
 
   useEffect(() => {
-    setLocalColor(color || "#000000"); // Update local color when prop changes, with a default
+    setLocalColor(hexToRgba(color || "#000000"));
   }, [color]);
 
   const handleChangeComplete = useCallback(
     (newColor) => {
-      const hexColor = newColor.hex;
-      setLocalColor(hexColor);
-      debouncedOnChange(hexColor);
+      setLocalColor(newColor);
+      debouncedOnChange(newColor);
     },
     [debouncedOnChange]
   );
 
   return (
-    <Popover>
+    <Popover placement="bottom-start">
       <PopoverTrigger>
         <CustomButton
           height="40px"
           width="100%"
-          bg={localColor}
+          bg={rgbaToHex(localColor)}
           color={textColor}
           borderColor={colorMode === "light" ? "gray.300" : "gray.600"}
           borderWidth="1px"
@@ -64,14 +79,28 @@ const ColorPicker = React.memo(({ color, onChange, label }) => {
             borderColor: colorMode === "light" ? "gray.400" : "gray.500",
           }}
         >
-          {label}: {localColor}
+          {label}: {rgbaToHex(localColor)}
         </CustomButton>
       </PopoverTrigger>
-      <PopoverContent>
+      <PopoverContent width="240px">
         <PopoverBody>
-          <React.Suspense fallback={<div>Loading...</div>}>
-            <SketchPicker color={localColor} onChange={handleChangeComplete} />
-          </React.Suspense>
+          <VStack spacing={2}>
+            <RgbaStringColorPicker color={localColor} onChange={handleChangeComplete} />
+            <Flex width="100%">
+              <Input
+                value={rgbaToHex(localColor)}
+                onChange={(e) => handleChangeComplete(hexToRgba(e.target.value))}
+                size="sm"
+              />
+              <Box
+                width="40px"
+                height="32px"
+                ml={2}
+                borderRadius="md"
+                bg={rgbaToHex(localColor)}
+              />
+            </Flex>
+          </VStack>
         </PopoverBody>
       </PopoverContent>
     </Popover>
