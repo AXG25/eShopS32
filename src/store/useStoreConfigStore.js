@@ -127,7 +127,6 @@ const useStoreConfigStore = create(
           return { config: updatedConfig };
         });
       },
-
       setLogo: (logoUrl) => {
         set((state) => ({
           config: { ...state.config, logo: logoUrl },
@@ -140,41 +139,15 @@ const useStoreConfigStore = create(
       },
       saveConfigToBackend: async () => {
         const currentConfig = get().config;
-        const changedValues = {};
 
-        Object.keys(currentConfig).forEach((key) => {
-          if (key === "landingPage") {
-            Object.keys(currentConfig[key]).forEach((landingPageKey) => {
-              if (landingPageKey === "features") {
-                // Convertir features a JSON
-                changedValues[landingPageKey] = JSON.stringify(
-                  currentConfig[key][landingPageKey]
-                );
-              } else if (key === "whatsappNumber") {
-                if (
-                  currentConfig.whatsappNumber !== defaultConfig.whatsappNumber
-                ) {
-                  changedValues.whatsappNumber = currentConfig.whatsappNumber;
-                }
-              } else if (
-                JSON.stringify(currentConfig[key][landingPageKey]) !==
-                JSON.stringify(defaultConfig[key][landingPageKey])
-              ) {
-                changedValues[landingPageKey] =
-                  currentConfig[key][landingPageKey];
-              }
-            });
-
-            if (currentConfig.whatsappNumber !== defaultConfig.whatsappNumber) {
-              changedValues.whatsappNumber = currentConfig.whatsappNumber;
-            }
-          } else if (
-            JSON.stringify(currentConfig[key]) !==
-            JSON.stringify(defaultConfig[key])
-          ) {
-            changedValues[key] = currentConfig[key];
-          }
-        });
+        // Preparar los datos para enviar al backend
+        const configToSave = {
+          ...currentConfig,
+          landingPage: {
+            ...currentConfig.landingPage,
+            features: JSON.stringify(currentConfig.landingPage.features),
+          },
+        };
 
         const {
           token,
@@ -187,12 +160,13 @@ const useStoreConfigStore = create(
         }
 
         try {
-          await axios.put(`${env.CUSTOMIZED.BASE}/${id}`, changedValues, {
+          await axios.put(`${env.CUSTOMIZED.BASE}/${id}`, configToSave, {
             headers: { Authorization: `Bearer ${token}` },
           });
           toast.success("Configuración guardada en el backend");
-        } catch ({ response: { data } }) {
-          toast.error(data.message);
+        } catch (error) {
+          console.error("Error al guardar la configuración:", error);
+          toast.error("Error al guardar la configuración");
         }
       },
       loadConfigFromBackend: async () => {
@@ -240,7 +214,6 @@ const useStoreConfigStore = create(
           );
         }
       },
-
       syncConfig: async () => {
         const localConfig = get().config;
         try {
@@ -279,7 +252,6 @@ const useStoreConfigStore = create(
           },
         }));
       },
-      // Nueva función para actualizar la configuración de la Landing Page
       updateLandingPageConfig: (newLandingPageConfig) => {
         set((state) => ({
           config: {
