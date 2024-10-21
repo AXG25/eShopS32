@@ -18,6 +18,8 @@ const useAuthStore = create(
         if (user) {
           useStoreConfigStore.getState().setConfig({
             title: user.title,
+            description: user.description,
+            whatsappNumber: user.whatsappNumber,
             backgroundColor: user.backgroundColor,
             headerColor: user.headerColor,
             headerTextColor: user.headerTextColor,
