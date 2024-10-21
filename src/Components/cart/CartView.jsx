@@ -53,6 +53,7 @@ import CustomButton from "../common/CustomButton";
 import useStoreConfigStore from "../../store/useStoreConfigStore";
 import { NumericFormat } from "react-number-format";
 import { sendWhatsAppMessage } from "../../utils/sendWhatsAppMessage";
+import useAuthStore from "../../store/authStore";
 
 const MotionBox = motion(Box);
 const CartView = () => {
@@ -78,7 +79,9 @@ const CartView = () => {
   const [prefixes, setPrefixes] = useState([]);
   const [itemToDelete, setItemToDelete] = useState(null);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
-
+  const {
+    user: { id },
+  } = useAuthStore();
   // const cardBgColor = useColorModeValue("white", "gray.600");
   const bgColor = useColorModeValue("white", "gray.800");
   const textColor = useColorModeValue("gray.600", "gray.200");
@@ -158,7 +161,6 @@ const CartView = () => {
 
     if (phoneNumber && countryCode) {
       const phoneValidation = validatePhoneNumber(phoneNumber, countryCode);
-      console.log("Validación:", phoneValidation); // Para depuración
 
       setFormErrors((prev) => ({
         ...prev,
@@ -230,6 +232,7 @@ const CartView = () => {
     const orderData = {
       ...orderForm,
       items,
+      shop_id: id,
       total: getTotalPrice(),
     };
 
