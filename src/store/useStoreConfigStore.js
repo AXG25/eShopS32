@@ -101,6 +101,15 @@ const useStoreConfigStore = create(
       setConfig: (newConfig) => {
         set((state) => {
           const updatedConfig = { ...state.config, ...newConfig };
+          
+          // Manejo del logo
+          if (newConfig.logo && typeof newConfig.logo === 'string') {
+            if (!newConfig.logo.startsWith('data:image')) {
+              console.warn('El logo debe ser una cadena base64 válida');
+              updatedConfig.logo = state.config.logo; // Mantén el logo anterior si el nuevo no es válido
+            }
+          }
+
           if (newConfig.whatsappNumber) {
             try {
               if (isValidPhoneNumber(newConfig.whatsappNumber)) {
@@ -127,10 +136,14 @@ const useStoreConfigStore = create(
           return { config: updatedConfig };
         });
       },
-      setLogo: (logoUrl) => {
-        set((state) => ({
-          config: { ...state.config, logo: logoUrl },
-        }));
+      setLogo: (logoBase64) => {
+        if (typeof logoBase64 === 'string' && logoBase64.startsWith('data:image')) {
+          set((state) => ({
+            config: { ...state.config, logo: logoBase64 },
+          }));
+        } else {
+          console.warn('setLogo recibió un valor inválido. Debe ser una cadena base64 válida.');
+        }
       },
       resetConfig: () => {
         set({ config: { ...defaultConfig } });

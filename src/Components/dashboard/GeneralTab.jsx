@@ -86,11 +86,14 @@ export const GeneralTab = ({ localConfig, setLocalConfig }) => {
   const onDrop = useCallback(
     (acceptedFiles) => {
       const file = acceptedFiles[0];
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setLocalConfig((prev) => ({ ...prev, logo: event.target.result }));
-      };
-      reader.readAsDataURL(file);
+      if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64String = reader.result;
+          setLocalConfig((prev) => ({ ...prev, logo: base64String }));
+        };
+        reader.readAsDataURL(file);
+      }
     },
     [setLocalConfig]
   );
