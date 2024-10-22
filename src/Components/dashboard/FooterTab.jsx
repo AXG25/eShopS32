@@ -4,15 +4,16 @@ import {
   FormControl,
   FormLabel,
   Input,
-  IconButton,
   HStack,
   Textarea,
 } from "@chakra-ui/react";
-import { FaPlus, FaTrash } from "react-icons/fa";
 import PropTypes from "prop-types";
-import CustomButton from "../common/CustomButton";
+import useStoreConfigStore from "../../store/useStoreConfigStore";
+import { useEffect } from "react";
 
 export const FooterTab = ({ footerConfig, onFooterConfigChange }) => {
+  const { config } = useStoreConfigStore();
+
   const handleChange = (e, section, index, key) => {
     const { value } = e.target;
     if (section === "contact") {
@@ -36,54 +37,43 @@ export const FooterTab = ({ footerConfig, onFooterConfigChange }) => {
     }
   };
 
-  const addItem = (section) => {
-    const updatedSection = [...footerConfig[section], { name: "", url: "" }];
-    onFooterConfigChange({
-      ...footerConfig,
-      [section]: updatedSection,
-    });
-  };
+  useEffect(() => {
+   console.log('config', config)
+  }, [config])
+  
 
-  const removeItem = (section, index) => {
-    const updatedSection = footerConfig[section].filter((_, i) => i !== index);
-    onFooterConfigChange({
-      ...footerConfig,
-      [section]: updatedSection,
-    });
-  };
-
-  const renderSection = (sectionName, sectionTitle) => (
+  const renderSocialLinks = () => (
     <>
       <Heading size="md" mt={4}>
-        {sectionTitle}
+        Redes Sociales
       </Heading>
-      {footerConfig[sectionName].map((item, index) => (
-        <HStack key={index}>
-          <Input
-            placeholder="Nombre"
-            value={item.name}
-            onChange={(e) => handleChange(e, sectionName, index, "name")}
-          />
-          <Input
-            placeholder="URL"
-            value={item.url}
-            onChange={(e) => handleChange(e, sectionName, index, "url")}
-          />
-          {/* <IconButton
-            icon={<FaTrash />}
-            onClick={() => removeItem(sectionName, index)}
-          /> */}
-        </HStack>
-      ))}
-      {/* <CustomButton leftIcon={<FaPlus />} onClick={() => addItem(sectionName)}>
-        Añadir Item
-      </CustomButton> */}
+      <HStack>
+        <Input
+          placeholder="Facebook"
+          value={footerConfig.socialLinks[0]?.url || config.facebook}
+          onChange={(e) => handleChange(e, "socialLinks", 0, "url")}
+        />
+      </HStack>
+      <HStack>
+        <Input
+          placeholder="Twitter"
+          value={footerConfig.socialLinks[1]?.url || ""}
+          onChange={(e) => handleChange(e, "socialLinks", 1, "url")}
+        />
+      </HStack>
+      <HStack>
+        <Input
+          placeholder="Instagram"
+          value={footerConfig.socialLinks[2]?.url || config.instagram}
+          onChange={(e) => handleChange(e, "socialLinks", 2, "url")}
+        />
+      </HStack>
     </>
   );
 
   return (
     <VStack spacing={6} align="stretch">
-      {renderSection("socialLinks", "Redes Sociales")}
+      {renderSocialLinks()}
 
       <Heading size="md" mt={4}>
         Información de Contacto
@@ -98,14 +88,14 @@ export const FooterTab = ({ footerConfig, onFooterConfigChange }) => {
       <FormControl>
         <FormLabel>Teléfono</FormLabel>
         <Input
-          value={footerConfig.contact.phone}
+          value={footerConfig.contact.phone || config.phone}
           onChange={(e) => handleChange(e, "contact", null, "phone")}
         />
       </FormControl>
       <FormControl>
         <FormLabel>Email</FormLabel>
         <Input
-          value={footerConfig.contact.email}
+          value={footerConfig.contact.email || config.email}
           onChange={(e) => handleChange(e, "contact", null, "email")}
         />
       </FormControl>
@@ -117,3 +107,5 @@ FooterTab.propTypes = {
   footerConfig: PropTypes.object.isRequired,
   onFooterConfigChange: PropTypes.func.isRequired,
 };
+
+export default FooterTab;
