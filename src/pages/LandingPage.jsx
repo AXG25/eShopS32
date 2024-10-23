@@ -20,7 +20,7 @@ import DynamicIcon from "../Components/common/DynamicIcon";
 
 const MotionBox = motion(Box);
 
-const FeatureCard = ({ icon, title, description }) => (
+const FeatureCard = ({ icon, title, color, description }) => (
   <MotionBox
     whileHover={{ scale: 1.05 }}
     p={6}
@@ -28,7 +28,7 @@ const FeatureCard = ({ icon, title, description }) => (
     boxShadow="md"
     bg={useColorModeValue("white", "gray.700")}
   >
-    <DynamicIcon name={icon} w={10} h={10} color="teal.500" mb={4} />
+    <DynamicIcon name={icon} w={10} h={10} color={color} mb={4} />
     <Heading size="md" mb={2}>
       {title}
     </Heading>
@@ -40,6 +40,7 @@ FeatureCard.propTypes = {
   icon: PropTypes.elementType.isRequired,
   title: PropTypes.string.isRequired,
   description: PropTypes.string.isRequired,
+  color: PropTypes.string.isRequired,
 };
 
 const LandingPage = () => {
@@ -47,7 +48,6 @@ const LandingPage = () => {
   const { landingPage } = config;
 
   const bgColor = useColorModeValue("gray.50", "gray.900");
-  const primaryColor = useColorModeValue("teal.500", "teal.300");
 
   return (
     <Box bg={bgColor}>
@@ -72,7 +72,7 @@ const LandingPage = () => {
                 as={RouterLink}
                 to="/home"
                 colorScheme={landingPage.heroButtonColorScheme}
-                size="lg"
+                width="100%"
               >
                 {landingPage.heroButtonText}
               </CustomButton>
@@ -90,7 +90,7 @@ const LandingPage = () => {
       {/* Features Section */}
       <Box py={20}>
         <Container maxW="container.xl">
-          <Heading textAlign="center" mb={4} color={primaryColor}>
+          <Heading textAlign="center" mb={4} color={config.primaryColor}>
             {landingPage.featuresTitle}
           </Heading>
           <Text fontSize="xl" textAlign="center" mb={10} maxW="800px" mx="auto">
@@ -107,6 +107,7 @@ const LandingPage = () => {
                 icon={feature.icon}
                 title={feature.title}
                 description={feature.description}
+                color={config.primaryColor}
               />
             ))}
           </SimpleGrid>
