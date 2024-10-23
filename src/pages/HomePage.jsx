@@ -18,7 +18,7 @@ import useStoreConfigStore from "../store/useStoreConfigStore";
 import useProductStore from "../store/useProductStore";
 import FilterBar from "../Components/product/FilterBar";
 import ProductCard from "../Components/product/ProductCard";
-import CustomButton from "../components/common/CustomButton";
+import CustomButton from "../Components/common/CustomButton";
 
 const MotionBox = motion(Box);
 
