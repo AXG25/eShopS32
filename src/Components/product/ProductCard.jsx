@@ -19,10 +19,11 @@ import ProductPreview from "./ProductPreview ";
 import CustomButton from "../common/CustomButton";
 import { parseFloat } from "../../utils/numberFormatting";
 import { NumericFormat } from "react-number-format";
+import { DEFAULT_IMAGE } from "../../constants/images";
 
 const MotionBox = motion(Box);
 
-const DEFAULT_IMAGE = "/resources/images/noProduct.jpg";
+
 
 const ProductCard = memo(({ product }) => {
   const { t } = useTranslation();
@@ -80,7 +81,6 @@ const ProductCard = memo(({ product }) => {
               objectFit="contain"
               width="100%"
               height="100%"
-              filter={!product.image ? "grayscale(100%)" : "none"}
               fallback={
                 <Image 
                   src={DEFAULT_IMAGE} 
