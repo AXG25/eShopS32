@@ -22,6 +22,8 @@ import { NumericFormat } from "react-number-format";
 
 const MotionBox = motion(Box);
 
+const DEFAULT_IMAGE = "/resources/images/noProduct.jpg";
+
 const ProductCard = memo(({ product }) => {
   const { t } = useTranslation();
   const { addItemToCart } = useCartStore();
@@ -73,11 +75,22 @@ const ProductCard = memo(({ product }) => {
         <AspectRatio ratio={4 / 3} width="100%">
           <Box position="relative">
             <Image
-              src={product.image}
+              src={product.image || DEFAULT_IMAGE}
               alt={product.title}
               objectFit="contain"
               width="100%"
               height="100%"
+              filter={!product.image ? "grayscale(100%)" : "none"}
+              fallback={
+                <Image 
+                  src={DEFAULT_IMAGE} 
+                  alt="Imagen no disponible" 
+                  objectFit="contain" 
+                  width="100%" 
+                  height="100%" 
+                  filter="grayscale(100%)"
+                />
+              }
             />
             {product.discount > 0 && (
               <Badge position="absolute" top={2} left={2} colorScheme="red">
