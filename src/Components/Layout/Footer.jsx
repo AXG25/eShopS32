@@ -8,7 +8,7 @@ import {
   useColorModeValue,
   IconButton,
 } from "@chakra-ui/react";
-import { FaTwitter, FaYoutube, FaInstagram, FaLinkedin, FaGithub, FaFacebook, FaPinterest } from "react-icons/fa";
+import { FaTwitter, FaInstagram, FaFacebook } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 import useStoreConfigStore from "../../store/useStoreConfigStore";
 
@@ -46,14 +46,14 @@ const Footer = () => {
             ))}
           </Stack>
           
-          <Stack align={"flex-start"}>
+         {/*  <Stack align={"flex-start"}>
             <Text fontWeight={"500"} fontSize={"lg"} mb={2} color={"white"}>
               {t("footer.myAccount")}
             </Text>
-            {config.footer.myAccount.map((item, index) => (
+            {config?.footer?.myAccount?.map((item, index) => (
               <Link key={index} href={item.url}>{item.name}</Link>
             ))}
-          </Stack>
+          </Stack> */}
           
           <Stack align={"flex-start"}>
             <Text fontWeight={"500"} fontSize={"lg"} mb={2} color={"white"}>
@@ -85,6 +85,7 @@ const Footer = () => {
                   key={index}
                   as="a"
                   href={social.url}
+                  target="_blank"
                   aria-label={social.name}
                   icon={<SocialIcon />}
                   size="md"
