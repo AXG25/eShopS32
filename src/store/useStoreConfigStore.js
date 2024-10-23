@@ -28,22 +28,22 @@ const defaultConfig = {
   whatsappNumber: "+573025479797",
   footer: {
     storeInfo: [
-      { name: "Sobre Nosotros", url: "/about" },
-      { name: "Términos y Condiciones", url: "/terms" },
-      { name: "Política de Privacidad", url: "/privacy" },
+      { name: "Sobre Nosotros", url: "/" },
+      /* { name: "Términos y Condiciones", url: "/terms" },
+      { name: "Política de Privacidad", url: "/privacy" }, */
     ],
     customerService: [
-      { name: "Preguntas Frecuentes", url: "/faq" },
-      { name: "Envíos", url: "/shipping" },
-      { name: "Devoluciones", url: "/returns" },
-      { name: "Garantía", url: "/warranty" },
+     /*  { name: "Preguntas Frecuentes", url: "/faq" }, */
+      { name: "Envíos", url: "/contact" },
+      { name: "Devoluciones", url: "/contact" },
+      { name: "Garantía", url: "/contact" },
     ],
-    myAccount: [
+    /* myAccount: [
       { name: "Mi Perfil", url: "/profile" },
       { name: "Mis Pedidos", url: "/orders" },
       { name: "Lista de Deseos", url: "/wishlist" },
       { name: "Notificaciones", url: "/notifications" },
-    ],
+    ], */
     contact: {
       address: "43 Raymouth Rd. Baltemoer, London 3910",
       phone: "+1(123)-456-7890",
