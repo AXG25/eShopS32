@@ -80,9 +80,8 @@ const CartView = () => {
   const [prefixes, setPrefixes] = useState([]);
   const [itemToDelete, setItemToDelete] = useState(null);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
-  const {
-    user: { id },
-  } = useAuthStore();
+  const { user } = useAuthStore();
+  const shopId = user?.id || null;
   // const cardBgColor = useColorModeValue("white", "gray.600");
   const bgColor = useColorModeValue("white", "gray.800");
   const textColor = useColorModeValue("gray.600", "gray.200");
@@ -233,7 +232,7 @@ const CartView = () => {
     const orderData = {
       ...orderForm,
       items,
-      shop_id: id,
+      shop_id: shopId,
       total: getTotalPrice(),
     };
 
