@@ -134,7 +134,7 @@ const CustomizationDashboard = () => {
       clearInterval(progressInterval);
       setIsSyncing(false);
       setSyncProgress(0);
-
+      console.log(error);
       toast.error("Error en la sincronización", {
         duration: 3000,
       });
