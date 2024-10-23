@@ -238,21 +238,28 @@ const CartView = () => {
 
     try {
       await axios.post(env.CART.CREATE_ORDER, orderData);
-
+      
+// por favor no formatear el codigo para quie no se pierda la estructura 
       const whatsappMessage = `
-      *Nuevo pedido:*
-      ${orderForm.name ? `Nombre: ${orderForm.name}` : ""}
-      ${orderForm.IDNumber ? `Cédula: ${orderForm.IDNumber}` : ""}        
-      Teléfono: ${orderForm.phoneNumber}      
-      Email: ${orderForm.email}            
-      Productos:
-      ${items
-        .map(
-          (item, index) =>
-            `*${index + 1}.* ${item.title} - ${item.price} (x${item.quantity})`
-        )
-        .join("\n")}
-        *Total: ${getTotalPrice()}*`;
+*Nuevo pedido desde su tienda en linea:*
+${orderForm.name ? `Nombre: ${orderForm.name}` : ""}
+${orderForm.IDNumber ? `Cédula: ${orderForm.IDNumber}` : ""}        
+Teléfono: ${orderForm.phoneNumber}      
+Email: ${orderForm.email}            
+------------
+*Productos:*
+------------
+${items
+  .map(
+    (item, index) =>
+      `${index + 1}. ${item.title} - ${formatPrice(item.price)} (x${item.quantity})`
+  )
+  .join("\n")}
+
+*TOTAL:* ${formatPrice(getTotalPrice())}
+
+> Pedido realizado desde System32 Software`;
+
       sendWhatsAppMessage(config.whatsappNumber, whatsappMessage);
 
       setTimeout(() => {
