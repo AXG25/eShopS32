@@ -15,6 +15,7 @@ import useCartStore from "../../store/useCartStore";
 import CustomButton from "../common/CustomButton";
 import { NumericFormat } from "react-number-format";
 import { parseFloat } from "../../utils/numberFormatting";
+import { DEFAULT_IMAGE } from "../../constants/images";
 
 const CartHeader = () => {
   const { items, getTotalItems, getTotalPrice } = useCartStore();
@@ -37,7 +38,7 @@ const CartHeader = () => {
               {items.slice(0, 3).map((item) => (
                 <HStack key={item.id} justify="space-between">
                   <Image
-                    src={item.image}
+                    src={item.image || DEFAULT_IMAGE}
                     alt={item.title}
                     boxSize="50px"
                     objectFit="cover"
