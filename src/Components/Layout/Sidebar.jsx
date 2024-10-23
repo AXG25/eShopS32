@@ -96,7 +96,7 @@ const Sidebar = ({ collapsed }) => {
               >
                 <MenuItem
                   icon={<RiCustomerService2Line />}
-                  component={<RouterLink to="/nosotros" />}
+                  component={<RouterLink to="/contact" />}
                 >
                   Contacto
                 </MenuItem>
