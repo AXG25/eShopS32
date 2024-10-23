@@ -54,6 +54,7 @@ import useStoreConfigStore from "../../store/useStoreConfigStore";
 import { NumericFormat } from "react-number-format";
 import { sendWhatsAppMessage } from "../../utils/sendWhatsAppMessage";
 import useAuthStore from "../../store/authStore";
+import { DEFAULT_IMAGE } from "../../constants/images";
 
 const MotionBox = motion(Box);
 const CartView = () => {
@@ -370,7 +371,7 @@ ${items
                             {index + 1}.
                           </Text>
                           <Image
-                            src={item.image}
+                            src={item.image || DEFAULT_IMAGE}
                             alt={item.title}
                             boxSize="60px"
                             objectFit="cover"
