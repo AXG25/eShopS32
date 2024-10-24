@@ -13,6 +13,7 @@ import CategoryItem from "../Components/product/CategoryItem";
 import axios from 'axios';
 import env from "../config/env";
 import { useQuery } from "@tanstack/react-query";
+import useStoreConfigStore from "../store/useStoreConfigStore";
 
 const fetchCategories = async () => {
   const allCategoriesUrl = env.PRODUCTS.CATEGORIES;
@@ -21,9 +22,9 @@ const fetchCategories = async () => {
 };
 
 const CategoriesPage = () => {
+  const { config } = useStoreConfigStore();
   const navigate = useNavigate();
   const bgColor = useColorModeValue("gray.50", "gray.900");
-  const textColor = useColorModeValue("gray.800", "gray.100");
 
   const { data: categories, isLoading, error } = useQuery({
     queryKey: ['categories'],
@@ -53,7 +54,15 @@ const CategoriesPage = () => {
   return (
     <Box bg={bgColor} minH="100vh" py={8}>
       <Container maxW="container.xl">
-        <Heading as="h1" size="2xl" textAlign="center" mb={8} color={textColor}>
+      <Heading
+            as="h1"
+            size={{ base: "lg", md: "2xl" }}
+            textAlign="center"
+            color={config.primaryColor}
+            fontWeight="extrabold"
+            letterSpacing="tight"
+            mb={8}
+          >
           Explora nuestras Categorías
         </Heading>
         <SimpleGrid

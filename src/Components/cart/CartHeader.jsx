@@ -8,6 +8,7 @@ import {
   HStack,
   Image,
   Portal,
+  Tooltip,
 } from "@chakra-ui/react";
 import { FaShoppingCart } from "react-icons/fa";
 import { Link } from "react-router-dom";
@@ -23,13 +24,15 @@ const CartHeader = () => {
   return (
     <Popover placement="bottom-end">
       <PopoverTrigger>
-        <CustomButton
-          leftIcon={<FaShoppingCart />}
-          colorScheme="blue"
-          section="header"
-        >
-          Carrito ({getTotalItems()})
-        </CustomButton>
+
+          <CustomButton
+            leftIcon={<FaShoppingCart />}
+            colorScheme="blue"
+            section="header"
+          >
+            ({getTotalItems()})
+          </CustomButton>
+
       </PopoverTrigger>
       <Portal>
         <PopoverContent>

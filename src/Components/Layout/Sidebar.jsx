@@ -4,7 +4,6 @@ import { Box, Tooltip, VStack, useColorModeValue } from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
 import {
   FaStore,
-  FaCog,
   FaSignOutAlt,
   FaShoppingCart,
   FaListUl, // Nuevo icono para categorías
@@ -14,6 +13,7 @@ import useStoreConfigStore from "../../store/useStoreConfigStore";
 import { useAuth } from "../../hooks/useAuth";
 import { RiCustomerService2Line } from "react-icons/ri";
 import CustomButton from "../common/CustomButton";
+import { FaPeopleGroup } from "react-icons/fa6";
 
 const Sidebar = ({ collapsed }) => {
   const { config } = useStoreConfigStore();
@@ -41,9 +41,9 @@ const Sidebar = ({ collapsed }) => {
     >
       <ProSidebar
         collapsed={collapsed}
-        width="250px"
-        collapsedWidth="80px"
-        style={{ height: "100%" }}
+        width="200px"
+        collapsedWidth="60px"
+        style={{ height: "90%" }}
       >
         <VStack h="100%" justify="space-between">
           <Box flexGrow={1} width="100%" overflowY="auto">
@@ -101,6 +101,20 @@ const Sidebar = ({ collapsed }) => {
                   Contacto
                 </MenuItem>
               </Tooltip>
+              <Tooltip
+                label="Nosotros"
+                aria-label="Nosotros"
+                hasArrow
+                placement="right"
+              >
+                <MenuItem
+                  icon={<FaPeopleGroup />}
+                  component={<RouterLink to="/" />}
+                >
+                  Nosotros
+                </MenuItem>
+              </Tooltip>
+
             {/*   {isAuthenticated && (
                 <Tooltip
                   label="Configuración"

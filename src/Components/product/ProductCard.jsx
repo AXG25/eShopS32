@@ -61,10 +61,10 @@ const ProductCard = memo(({ product }) => {
   };
 
   return (
-    <>
+<>
       <MotionBox
-        width="300px"
-        height="400px"
+        width={{ base: "100%", md: "300px" }} // Usa el 100% del ancho disponible en móviles
+        height={{ base: "auto", md: "400px" }}
         borderWidth="1px"
         borderRadius="lg"
         overflow="hidden"
@@ -110,14 +110,17 @@ const ProductCard = memo(({ product }) => {
           <VStack align="stretch" spacing={1}>
             <Text
               fontWeight="bold"
-              fontSize="md"
+              fontSize={{ base: "xs", md: "md" }}
               color={textColor}
               noOfLines={2}
             >
               {product.title}
             </Text>
             <Text fontSize="xs" color="gray.500" noOfLines={1}>
-              {t("products.category")}: {product.category}
+              <Box as="span" fontWeight="bold" display={{ base: "none", md: "inline" }}>
+                {t("products.category")}:
+              </Box> 
+              {product.category}
             </Text>
           </VStack>
 
@@ -152,8 +155,10 @@ const ProductCard = memo(({ product }) => {
                 />
               )}
             </HStack>
-
-            <HStack>
+            <HStack
+              spacing={1}
+              flexDirection={{ base: "column", md: "row" }}
+            >
               <CustomButton
                 leftIcon={<FaShoppingCart />}
                 onClick={handleAddToCart}
@@ -167,7 +172,7 @@ const ProductCard = memo(({ product }) => {
                 icon={<FaInfoCircle />}
                 variant="outline"
                 onClick={() => setIsModalOpen(true)}
-                size="sm"
+                size={{ base: "xs", md: "sm" }}
                 aria-label={t("products.details")}
               />
             </HStack>

@@ -13,7 +13,6 @@ import {
 import { HamburgerIcon } from "@chakra-ui/icons";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { IoMdLogIn, IoMdInformationCircle } from "react-icons/io";
 
 import useStoreConfigStore from "../../store/useStoreConfigStore";
 import { useAuth } from "../../hooks/useAuth";
@@ -58,7 +57,7 @@ const Header = ({ onToggleSidebar }) => {
           mr={3}
           section="header"
         />
-        <Flex align="center" cursor="pointer" onClick={() => navigate("/home")}>
+        <Flex align="center" cursor="pointer" >
           {config.logo ? (
             <Image
               src={config.logo}
@@ -66,28 +65,20 @@ const Header = ({ onToggleSidebar }) => {
               boxSize="40px"
               objectFit="contain"
               mr={2}
+              onClick={() => navigate("/home")}
             />
           ) : (
-            <Box width="200px" height="40px">
+            <Box width="60px" height="40px" onClick={() => navigate("/home")}>
               <DefaultLogo />
             </Box>
           )}
-          <Box fontWeight="bold" fontSize="xl" color={config.headerTextColor}>
+          <Box fontWeight="bold" fontSize="xl" color={config.headerTextColor} onClick={() => navigate("/login")}>
             {config.title || t("store.myEcommerce")}
           </Box>
         </Flex>
       </Flex>
 
       <HStack spacing={4}>
-        {/* New "Nosotros" button */}
-        <CustomButton
-          leftIcon={<IoMdInformationCircle />}
-          onClick={() => navigate("/")}
-          variant="ghost"
-          section="header"
-        >
-          {t("about.aboutUs")}
-        </CustomButton>
 
         <CartHeader />
         {isAuthenticated ? (
@@ -101,15 +92,7 @@ const Header = ({ onToggleSidebar }) => {
             </MenuList>
           </Menu>
         ) : (
-          <CustomButton
-            as={RouterLink}
-            to="/login"
-            ml={4}
-            leftIcon={<IoMdLogIn />}
-            section="header"
-          >
-            Iniciar Sesión
-          </CustomButton>
+          ''
         )}
       </HStack>
     </Flex>

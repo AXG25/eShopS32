@@ -17,7 +17,7 @@ const ResponsiveLayout = ({ children }) => {
   return (
     <Grid
       templateAreas={{
-        base: `"header" "main" "footer"`,
+        base: `"header header" "nav main" "footer footer"`,
         md: `"header header" "nav main" "footer footer"`,
       }}
       gridTemplateRows={{

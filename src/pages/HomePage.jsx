@@ -163,7 +163,7 @@ const HomePage = () => {
         <VStack spacing={8} align="stretch">
           <Heading
             as="h1"
-            size="2xl"
+            size={{ base: "lg", md: "2xl" }}
             textAlign="center"
             color={config.primaryColor}
             fontWeight="extrabold"
@@ -196,8 +196,8 @@ const HomePage = () => {
           ) : (
             <AnimatePresence>
               <SimpleGrid
-                columns={{ base: 1, sm: 2, md: 3, lg: 4 }}
-                spacing={6}
+                columns={{ base: 2,  lg: 3, xl: 4 }}
+                spacing={4} // Ajusta el espaciado para evitar que se encimen
               >
                 {allProducts.map((product) => (
                   <MotionBox

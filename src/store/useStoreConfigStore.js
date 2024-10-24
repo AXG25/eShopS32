@@ -8,7 +8,7 @@ import toast from "react-hot-toast";
 import { isValidPhoneNumber, parsePhoneNumber } from "libphonenumber-js";
 
 const defaultConfig = {
-  title: "Mi E-commerce",
+  title: "eShop",
   backgroundColor: "#FFFFFF",
   headerColor: "#FFFFFF",
   headerTextColor: "#000000",

@@ -78,7 +78,14 @@ Mensaje: ${formData.message}
     <Box py={12}>
       <Container maxW="container.xl">
         <VStack spacing={10} align="stretch">
-          <Heading as="h1" size="2xl" textAlign="center">
+        <Heading
+            as="h1"
+            size={{ base: "lg", md: "2xl" }}
+            textAlign="center"
+            color={config.primaryColor}
+            fontWeight="extrabold"
+            letterSpacing="tight"
+          >
             {t("contactUs.title")}
           </Heading>
 

@@ -163,8 +163,8 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
   };
 
   return (
-    <Box bg="white" p={4} borderRadius="md" shadow="sm" mb={4}>
-      <VStack spacing={4} align="stretch">
+    <Box bg="white" p={{ base: 2, md: 4 }} borderRadius="md" shadow="sm" mb={{ base: 2, md: 4 }}>
+      <VStack spacing={{ base: 2, md: 4 }} align="stretch">
         <InputGroup>
           <InputLeftElement pointerEvents="none">
             <SearchIcon color="gray.300" />
@@ -176,7 +176,7 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
           />
         </InputGroup>
 
-        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
+        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={{ base: 2, md: 4 }}>
           <Box>
             <Select
               options={categoryOptions}

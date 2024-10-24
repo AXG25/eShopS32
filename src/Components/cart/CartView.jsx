@@ -327,7 +327,7 @@ ${items
         transition={{ duration: 0.5 }}
       >
         <VStack spacing={8} align="stretch">
-          <Flex justify="space-between" align="center">
+          <Flex justify="space-between" align="center" wrap="wrap">
             <Heading size="xl" fontWeight="extrabold" letterSpacing="tight">
               Tu Carrito
             </Heading>
@@ -360,7 +360,7 @@ ${items
                       whileHover={{ scale: 1.02 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <Flex justify="space-between" align="center">
+                      <Flex justify="space-between" align="center" wrap="wrap">
                         <HStack spacing={4}>
                           <Text
                             fontWeight="bold"
@@ -372,7 +372,7 @@ ${items
                           <Image
                             src={item.image || DEFAULT_IMAGE}
                             alt={item.title}
-                            boxSize="60px"
+                            boxSize={{ base: "50px", md: "60px" }}
                             objectFit="cover"
                             borderRadius="md"
                           />
@@ -545,7 +545,7 @@ ${items
 
               <Divider my={6} />
 
-              <Flex justify="space-between" align="center">
+              <Flex justify="space-between" align="center" wrap="wrap">
                 <VStack align="start" spacing={2}>
                   <Text fontSize="2xl" fontWeight="bold" color={textColor}>
                     Total del Pedido:
@@ -581,8 +581,9 @@ ${items
                 </VStack>
                 <CustomButton
                   colorScheme="blue"
-                  width="300px"
-                  height="80px"
+                  mt={{ base: 4, md: 4}}
+                  width={{ base: "100%", md: "300px" }}
+                  height={{ base: "50px", md: "80px" }}
                   fontSize="30px"
                   onClick={handleCheckout}
                   leftIcon={<IoLogoWhatsapp />}
