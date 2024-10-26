@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import {
   Box,
   Table,
@@ -28,33 +28,70 @@ import {
   Flex,
   useToast,
   Spinner,
-  AlertIcon,
-  AlertTitle,
-  AlertDescription,
-  Alert,
+  Tooltip,
+  AlertDialog,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay,
 } from "@chakra-ui/react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useQueryClient,
+  useInfiniteQuery,
+  useQuery,
+} from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import axios from "axios";
 import CustomButton from "../common/CustomButton";
 import ImageUpload from "../common/ImageUpload";
-
-const fetchProducts = async () => {
-  const { data } = await axios.get("https://fakestoreapi.com/products");
-  return data;
-};
+import { RiDeleteBin2Fill } from "react-icons/ri";
+import { AiFillEdit } from "react-icons/ai";
+import useStoreConfigStore from "../../store/useStoreConfigStore";
+import useProductStore from "../../store/useProductStore";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { useInView } from "react-intersection-observer";
+import FilterBar from "../product/FilterBar";
+import { DEFAULT_IMAGE } from "../../constants/images";
+import axios from "axios";
+import env from "../../config/env";
 
 const ProductModal = ({ isOpen, onClose, product, onSave }) => {
-  const [formData, setFormData] = useState(
-    product || {
-      title: "",
-      description: "",
-      price: "",
-      category: "",
-      image: "",
-    }
-  );
+  const fetchCategories = async () => {
+    const response = await axios.get(env.PRODUCTS.CATEGORIES);
+    return response.data || [];
+  };
+
+  const { data: categories } = useQuery({
+    queryKey: ['categories'],
+    queryFn: fetchCategories
+  });
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    price: "",
+    category: "",
+    image: "",
+  });
   const { t } = useTranslation();
+
+  useEffect(() => {
+    if (product) {
+      setFormData({
+        title: product.title || "",
+        description: product.description || "",
+        price: product.price || "",
+        category: product.category || "",
+        image: product.image || "",
+      });
+    } else {
+      setFormData({
+        title: "",
+        description: "",
+        price: "",
+        category: "",
+        image: "",
+      });
+    }
+  }, [product]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -90,7 +127,7 @@ const ProductModal = ({ isOpen, onClose, product, onSave }) => {
                     onChange={handleChange}
                   />
                 </FormControl>
-                <FormControl isRequired>
+                <FormControl>
                   <FormLabel>{t("general.description")}</FormLabel>
                   <Textarea
                     name="description"
@@ -104,7 +141,6 @@ const ProductModal = ({ isOpen, onClose, product, onSave }) => {
                     <FormLabel>{t("general.price")}</FormLabel>
                     <Input
                       name="price"
-                      type="number"
                       value={formData.price}
                       onChange={handleChange}
                     />
@@ -117,12 +153,11 @@ const ProductModal = ({ isOpen, onClose, product, onSave }) => {
                       onChange={handleChange}
                     >
                       <option value="">{t("products.selectCategory")}</option>
-                      <option value="electronics">{t("electronics")}</option>
-                      <option value="jewelery">{t("jewelery")}</option>
-                      <option value="men's clothing">{t("menClothing")}</option>
-                      <option value="women's clothing">
-                        {t("womenClothing")}
-                      </option>
+                      {categories && categories.map((category) => (
+                        <option key={category.id} value={category.name}>
+                          {category.name}
+                        </option>
+                      ))}
                     </Select>
                   </FormControl>
                 </HStack>
@@ -156,68 +191,173 @@ export const ProductTab = () => {
   const { t } = useTranslation();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [currentProduct, setCurrentProduct] = useState(null);
-  const queryClient = useQueryClient();
   const toast = useToast();
+  const { config } = useStoreConfigStore();
+  const { fetchProducts, filters, setFilters, clearFilters, deleteProduct, addProduct, updateProduct } =
+    useProductStore();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [localFilters, setLocalFilters] = useState(() => ({
+    priceRange: [
+      searchParams.get("minPrice") ? Number(searchParams.get("minPrice")) : 0,
+      searchParams.get("maxPrice")
+        ? Number(searchParams.get("maxPrice"))
+        : Infinity,
+    ],
+    category: searchParams.get("category") || "",
+    sortBy: searchParams.get("sortBy") || "",
+    search: searchParams.get("search") || "",
+    limit: 12,
+  }));
+  const scrollContainerRef = useRef(null);
+  const { ref, inView } = useInView();
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
+  const cancelRef = useRef();
 
   const {
-    data: products,
+    data,
     isLoading,
     error,
-  } = useQuery({
-    queryKey: ["products"],
-    queryFn: fetchProducts,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    refetch,
+  } = useInfiniteQuery({
+    queryKey: ["products", localFilters],
+    queryFn: ({ pageParam = 1 }) =>
+      fetchProducts({ ...localFilters, page: pageParam }),
+    getNextPageParam: (lastPage, pages) => {
+      if (lastPage.products.length < localFilters.limit) {
+        return undefined;
+      }
+      return pages.length + 1;
+    },
+    refetchOnWindowFocus: false,
   });
 
-  const addMutation = useMutation({
-    mutationFn: (newProduct) => {
-      // Simulate adding a product
-      return Promise.resolve({ ...newProduct, id: Date.now() });
+  useEffect(() => {
+    const selectedCategory = location.state?.selectedCategory;
+    if (selectedCategory) {
+      setLocalFilters((prev) => ({ ...prev, category: selectedCategory }));
+      setFilters({ ...filters, category: selectedCategory });
+      setSearchParams({
+        ...Object.fromEntries(searchParams),
+        category: selectedCategory,
+      });
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state, navigate, searchParams, setSearchParams, setFilters]);
+
+  useEffect(() => {
+    if (inView && hasNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, fetchNextPage, hasNextPage]);
+
+  const handleFilterChange = useCallback(
+    (newFilters) => {
+      setLocalFilters(newFilters);
+      setFilters(newFilters);
+
+      const searchParamsObject = {};
+      if (newFilters.category)
+        searchParamsObject.category = newFilters.category;
+      if (newFilters.sortBy) searchParamsObject.sortBy = newFilters.sortBy;
+      if (newFilters.search) searchParamsObject.search = newFilters.search;
+      if (newFilters.priceRange[0] > 0)
+        searchParamsObject.minPrice = newFilters.priceRange[0];
+      if (
+        newFilters.priceRange[1] < Infinity &&
+        newFilters.priceRange[1] !== newFilters.priceRange[0]
+      ) {
+        searchParamsObject.maxPrice = newFilters.priceRange[1];
+      }
+
+      setSearchParams(searchParamsObject);
     },
-    onSuccess: (data) => {
-      queryClient.setQueryData(["products"], (oldData) => [...oldData, data]);
-      toast({ title: t("products.productAdded"), status: "success" });
+    [setFilters, setSearchParams]
+  );
+
+  const handleClearFilters = useCallback(() => {
+    clearFilters();
+    setLocalFilters({
+      priceRange: [0, Infinity],
+      category: "",
+      sortBy: "",
+      search: "",
+      limit: 12,
+    });
+    setSearchParams({});
+  }, [setSearchParams, clearFilters]);
+
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: "Error al cargar los productos",
+        description: error.message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  }, [error, toast]);
+
+  const scrollbarStyle = {
+    "&::-webkit-scrollbar": {
+      width: "4px",
+    },
+    "&::-webkit-scrollbar-track": {
+      background: "#f1f1f1",
+    },
+    "&::-webkit-scrollbar-thumb": {
+      background: "#888",
+      borderRadius: "4px",
+    },
+    "&::-webkit-scrollbar-thumb:hover": {
+      background: "#555",
+    },
+  };
+
+
+
+
+  const handleSave = async (productData) => {
+    try {
+      if (currentProduct?.id) {
+        await updateProduct({ ...currentProduct, ...productData });
+        toast({
+          title: t("products.productUpdated"),
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+      } else {
+        await addProduct(productData);
+        toast({
+          title: t("products.productAdded"),
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
       onClose();
-    },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: (updatedProduct) => {
-      // Simulate updating a product
-      return Promise.resolve(updatedProduct);
-    },
-    onSuccess: (data) => {
-      queryClient.setQueryData(["products"], (oldData) =>
-        oldData.map((item) => (item.id === data.id ? data : item))
-      );
-      toast({ title: t("products.productUpdated"), status: "success" });
-      onClose();
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id) => {
-      // Simulate deleting a product
-      return Promise.resolve(id);
-    },
-    onSuccess: (id) => {
-      queryClient.setQueryData(["products"], (oldData) =>
-        oldData.filter((item) => item.id !== id)
-      );
-      toast({ title: t("products.productDeleted"), status: "success" });
-    },
-  });
-
-  const handleSave = (productData) => {
-    if (currentProduct?.id) {
-      updateMutation.mutate({ ...currentProduct, ...productData });
-    } else {
-      addMutation.mutate(productData);
+      refetch(); // Volver a cargar los productos
+    } catch (error) {
+      toast({
+        title: "Error al guardar el producto",
+        description: error.message,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
     }
   };
 
   const handleEdit = useCallback(
     (product) => {
-      setCurrentProduct(product);
+      setCurrentProduct({...product}); // Crea una nueva referencia del objeto
       onOpen();
     },
     [onOpen]
@@ -225,116 +365,181 @@ export const ProductTab = () => {
 
   const handleDelete = useCallback(
     (id) => {
-      if (window.confirm(t("confirmDelete.confirmDelete"))) {
-        deleteMutation.mutate(id);
-      }
+      setProductToDelete(id);
+      setIsAlertOpen(true);
     },
-    [deleteMutation, t]
+    []
   );
 
-  if (isLoading) return <Spinner />;
-  if (error)
-    return (
-      <Text color="red.500">
-        {t("products.errorLoadingProducts")}: {error.message}
-      </Text>
-    );
+  const confirmDelete = async () => {
+    try {
+      await deleteProduct(productToDelete);
+      setIsAlertOpen(false);
+      toast({
+        title: t("products.productDeleted"),
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+      });
+      refetch(); // Volver a cargar los productos
+    } catch (error) {
+      setIsAlertOpen(false);
+      toast({
+        title: "Error al eliminar el producto",
+        description: error.message,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const allProducts = data ? data.pages.flatMap((page) => page.products) : [];
 
   return (
-    <Box position="relative">
-      <Alert
-        status="info"
-        variant="subtle"
-        flexDirection="column"
-        alignItems="center"
-        justifyContent="center"
-        textAlign="center"
-        height="auto"
-        bg="blue.50"
-        borderRadius="md"
-        mb={4}
-        p={4}
-      >
-        <AlertIcon boxSize="40px" mr={0} />
-        <AlertTitle mt={4} mb={1} fontSize="lg">
-          {t("general.inDevelopment")}
-        </AlertTitle>
-        <AlertDescription maxWidth="sm">
-          {t("general.noFunctionalityMessage")}
-        </AlertDescription>
-      </Alert>
+    <Box
+      position="relative"
+      ref={scrollContainerRef}
+      height="calc(100vh - 80px)"
+      overflowY="auto"
+      sx={scrollbarStyle}
+    >
+      <FilterBar
+        onFilterChange={handleFilterChange}
+        onClearFilters={handleClearFilters}
+        currentFilters={localFilters}
+      />
 
-      <Box opacity={0.6} pointerEvents="none">
-        <CustomButton
-          onClick={() => {
-            setCurrentProduct(null);
-            onOpen();
-          }}
-          mb={4}
-          isDisabled
-        >
-          {t("products.addNewProduct")}
-        </CustomButton>
+      {isLoading ? (
+        <Flex justify="center" align="center" height="50vh">
+          <Spinner size="xl" color={config.primaryColor} />
+        </Flex>
+      ) : error ? (
+        <VStack spacing={4} align="center">
+          <Text color="red.500" fontSize="lg">
+            Error: {error.message}
+          </Text>
+          <CustomButton onClick={() => refetch()} colorScheme="blue">
+            Intentar de nuevo
+          </CustomButton>
+        </VStack>
+      ) : (
+        <Box>
+          <CustomButton
+            onClick={() => {
+              setCurrentProduct(null);
+              onOpen();
+            }}
+            mb={4}
+          >
+            {t("products.addNewProduct")}
+          </CustomButton>
 
-        <Table variant="simple">
-          <Thead>
-            <Tr>
-              <Th>{t("general.image")}</Th>
-              <Th>{t("general.name")}</Th>
-              <Th>{t("general.price")}</Th>
-              <Th>{t("general.category")}</Th>
-              <Th>{t("general.actions")}</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {products.map((product) => (
-              <Tr key={product.id}>
-                <Td>
-                  <Image
-                    src={product.image}
-                    alt={product.title}
-                    boxSize="50px"
-                    objectFit="cover"
-                  />
-                </Td>
-                <Td>{product.title}</Td>
-                <Td>
-                  $
-                  {parseFloat(product.price, {
-                    defaultValue: 0,
-                  }).toFixed(2)}
-                </Td>
-                <Td>{product.category}</Td>
-                <Td>
-                  <CustomButton
-                    size="sm"
-                    onClick={() => handleEdit(product)}
-                    mr={2}
-                    isDisabled
-                  >
-                    {t("general.edit")}
-                  </CustomButton>
-                  <CustomButton
-                    size="sm"
-                    colorScheme="red"
-                    onClick={() => handleDelete(product.id)}
-                    isDisabled
-                  >
-                    {t("general.delete")}
-                  </CustomButton>
-                </Td>
+          <Table variant="simple">
+            <Thead>
+              <Tr>
+                <Th>{t("general.image")}</Th>
+                <Th>{t("general.name")}</Th>
+                <Th>{t("general.price")}</Th>
+                <Th>{t("general.category")}</Th>
+                <Th>{t("general.actions")}</Th>
               </Tr>
-            ))}
-          </Tbody>
-        </Table>
+            </Thead>
+            <Tbody>
+              {allProducts.map((product) => (
+                <Tr key={product.id}>
+                  <Td>
+                    <Image
+                      src={product.image || DEFAULT_IMAGE}
+                      alt={product.title}
+                      boxSize="50px"
+                      objectFit="cover"
+                    />
+                  </Td>
+                  <Td>{product.title}</Td>
+                  <Td>
+                    ${product.price}
+                  </Td>
+                  <Td>{product.category}</Td>
+                  <Td display="flex" justifyContent="flex-end">
+                    <Tooltip label={t("general.edit")}>
+                      <CustomButton
+                        size="sm"
+                        onClick={() => handleEdit(product)}
+                        mr={2}
+                      >
+                        {<AiFillEdit />}
+                      </CustomButton>
+                    </Tooltip>
+                    <Tooltip label={t("general.delete")}>
+                      <CustomButton
+                        size="sm"
+                        onClick={() => handleDelete(product.id)}
+                      >
+                        {<RiDeleteBin2Fill />}
+                      </CustomButton>
+                    </Tooltip>
+                  </Td>
+                </Tr>
+              ))}
 
-        <ProductModal
-          isOpen={isOpen}
-          onClose={onClose}
-          product={currentProduct}
-          onSave={handleSave}
-        />
-      </Box>
+              {isFetchingNextPage && (
+                <Flex justify="center" mt={4}>
+                  <Spinner size="lg" color={config.primaryColor} />
+                </Flex>
+              )}
+            </Tbody>
+          </Table>
+
+          {allProducts.length === 0 && !isLoading && (
+            <VStack spacing={4} pt={8}>
+              <Text
+                fontSize="lg"
+                fontWeight="medium"
+                textAlign="center"
+                color="gray.600"
+              >
+                No se encontraron productos
+              </Text>
+              <Text fontSize="md" color="gray.500" textAlign="center">
+                Intenta ajustar los filtros
+              </Text>
+            </VStack>
+          )}
+
+          <ProductModal
+            isOpen={isOpen}
+            onClose={onClose}
+            product={currentProduct}
+            onSave={handleSave}
+          />
+        </Box>
+      )}
+      <Box ref={ref} h="20px" />
+
+      <AlertDialog
+        isOpen={isAlertOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={() => setIsAlertOpen(false)}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              {t("products.confirmDelete")}
+            </AlertDialogHeader>
+
+
+            <AlertDialogFooter>
+              <CustomButton ref={cancelRef} onClick={() => setIsAlertOpen(false)}>
+                {t("general.cancel")}
+              </CustomButton>
+              <CustomButton colorScheme="red" onClick={confirmDelete} ml={3}>
+                {t("general.delete")}
+              </CustomButton>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </Box>
   );
 };

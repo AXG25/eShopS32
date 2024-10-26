@@ -5,6 +5,15 @@ import axios from "axios";
 import env from "../config/env";
 import useAuthStore from "./authStore";
 
+const convertImageToBase64 = (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+  });
+};
+
 const useProductStore = create(
   devtools(
     persist(
@@ -99,27 +108,105 @@ const useProductStore = create(
             },
           }));
         },
-        addProduct: (product) =>
-          set((state) => ({
-            products: [...state.products, product],
-            filteredProducts: [...state.filteredProducts, product],
-          })),
-        updateProduct: (id, updatedProduct) =>
-          set((state) => ({
-            products: state.products.map((product) =>
-              product.id === id ? { ...product, ...updatedProduct } : product
-            ),
-            filteredProducts: state.filteredProducts.map((product) =>
-              product.id === id ? { ...product, ...updatedProduct } : product
-            ),
-          })),
-        deleteProduct: (id) =>
-          set((state) => ({
-            products: state.products.filter((product) => product.id !== id),
-            filteredProducts: state.filteredProducts.filter(
-              (product) => product.id !== id
-            ),
-          })),
+        addProduct: async (newProduct) => {
+          set({ isLoading: true, error: null });
+          try {
+            const { token, user } = useAuthStore.getState();
+            if (!token || !user) {
+              throw new Error("No se encontró un token válido o información de usuario");
+            }
+
+            let productWithBase64Image = { ...newProduct };
+
+            if (newProduct.image instanceof File) {
+              const base64Image = await convertImageToBase64(newProduct.image);
+              productWithBase64Image.image = base64Image;
+            }
+
+            const productWithShopUsername = {
+              ...productWithBase64Image,
+              shop_username: user.username
+            };
+
+            const addUrl = `${env.PRODUCTS.BASE}`;
+            const response = await axios.post(addUrl, productWithShopUsername, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
+
+            set((state) => ({
+              products: [...state.products, response.data],
+              isLoading: false,
+            }));
+
+            return response.data;
+          } catch (error) {
+            set({ error: error.message, isLoading: false });
+            throw error;
+          }
+        },
+        updateProduct: async (updatedProduct) => {
+          set({ isLoading: true, error: null });
+          try {
+            const { token, user } = useAuthStore.getState();
+            if (!token || !user) {
+              throw new Error("No se encontró un token válido o información de usuario");
+            }
+
+            let productWithBase64Image = { ...updatedProduct };
+
+            if (updatedProduct.image instanceof File) {
+              const base64Image = await convertImageToBase64(updatedProduct.image);
+              productWithBase64Image.image = base64Image;
+            }
+
+            const updateUrl = `${env.PRODUCTS.BASE}/${updatedProduct.id}`;
+            const response = await axios.put(updateUrl, productWithBase64Image, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
+
+            set((state) => ({
+              products: state.products.map((product) => 
+                product.id === updatedProduct.id ? response.data : product
+              ),
+              isLoading: false,
+            }));
+
+            return response.data;
+          } catch (error) {
+            set({ error: error.message, isLoading: false });
+            throw error;
+          }
+        },
+        deleteProduct: async (productId) => {
+          set({ isLoading: true, error: null });
+          try {
+            const { token, user } = useAuthStore.getState();
+            if (!token || !user) {
+              throw new Error("No se encontró un token válido o información de usuario");
+            }
+
+            const deleteUrl = `${env.PRODUCTS.BASE}/${productId}`;
+            await axios.delete(deleteUrl, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
+
+            set((state) => ({
+              products: state.products.filter((product) => product.id !== productId),
+              isLoading: false,
+            }));
+
+            return { success: true, message: "Producto eliminado correctamente" };
+          } catch (error) {
+            set({ error: error.message, isLoading: false });
+            throw error; // Lanzamos el error para que pueda ser manejado en el componente
+          }
+        },
         updateProductLikes: (id, likes) =>
           set((state) => ({
             products: state.products.map((product) =>
