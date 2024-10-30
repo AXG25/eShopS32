@@ -36,7 +36,6 @@ import {
   AlertDialogOverlay,
 } from "@chakra-ui/react";
 import {
-  useQueryClient,
   useInfiniteQuery,
   useQuery,
 } from "@tanstack/react-query";
@@ -80,7 +79,7 @@ const ProductModal = ({ isOpen, onClose, product, onSave }) => {
         description: product.description || "",
         price: product.price || "",
         category: product.category || "",
-        image: product.image || "",
+        image: product.image || DEFAULT_IMAGE,
       });
     } else {
       setFormData({
@@ -99,7 +98,12 @@ const ProductModal = ({ isOpen, onClose, product, onSave }) => {
   };
 
   const handleImageUpload = (imageData) => {
-    setFormData((prev) => ({ ...prev, image: imageData }));
+    if (imageData) {
+      setFormData(prev => ({
+        ...prev,
+        image: imageData
+      }));
+    }
   };
 
   const handleSubmit = (e) => {

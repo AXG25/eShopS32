@@ -1,14 +1,18 @@
-import { useState, useCallback } from 'react';
+import PropTypes from "prop-types";
+import { useState, useCallback, useEffect } from 'react';
 import { Box, Text, Image, Input, VStack, Icon, useColorModeValue } from '@chakra-ui/react';
 import { useDropzone } from 'react-dropzone';
-import { FaCloudUploadAlt, FaImage } from 'react-icons/fa';
+import { FaCloudUploadAlt} from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
-import CustomButton from './CustomButton';
 
 const ImageUpload = ({ onImageUpload, initialImage }) => {
   const [image, setImage] = useState(initialImage || null);
   const { t } = useTranslation();
   
+  useEffect(() => {
+    setImage(initialImage || null);
+  }, [initialImage]);
+
   const onDrop = useCallback((acceptedFiles) => {
     const file = acceptedFiles[0];
     const reader = new FileReader();
@@ -54,24 +58,15 @@ const ImageUpload = ({ onImageUpload, initialImage }) => {
           <Text fontWeight="medium">
             {isDragActive ? t('ui.dragAndDropImage') : t('ui.dropImageHere')}
           </Text>
-          <Text fontSize="sm" color={textColor}>
-            {t('general.or')}
-          </Text>
-          <CustomButton
-            leftIcon={<FaImage />}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {t('ui.selectImage')}
-          </CustomButton>
         </VStack>
       </Box>
-      {image && (
-        <Text mt={2} fontSize="sm" color={textColor}>
-          {t('ui.imageSelected')}
-        </Text>
-      )}
     </Box>
   );
+};
+
+ImageUpload.propTypes = {
+  onImageUpload: PropTypes.func.isRequired,
+  initialImage: PropTypes.string
 };
 
 export default ImageUpload;
