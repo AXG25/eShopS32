@@ -108,7 +108,7 @@ const LandingPageTab = ({ landingPageConfig, onLandingPageConfigChange }) => {
   const renderFeatures = useMemo(() => {
     return localConfig.features.map((feature, index) => (
       <Box key={index} mt={4} p={4} borderWidth={1} borderRadius="md">
-        <Heading size="xs" mb={2}>
+        <Heading size="xs" mb={2} color="gray.500">
           {t("landingPageConfig.feature")} {index + 1}
         </Heading>
         <SimpleGrid columns={2} spacing={4}>

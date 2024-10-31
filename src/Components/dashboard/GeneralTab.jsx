@@ -197,12 +197,12 @@ export const GeneralTab = ({ localConfig, setLocalConfig }) => {
       <Divider />
       {/* Language Section */}
       <Box>
-        <HStack mb={4}>
+        {/* <HStack mb={4}>
           <FaLanguage size="24px" />
           <Heading as="h2" size="lg">
             {t("store.language")}
           </Heading>
-        </HStack>
+        </HStack> */}
         <VStack
           spacing={4}
           align="stretch"
@@ -210,7 +210,7 @@ export const GeneralTab = ({ localConfig, setLocalConfig }) => {
           p={4}
           borderRadius="md"
         >
-          <Box>
+          {/* <Box>
             <Text fontWeight="semibold" mb={2}>
               {t("store.mainLanguage")}
             </Text>
@@ -223,7 +223,7 @@ export const GeneralTab = ({ localConfig, setLocalConfig }) => {
               <option value="en">English</option>
               <option value="fr">Français</option>
             </Select>
-          </Box>
+          </Box> */}
           <Divider />
 
           {/* WhatsApp Configuration Section */}

@@ -64,10 +64,10 @@ const LandingPage = () => {
             justify="space-between"
           >
             <VStack align="flex-start" spacing={6} maxW="lg">
-              <Heading as="h1" size="2xl">
+              <Heading as="h1" size="2xl" color={landingPage.heroTextColor}>
                 {landingPage.heroTitle}
               </Heading>
-              <Text fontSize="xl">{landingPage.heroSubtitle}</Text>
+              <Text fontSize="xl" color={landingPage.heroTextColor}>{landingPage.heroSubtitle}</Text>
               <CustomButton
                 as={RouterLink}
                 to="/home"
@@ -77,12 +77,17 @@ const LandingPage = () => {
                 {landingPage.heroButtonText}
               </CustomButton>
             </VStack>
-            <Image
-              src={landingPage.heroImage}
-              alt="Featured Product"
-              maxW="400px"
-              mt={{ base: 10, md: 0 }}
-            />
+            {console.log(landingPage.heroImage)}
+            {landingPage.heroImage ? (
+              <Image
+                src={landingPage.heroImage}
+                alt="Featured Product"
+                maxW="400px"
+                mt={{ base: 10, md: 0 }}
+              />
+            ) : (
+              ""
+            )}
           </Flex>
         </Container>
       </Box>

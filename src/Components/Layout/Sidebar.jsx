@@ -18,24 +18,12 @@ import { FaPeopleGroup } from "react-icons/fa6";
 const Sidebar = ({ collapsed }) => {
   const { config } = useStoreConfigStore();
   const { isAuthenticated, hasPermission, logout } = useAuth();
-  const color = useColorModeValue("gray.600", "gray.200");
-  const hoverBgColor = useColorModeValue("whiteAlpha.200", "blackAlpha.300");
-
-  // Estilos comunes para los elementos del menú
-  const menuItemStyles = {
-    button: {
-      color: color,
-      "&:hover": {
-        backgroundColor: hoverBgColor,
-      },
-    },
-  };
 
   return (
     <Box
       as="nav"
       h="100vh"
-      bg={config.secondaryColor}
+      bg={config.asideColor}
       display="flex"
       flexDirection="column"
     >
@@ -43,11 +31,15 @@ const Sidebar = ({ collapsed }) => {
         collapsed={collapsed}
         width="200px"
         collapsedWidth="60px"
-        style={{ height: "90%" }}
+        style={{ height: "90%", backgroundColor: config.asideColor }}
+        rootStyles={{
+          backgroundColor: config.asideColor,
+          color: config.textColor,
+        }}
       >
         <VStack h="100%" justify="space-between">
           <Box flexGrow={1} width="100%" overflowY="auto">
-            <Menu menuItemStyles={menuItemStyles}>
+            <Menu>
               <Tooltip
                 label="Tienda"
                 aria-label="Tienda"

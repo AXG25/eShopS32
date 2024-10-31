@@ -38,12 +38,12 @@ import useStoreConfigStore from "../../store/useStoreConfigStore";
 import { useTranslation } from "react-i18next";
 
 const ColorTab = React.memo(
-  ({ localConfig, handleColorChange, handleReset }) => {
+  ({ localConfig, handleColorChange, handleReset, handleResetColors }) => {
     const { t } = useTranslation();
     return (
       <TabPanel>
         <SimpleGrid columns={2} spacing={6}>
-          <ColorPicker
+          {/* <ColorPicker
             color={localConfig.backgroundColor}
             onChange={(color) => handleColorChange("backgroundColor", color)}
             label={t("design.backgroundColor")}
@@ -52,27 +52,27 @@ const ColorTab = React.memo(
             color={localConfig.headerColor}
             onChange={(color) => handleColorChange("headerColor", color)}
             label={t("design.headerColor")}
-          />
+          /> */}
           <ColorPicker
             color={localConfig.headerTextColor}
             onChange={(color) => handleColorChange("headerTextColor", color)}
             label={t("design.headerTextColor")}
           />
-          <ColorPicker
+          {/* <ColorPicker
             color={localConfig.textColor}
             onChange={(color) => handleColorChange("textColor", color)}
             label={t("design.textColor")}
-          />
+          /> */}
           <ColorPicker
             color={localConfig.primaryColor}
             onChange={(color) => handleColorChange("primaryColor", color)}
             label={t("design.primaryColor")}
           />
-          <ColorPicker
+          {/* <ColorPicker
             color={localConfig.secondaryColor}
             onChange={(color) => handleColorChange("secondaryColor", color)}
             label={t("design.secondaryColor")}
-          />
+          /> */}
           <ColorPicker
             color={localConfig.buttonColor}
             onChange={(color) => handleColorChange("buttonColor", color)}
@@ -83,16 +83,16 @@ const ColorTab = React.memo(
             onChange={(color) => handleColorChange("buttonTextColor", color)}
             label={t("design.buttonTextColor")}
           />
-          <ColorPicker
+          {/* <ColorPicker
             color={localConfig.asideColor}
             onChange={(color) => handleColorChange("asideColor", color)}
             label={t("design.asideColor")}
-          />
+          /> */}
         </SimpleGrid>
         <CustomButton
           leftIcon={<FaUndo />}
           mt={4}
-          onClick={() => handleReset("Colores")}
+          onClick={() => handleResetColors()}
         >
           {t("design.resetColors")}
         </CustomButton>
@@ -345,6 +345,23 @@ const DesignTab = ({ localConfig, setLocalConfig }) => {
     [setLocalConfig]
   );
 
+  
+
+  const handleResetColors = useCallback(() => {
+    setLocalConfig((prevConfig) => ({
+      ...prevConfig,
+      asideColor: "#F7FAFC",
+      backgroundColor: "#FFFFFF",
+      buttonColor: "#4299E1",
+      buttonTextColor: "#FFFFFF",
+      headerColor: "#FFFFFF",
+      headerTextColor: "#000000",
+      primaryColor: "#3182CE",
+      secondaryColor: "#FFFFFF",
+      textColor: "#333333",
+    }));
+  }, []);
+
   const handleReset = useCallback(
     (section) => {
       resetConfig();
@@ -382,18 +399,19 @@ const DesignTab = ({ localConfig, setLocalConfig }) => {
           <Tab>
             <FaPalette /> {t("design.colors")}
           </Tab>
-          <Tab>
+         {/*  <Tab>
             <FaFont /> {t("design.typography")}
           </Tab>
           <Tab>
             <FaSquare /> {t("design.buttons")}
-          </Tab>
+          </Tab> */}
         </TabList>
         <TabPanels>
           <ColorTab
             localConfig={localConfig}
             handleColorChange={handleColorChange}
             handleReset={handleReset}
+            handleResetColors={handleResetColors}
           />
           <FontTab
             localConfig={localConfig}

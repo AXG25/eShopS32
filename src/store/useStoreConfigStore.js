@@ -57,12 +57,12 @@ const defaultConfig = {
   },
   landingPage: {
     heroBgGradient: "linear(to-r, teal.500, blue.500)",
-    heroTextColor: "white",
+    heroTextColor: "#000000",
     heroTitle: "Software administrativo enterprise",
     heroSubtitle: "La solución informática pensada para su empresa",
     heroButtonText: "Explorar Productos",
     heroButtonColorScheme: "teal",
-    heroImage: "/featured-product.png",
+    heroImage: "",
     featuresTitle: "Por qué elegirnos",
     featuresSubtitle:
       "16 años de experiencia en la industria del software administrativo y punto de venta nos ha permitido entender y cubrir las necesidades de nuestros clientes",
