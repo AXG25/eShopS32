@@ -380,7 +380,11 @@ ${items
                             <Text fontWeight="medium" fontSize="sm">
                               {item.title}
                             </Text>
-                            <Badge colorScheme="blue" variant="subtle">
+                            <Badge 
+                              bg={config.primaryColor} 
+                              color="white" 
+                              variant="subtle"
+                            >
                               {item.category}
                             </Badge>
                             <NumericFormat

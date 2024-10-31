@@ -2,11 +2,12 @@ import PropTypes from "prop-types";
 import { Flex, Text, useColorModeValue } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import DynamicIcon from "../common/DynamicIcon";
+import useStoreConfigStore from "../../store/useStoreConfigStore";
 
 const CategoryItem = ({ category, onClick }) => {
+  const { config } = useStoreConfigStore();
   const bgColor = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.600");
-  const iconColor = useColorModeValue("blue.500", "blue.300");
   const hoverBgColor = useColorModeValue("blue.50", "gray.700");
 
   return (
@@ -34,7 +35,7 @@ const CategoryItem = ({ category, onClick }) => {
         <DynamicIcon
           name={category.icon}
           boxSize="40px"
-          color={iconColor}
+          color={config.primaryColor}
           mb={2}
         />
         <Text fontWeight="medium" fontSize="sm" textAlign="center">

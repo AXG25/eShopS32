@@ -45,8 +45,8 @@ const ProductCard = memo(({ product }) => {
       (1 - parseFloat(product.discount, { defaultValu: 0 }) / 100)
     : parseFloat(product.price, { defaultValu: 0 });
 
-  const handleAddToCart = () => {
-    addItemToCart({ ...product, quantity: 1 });
+  const handleAddToCart = ({ quantity }) => {
+    addItemToCart({ ...product, quantity: quantity || 1 });
     toast({
       title: t("products.addedToCart"),
       description: t("products.addedToCartDescription"),

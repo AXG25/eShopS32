@@ -17,6 +17,7 @@
     "@tanstack/react-query": "^5.59.15",
     "axios": "^1.7.7",
     "country-telephone-data": "^0.6.3",
+    "eshops32": "file:",
     "framer-motion": "^11.11.9",
     "i": "^0.3.7",
     "i18next": "^23.16.2",

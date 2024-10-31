@@ -88,14 +88,14 @@ export const FooterTab = ({ footerConfig, onFooterConfigChange }) => {
       <FormControl>
         <FormLabel>Teléfono</FormLabel>
         <Input
-          value={footerConfig.contact.phone || config.phone}
+          value={footerConfig.contact.phone ?? config.phone}
           onChange={(e) => handleChange(e, "contact", null, "phone")}
         />
       </FormControl>
       <FormControl>
         <FormLabel>Email</FormLabel>
         <Input
-          value={footerConfig.contact.email || config.email}
+          value={footerConfig.contact.email ?? config.email}
           onChange={(e) => handleChange(e, "contact", null, "email")}
         />
       </FormControl>

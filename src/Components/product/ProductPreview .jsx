@@ -26,6 +26,7 @@ import { useTranslation } from "react-i18next"; // Importamos useTranslation
 import CustomButton from "../common/CustomButton";
 import { parseFloat } from "../../utils/numberFormatting";
 import { NumericFormat } from "react-number-format";
+import { DEFAULT_IMAGE } from "../../constants/images";
 
 const ProductPreview = ({ isOpen, onClose, product, onAddToCart }) => {
   const { t } = useTranslation(); // Inicializamos el hook de traducción
@@ -37,6 +38,8 @@ const ProductPreview = ({ isOpen, onClose, product, onAddToCart }) => {
   const textColor = useColorModeValue("gray.800", "white");
 
   const handleAddToCart = () => {
+    console.log('product in preview', product)
+    console.log('quantity in preview', quantity)
     onAddToCart({
       ...product,
       quantity: quantity,
@@ -63,7 +66,7 @@ const ProductPreview = ({ isOpen, onClose, product, onAddToCart }) => {
           <Flex direction={{ base: "column", md: "row" }} gap={6}>
             <Box flex={1}>
               <Image
-                src={product.image}
+                src={product.image || DEFAULT_IMAGE}
                 alt={product.title}
                 objectFit="contain"
                 width="100%"
