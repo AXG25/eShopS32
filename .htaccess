@@ -1,0 +1,47 @@
+# Habilitar rewrite engine
+RewriteEngine On
+
+# Establecer la base
+RewriteBase /
+
+# Regla para la subcarpeta s3
+RewriteCond %{REQUEST_URI} ^/s3/
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^s3/(.*)$ s3/index.html [L]
+
+# Reglas para la raíz (excluyendo /s3)
+RewriteCond %{REQUEST_URI} !^/s3/
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [L]
+
+# Configuración de MIME types
+AddType application/javascript .js
+AddType text/css .css
+AddType image/svg+xml .svg
+
+# Headers de seguridad y CORS
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+    Header set Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept"
+    
+    # Deshabilitar cache para desarrollo
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires 0
+</IfModule>
+
+# PHP configuración
+<IfModule mod_php.c>
+    php_value upload_max_filesize 64M
+    php_value post_max_size 64M
+    php_value max_execution_time 300
+    php_value max_input_time 300
+</IfModule>
+
+# Permitir todos los orígenes para archivos estáticos
+<FilesMatch "\.(js|css|svg|jpg|jpeg|png|gif|ico)$">
+    Header set Access-Control-Allow-Origin "*"
+</FilesMatch>

@@ -41,7 +41,8 @@ const queryClient = new QueryClient({
 
 function App() {
   const { config } = useStoreConfigStore();
-
+  const basename = import.meta.env.PROD ? '/s3' : '/';
+  
   return (
     <I18nextProvider i18n={i18n}>
       <QueryClientProvider client={queryClient}>
@@ -50,7 +51,7 @@ function App() {
             initialColorMode={config.darkMode ? "dark" : "light"}
           />
           <Toaster position="top-right" />
-          <BrowserRouter>
+          <BrowserRouter basename={basename}>
             <AuthProvider>
               <AppRouter />
             </AuthProvider>
