@@ -57,7 +57,9 @@ const LandingPageWrapper = () => {
         : backendConfig.features;
 
     return {
+      id: backendConfig.id || null,
       title: backendConfig.title || "eShop",
+      description: backendConfig.description || "",
       backgroundColor: backendConfig.backgroundColor || "#FFFFFF",
       headerColor: backendConfig.headerColor || "#FFFFFF",
       headerTextColor: backendConfig.headerTextColor || "#000000",

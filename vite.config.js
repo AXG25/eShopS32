@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react-swc'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/s3/', // Base URL para el proyecto en /s3
+  base: '/montallantas/', // Base URL para el proyecto en /s3
   build: {
     rollupOptions: {
       output: {

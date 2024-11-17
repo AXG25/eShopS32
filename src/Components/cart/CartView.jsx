@@ -81,12 +81,17 @@ const CartView = () => {
   const [itemToDelete, setItemToDelete] = useState(null);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const { user } = useAuthStore();
-  const shopId = config?.id || null;
+  const shopId = user?.id || config?.id || null;
   // const cardBgColor = useColorModeValue("white", "gray.600");
   const bgColor = useColorModeValue("white", "gray.800");
   const textColor = useColorModeValue("gray.600", "gray.200");
   const formBgColor = useColorModeValue("gray.50", "gray.700");
   const inputBgColor = useColorModeValue("white", "gray.800");
+
+  useEffect(()=> {
+    console.log("user:", user,)
+    console.log("config:", config)
+  },[user, config])
 
   useEffect(() => {
     const sortedPrefixes = countryData.allCountries
