@@ -81,7 +81,7 @@ const CartView = () => {
   const [itemToDelete, setItemToDelete] = useState(null);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const { user } = useAuthStore();
-  const shopId = user?.id || null;
+  const shopId = config?.id || null;
   // const cardBgColor = useColorModeValue("white", "gray.600");
   const bgColor = useColorModeValue("white", "gray.800");
   const textColor = useColorModeValue("gray.600", "gray.200");
