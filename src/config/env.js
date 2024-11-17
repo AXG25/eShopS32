@@ -60,7 +60,7 @@ const generateFullUrls = (endpoints) => {
       fullUrls[key] = generateFullUrls(value);
     } else {
       // Reemplaza el placeholder {storeName} con el nombre real de la tienda
-      const processedValue = value.replace("{storeName}", STORE_NAME);
+      const processedValue = value.replace("{storeName}", STORE_NAME.split('/')[0]);
       fullUrls[key] = `${BASE_URL}${processedValue}`;
     }
   }
@@ -83,7 +83,7 @@ const env = generateFullUrls({
 
   PRODUCTS: {
     BASE: "/{storeName}/products",
-    CATEGORIES: "/{storeName}/store/categories", // Usa un placeholder para el nombre de la tienda
+    CATEGORIES: "/store/{storeName}/categories", // Usa un placeholder para el nombre de la tienda
     SYNC: "/sync",
   },
 

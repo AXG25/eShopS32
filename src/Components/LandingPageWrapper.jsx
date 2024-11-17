@@ -3,9 +3,8 @@ import { useEffect, useState } from "react";
 import { Box, Spinner, Center, Text, Button } from "@chakra-ui/react";
 import useStoreConfigStore from "../store/useStoreConfigStore";
 import LandingPage from "../pages/LandingPage";
-import useAuthStore from "../store/authStore";
 import axios from "axios";
-import env, { STORE_NAME } from "../config/env";
+import env from "../config/env";
 
 const LoadingSpinner = () => (
   <Center minH="100vh" bg="gray.50">
@@ -51,12 +50,71 @@ const LandingPageWrapper = () => {
   const resetConfig = useStoreConfigStore((state) => state.resetConfig);
   const setConfig = useStoreConfigStore((state) => state.setConfig);
 
+  const transformBackendConfig = (backendConfig) => {
+    const parsedFeatures =
+      typeof backendConfig.features === "string"
+        ? JSON.parse(backendConfig.features)
+        : backendConfig.features;
+
+    return {
+      title: backendConfig.title || "eShop",
+      backgroundColor: backendConfig.backgroundColor || "#FFFFFF",
+      headerColor: backendConfig.headerColor || "#FFFFFF",
+      headerTextColor: backendConfig.headerTextColor || "#000000",
+      textColor: backendConfig.textColor || "#333333",
+      primaryColor: backendConfig.primaryColor || "#3182CE",
+      secondaryColor: backendConfig.secondaryColor || "#FFFFFF",
+      buttonColor: backendConfig.buttonColor || "#4299E1",
+      buttonTextColor: backendConfig.buttonTextColor || "#FFFFFF",
+      buttonHoverOpacity: backendConfig.buttonHoverOpacity || 0.8,
+      buttonFontSize: backendConfig.buttonFontSize || "16px",
+      buttonBorderRadius: backendConfig.buttonBorderRadius || "4px",
+      asideColor: backendConfig.asideColor || "#F7FAFC",
+      logo: backendConfig.logo || null,
+      language: backendConfig.language || "es",
+      currency: "EUR",
+      mainFont: backendConfig.mainFont || "'Roboto', sans-serif",
+      whatsappNumber: backendConfig.whatsappNumber || "+573025479797",
+      footer: {
+        storeInfo: [{ name: "Sobre Nosotros", url: "/" }],
+        customerService: [
+          { name: "Envíos", url: "/contact" },
+          { name: "Devoluciones", url: "/contact" },
+          { name: "Garantía", url: "/contact" },
+        ],
+        contact: {
+          address: backendConfig.address || "Dirección no disponible",
+          phone: backendConfig.phone || "Teléfono no disponible",
+          email: backendConfig.email || "Correo no disponible",
+        },
+        socialLinks: [
+          { name: "Facebook", url: backendConfig.facebook || "#" },
+          { name: "Twitter", url: backendConfig.twitter || "#" },
+          { name: "Instagram", url: backendConfig.instagram || "#" },
+        ],
+      },
+      landingPage: {
+        heroBgGradient: backendConfig.heroBgGradient || "linear(to-r, teal.500, blue.500)",
+        heroTextColor: backendConfig.heroTextColor || "#000000",
+        heroTitle: backendConfig.heroTitle || "Software administrativo enterprise",
+        heroSubtitle: backendConfig.heroSubtitle || "La solución informática pensada para su empresa",
+        heroButtonText: backendConfig.heroButtonText || "Explorar Productos",
+        heroButtonColorScheme: backendConfig.heroButtonColorScheme || "teal",
+        heroImage: backendConfig.heroImage || "",
+        featuresTitle: backendConfig.featuresTitle || "Por qué elegirnos",
+        featuresSubtitle:
+          backendConfig.featuresSubtitle ||
+          "16 años de experiencia en la industria del software administrativo",
+        features: parsedFeatures || [],
+      },
+    };
+  };
+
   const loadStoreConfig = async () => {
     try {
       setIsLoading(true);
       setError(null);
 
-      // Cargar configuración pública
       const response = await axios.get(env.PUBLIC.CONFIG, {
         headers: {
           Accept: "application/json",
@@ -64,35 +122,9 @@ const LandingPageWrapper = () => {
         },
       });
 
-      if (response.data?.data) {
-        // Usar la configuración existente como base
-        const currentConfig = useStoreConfigStore.getState().config;
-
-        // Procesar las características si existen
-        const features = response.data.data.landingPage?.features;
-        let processedFeatures = currentConfig.landingPage.features;
-
-        if (features) {
-          try {
-            processedFeatures =
-              typeof features === "string" ? JSON.parse(features) : features;
-          } catch (e) {
-            console.warn("Error parsing features:", e);
-          }
-        }
-
-        // Mezclar configuraciones
-        const newConfig = {
-          ...currentConfig,
-          ...response.data.data,
-          landingPage: {
-            ...currentConfig.landingPage,
-            ...(response.data.data.landingPage || {}),
-            features: processedFeatures,
-          },
-        };
-
-        setConfig(newConfig);
+      if (response.data && response.data[0]) {
+        const transformedConfig = transformBackendConfig(response.data[0]);
+        setConfig(transformedConfig);
       }
     } catch (err) {
       console.error("Error al cargar la configuración:", err);
@@ -112,15 +144,6 @@ const LandingPageWrapper = () => {
   }
 
   if (error) {
-    return <ErrorDisplay onRetry={loadStoreConfig} />;
-  }
-
-  // Verificar que tenemos una configuración válida
-  if (!config || !config.landingPage) {
-    console.warn(
-      "Configuración incompleta o inválida, usando valores por defecto"
-    );
-    resetConfig();
     return <ErrorDisplay onRetry={loadStoreConfig} />;
   }
 

@@ -1,1 +1,1 @@
-export const DEFAULT_IMAGE = "/resources/images/noProduct.jpg";
+export const DEFAULT_IMAGE = "/images/noProduct.jpg";
