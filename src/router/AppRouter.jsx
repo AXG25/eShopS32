@@ -20,6 +20,7 @@ import TermsAndConditionsPage from "../pages/TermsAndConditionsPage";
 import CategoriesPage from "../pages/CategoriesPage";
 import AboutUsPage from "../pages/AboutUsPage";
 import ContactUsPage from "../pages/ContactUsPage";
+import LandingPageWrapper from "../Components/LandingPageWrapper";
 
 const AppRouter = () => {
   const { isLoading } = useAuth();
@@ -40,7 +41,7 @@ const AppRouter = () => {
       </Route>
 
       {/* Rutas públicas sin ResponsiveLayout*/}
-      <Route path="/" element={<LandingPage />} />
+      <Route path="/" element={<LandingPageWrapper />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/about-us" element={<AboutUsPage />} />
       <Route path="/contact-us" element={<ContactUsPage />} />

@@ -14,6 +14,7 @@ import useStoreConfigStore from "./store/useStoreConfigStore";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import toast, { Toaster } from "react-hot-toast";
+import { STORE_NAME } from "./config/env";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -51,7 +52,7 @@ function App() {
             initialColorMode={config.darkMode ? "dark" : "light"}
           />
           <Toaster position="top-right" />
-          <BrowserRouter basename={basename}>
+          <BrowserRouter basename={`/${STORE_NAME}`}>
             <AuthProvider>
               <AppRouter />
             </AuthProvider>

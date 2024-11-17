@@ -10,23 +10,23 @@ const getStoreName = () => {
     const hostname = window.location.hostname;
     // Obtiene el pathname de la URL actual (ej: /montallas o /s3)
     const pathname = window.location.pathname;
-    
+
     // Si hay un pathname específico (diferente a /), úsalo como nombre de tienda
-    if (pathname && pathname !== '/') {
+    if (pathname && pathname !== "/") {
       // Elimina la barra inicial y cualquier barra final
-      return pathname.replace(/^\/|\/$/g, '');
+      return pathname.replace(/^\/|\/$/g, "");
     }
-    
+
     // Si no hay pathname específico, extrae el subdominio
-    const subdomain = hostname.split('.')[0];
-    if (subdomain === 'eshop') {
+    const subdomain = hostname.split(".")[0];
+    if (subdomain === "eshop") {
       // Si el hostname es eshop.s3-la.com, usa 's3' como nombre por defecto
-      return 's3';
+      return "s3";
     }
     return subdomain;
   } catch (error) {
-    console.warn('Error al obtener el nombre de la tienda:', error);
-    return 's3'; // Valor por defecto si algo falla
+    console.warn("Error al obtener el nombre de la tienda:", error);
+    return "s3"; // Valor por defecto si algo falla
   }
 };
 
@@ -35,12 +35,13 @@ const getStoreName = () => {
  * @returns {string} La URL base de la API.
  */
 const getBaseUrl = () => {
-  const isProduction = import.meta.env.PROD || import.meta.env.MODE === 'production';
-  
+  const isProduction =
+    import.meta.env.PROD || import.meta.env.MODE === "production";
+
   if (isProduction && import.meta.env.VITE_API_URL) {
     return import.meta.env.VITE_API_URL;
   }
-  
+
   return "http://localhost:3000";
 };
 
@@ -55,11 +56,11 @@ const STORE_NAME = getStoreName();
 const generateFullUrls = (endpoints) => {
   const fullUrls = {};
   for (const [key, value] of Object.entries(endpoints)) {
-    if (typeof value === 'object') {
+    if (typeof value === "object") {
       fullUrls[key] = generateFullUrls(value);
     } else {
       // Reemplaza el placeholder {storeName} con el nombre real de la tienda
-      const processedValue = value.replace('{storeName}', STORE_NAME);
+      const processedValue = value.replace("{storeName}", STORE_NAME);
       fullUrls[key] = `${BASE_URL}${processedValue}`;
     }
   }
@@ -70,6 +71,9 @@ const generateFullUrls = (endpoints) => {
  * Objeto que contiene todos los endpoints base de la API.
  */
 const env = generateFullUrls({
+  PUBLIC: {
+    CONFIG: `/store/{storeName}/config`
+  },
   AUTH: {
     LOGIN: "/auth/login",
     REGISTER: "/register",
@@ -93,3 +97,4 @@ const env = generateFullUrls({
 });
 
 export default env;
+export { STORE_NAME };
