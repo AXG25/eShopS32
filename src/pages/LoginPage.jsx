@@ -146,7 +146,7 @@ const LoginPage = () => {
               <form onSubmit={handleSubmit}>
                 <VStack spacing="5">
                   <FormControl id="userInput">
-                    <FormLabel>Email o nombre de usuario</FormLabel>
+                    <FormLabel>Nombre de usuario</FormLabel>
                     <MotionInput
                       type="text"
                       value={userInput}

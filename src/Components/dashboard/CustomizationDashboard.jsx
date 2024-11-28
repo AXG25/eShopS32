@@ -243,7 +243,7 @@ const CustomizationDashboard = () => {
           <CustomButton colorScheme="blue" size="lg" onClick={handleSaveConfig}>
             Guardar y Sincronizar Cambios
           </CustomButton>
-          <CustomButton
+          {/* <CustomButton
             leftIcon={
               isSyncing ? (
                 <CircularProgress
@@ -277,7 +277,7 @@ const CustomizationDashboard = () => {
             ) : (
               "Sincronizar Base de Datos"
             )}
-          </CustomButton>
+          </CustomButton> */}
         </HStack>
       </Box>
     </Container>
