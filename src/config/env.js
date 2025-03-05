@@ -13,8 +13,9 @@ const getStoreName = () => {
 
     // Si hay un pathname específico (diferente a /), úsalo como nombre de tienda
     if (pathname && pathname !== "/") {
-      // Elimina la barra inicial y cualquier barra final
-      return pathname.replace(/^\/|\/$/g, "");
+      // Elimina la barra inicial y cualquier barra final, y toma solo el primer segmento
+      const cleanPath = pathname.replace(/^\/|\/$/g, "");
+      return cleanPath.split("/")[0]; // Solo toma el primer segmento del path
     }
 
     // Si no hay pathname específico, extrae el subdominio
