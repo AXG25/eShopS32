@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, Suspense } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import {
   Box,
@@ -10,6 +10,10 @@ import {
   useToast,
   Spinner,
   Flex,
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
 } from "@chakra-ui/react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
@@ -19,16 +23,60 @@ import useProductStore from "../store/useProductStore";
 import FilterBar from "../Components/product/FilterBar";
 import ProductCard from "../Components/product/ProductCard";
 import CustomButton from "../Components/common/CustomButton";
+import { ErrorBoundary } from "react-error-boundary";
 
 const MotionBox = motion(Box);
 
+// Error fallback component for the ErrorBoundary
+const ErrorFallback = ({ error, resetErrorBoundary }) => {
+  const { config } = useStoreConfigStore();
+  return (
+    <Alert
+      status="error"
+      variant="subtle"
+      flexDirection="column"
+      alignItems="center"
+      justifyContent="center"
+      textAlign="center"
+      height="200px"
+      borderRadius="md"
+      my={4}
+    >
+      <AlertIcon boxSize="40px" mr={0} />
+      <AlertTitle mt={4} mb={1} fontSize="lg">
+        Something went wrong
+      </AlertTitle>
+      <AlertDescription maxWidth="sm">
+        {error.message || "An unexpected error occurred while loading products."}
+      </AlertDescription>
+      <CustomButton
+        onClick={resetErrorBoundary}
+        mt={4}
+        colorScheme="blue"
+      >
+        Try again
+      </CustomButton>
+    </Alert>
+  );
+};
+
+// Loading component for Suspense
+const LoadingFallback = () => {
+  const { config } = useStoreConfigStore();
+  return (
+    <Flex justify="center" align="center" height="50vh">
+      <Spinner size="xl" color={config.primaryColor} />
+    </Flex>
+  );
+};
+
 const HomePage = () => {
   const { config } = useStoreConfigStore();
-  const { fetchProducts, filters, setFilters, clearFilters } =
-    useProductStore();
+  const { fetchProducts, filters, setFilters, clearFilters } = useProductStore();
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [debouncedSearchValue, setDebouncedSearchValue] = useState("");
   const [localFilters, setLocalFilters] = useState(() => ({
     priceRange: [
       searchParams.get("minPrice") ? Number(searchParams.get("minPrice")) : 0,
@@ -39,13 +87,13 @@ const HomePage = () => {
     category: searchParams.get("category") || "",
     sortBy: searchParams.get("sortBy") || "",
     search: searchParams.get("search") || "",
-    limit: 12,
+    limit: 25,
   }));
 
   const toast = useToast();
   const scrollContainerRef = useRef(null);
   const { ref, inView } = useInView();
-
+  const isFetchingRef = useRef(false);
   const {
     data,
     isLoading,
@@ -65,8 +113,21 @@ const HomePage = () => {
       return pages.length + 1;
     },
     refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000, // Data remains fresh for 5 minutes
+    cacheTime: 30 * 60 * 1000, // Cache persists for 30 minutes
+    retry: 3, // Retry failed requests 3 times
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
+    onError: (error) => {
+      toast({
+        title: "Error loading products",
+        description: error.message || "Please try again later",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      });
+    },
   });
-
   useEffect(() => {
     const selectedCategory = location.state?.selectedCategory;
     if (selectedCategory) {
@@ -79,13 +140,31 @@ const HomePage = () => {
       navigate(location.pathname, { replace: true, state: {} });
     }
   }, [location.state, navigate, searchParams, setSearchParams, setFilters]);
-
+  
   useEffect(() => {
-    if (inView && hasNextPage) {
-      fetchNextPage();
-    }
-  }, [inView, fetchNextPage, hasNextPage]);
+    // Reset the fetching ref when filters change or component mounts
+    isFetchingRef.current = false;
+  }, [localFilters]);
+  useEffect(() => {
+    const handleFetchNextPage = async () => {
+      // Only fetch if we're in view, have more pages, not currently fetching next page,
+      // and our custom ref indicates we're not in the middle of a fetch
+      if (inView && hasNextPage && !isFetchingNextPage && !isFetchingRef.current) {
+        try {
+          // Set our custom ref to true to prevent duplicate requests
+          isFetchingRef.current = true;
+          await fetchNextPage();
+        } finally {
+          // Small delay before allowing another fetch to prevent rapid consecutive requests
+          setTimeout(() => {
+            isFetchingRef.current = false;
+          }, 300);
+        }
+      }
+    };
 
+    handleFetchNextPage();
+  }, [inView, fetchNextPage, hasNextPage, isFetchingNextPage]);
   const handleFilterChange = useCallback(
     (newFilters) => {
       setLocalFilters(newFilters);
@@ -109,7 +188,6 @@ const HomePage = () => {
     },
     [setFilters, setSearchParams]
   );
-
   const handleClearFilters = useCallback(() => {
     clearFilters();
     setLocalFilters({
@@ -121,7 +199,6 @@ const HomePage = () => {
     });
     setSearchParams({});
   }, [setSearchParams, clearFilters]);
-
   useEffect(() => {
     if (error) {
       toast({
@@ -133,7 +210,6 @@ const HomePage = () => {
       });
     }
   }, [error, toast]);
-
   const scrollbarStyle = {
     "&::-webkit-scrollbar": {
       width: "4px",
@@ -149,9 +225,67 @@ const HomePage = () => {
       background: "#555",
     },
   };
+  // Render products with error boundary
+  const renderProducts = () => {
+    if (isLoading) {
+      return <LoadingFallback />;
+    }
+    
+    if (error) {
+      return (
+        <VStack spacing={4} align="center">
+          <Text color="red.500" fontSize="lg">
+            Error: {error.message}
+          </Text>
+          <CustomButton onClick={() => refetch()} colorScheme="blue">
+            Intentar de nuevo
+          </CustomButton>
+        </VStack>
+      );
+    }
+    
+    if (allProducts.length === 0) {
+      return (
+        <VStack spacing={4} pt={8}>
+          <Text
+            fontSize="lg"
+            fontWeight="medium"
+            textAlign="center"
+            color="gray.600"
+          >
+            No se encontraron productos
+          </Text>
+          <Text fontSize="md" color="gray.500" textAlign="center">
+            Intenta ajustar los filtros
+          </Text>
+        </VStack>
+      );
+    }
+    
+    return (
+      <AnimatePresence>
+        <SimpleGrid
+          columns={{ base: 2, lg: 3, xl: 4 }}
+          spacing={4}
+        >
+          {allProducts.map((product) => (
+            <MotionBox
+              key={product.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <ProductCard product={product} />
+            </MotionBox>
+          ))}
+        </SimpleGrid>
+      </AnimatePresence>
+    );
+  };
 
   const allProducts = data ? data.pages.flatMap((page) => page.products) : [];
-
+  
   return (
     <Box
       ref={scrollContainerRef}
@@ -180,55 +314,17 @@ const HomePage = () => {
             currentFilters={localFilters}
           />
 
-          {isLoading ? (
-            <Flex justify="center" align="center" height="50vh">
-              <Spinner size="xl" color={config.primaryColor} />
-            </Flex>
-          ) : error ? (
-            <VStack spacing={4} align="center">
-              <Text color="red.500" fontSize="lg">
-                Error: {error.message}
-              </Text>
-              <CustomButton onClick={() => refetch()} colorScheme="blue">
-                Intentar de nuevo
-              </CustomButton>
-            </VStack>
-          ) : (
-            <AnimatePresence>
-              <SimpleGrid
-                columns={{ base: 2,  lg: 3, xl: 4 }}
-                spacing={4} // Ajusta el espaciado para evitar que se encimen
-              >
-                {allProducts.map((product) => (
-                  <MotionBox
-                    key={product.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <ProductCard product={product} />
-                  </MotionBox>
-                ))}
-              </SimpleGrid>
-            </AnimatePresence>
-          )}
-
-          {allProducts.length === 0 && !isLoading && (
-            <VStack spacing={4} pt={8}>
-              <Text
-                fontSize="lg"
-                fontWeight="medium"
-                textAlign="center"
-                color="gray.600"
-              >
-                No se encontraron productos
-              </Text>
-              <Text fontSize="md" color="gray.500" textAlign="center">
-                Intenta ajustar los filtros
-              </Text>
-            </VStack>
-          )}
+          <ErrorBoundary
+            FallbackComponent={ErrorFallback}
+            onReset={() => {
+              // Reset the component state here
+              refetch();
+            }}
+          >
+            <Suspense fallback={<LoadingFallback />}>
+              {renderProducts()}
+            </Suspense>
+          </ErrorBoundary>
 
           {isFetchingNextPage && (
             <Flex justify="center" mt={4}>

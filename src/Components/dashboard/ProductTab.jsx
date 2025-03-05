@@ -325,11 +325,48 @@ export const ProductTab = () => {
   };
 
 
-
-
   const handleSave = async (productData) => {
     try {
-      if (currentProduct?.id) {
+      // Optimistic update - update UI immediately before server confirms
+      const isUpdate = Boolean(currentProduct?.id);
+      const optimisticProduct = isUpdate 
+        ? { ...currentProduct, ...productData }
+        : { ...productData, id: `temp-${Date.now()}` };
+      
+      // Update local state optimistically
+      if (isUpdate) {
+        // For updates, replace the product in the current data
+        const updatedPages = data.pages.map(page => ({
+          ...page,
+          products: page.products.map(p => 
+            p.id === currentProduct.id ? optimisticProduct : p
+          )
+        }));
+        
+        // Manually update the cache
+        queryClient.setQueryData(["products", localFilters], {
+          pages: updatedPages,
+          pageParams: data.pageParams
+        });
+      } else {
+        // For new products, add to the first page
+        const updatedPages = [...data.pages];
+        if (updatedPages.length > 0) {
+          updatedPages[0] = {
+            ...updatedPages[0],
+            products: [optimisticProduct, ...updatedPages[0].products]
+          };
+          
+          // Manually update the cache
+          queryClient.setQueryData(["products", localFilters], {
+            pages: updatedPages,
+            pageParams: data.pageParams
+          });
+        }
+      }
+      
+      // Perform the actual API call
+      if (isUpdate) {
         await updateProduct({ ...currentProduct, ...productData });
         toast({
           title: t("products.productUpdated"),
@@ -346,12 +383,17 @@ export const ProductTab = () => {
           isClosable: true,
         });
       }
+      
       onClose();
-      refetch(); // Volver a cargar los productos
+      // Refetch to ensure data consistency
+      refetch();
     } catch (error) {
+      // Revert optimistic update on error
+      refetch();
+      
       toast({
-        title: "Error al guardar el producto",
-        description: error.message,
+        title: isUpdate ? "Error updating product" : "Error adding product",
+        description: error.message || "Please try again",
         status: "error",
         duration: 3000,
         isClosable: true,
@@ -377,6 +419,19 @@ export const ProductTab = () => {
 
   const confirmDelete = async () => {
     try {
+      // Optimistic update - remove from UI immediately
+      const updatedPages = data.pages.map(page => ({
+        ...page,
+        products: page.products.filter(p => p.id !== productToDelete)
+      }));
+      
+      // Manually update the cache
+      queryClient.setQueryData(["products", localFilters], {
+        pages: updatedPages,
+        pageParams: data.pageParams
+      });
+      
+      // Perform the actual deletion
       await deleteProduct(productToDelete);
       setIsAlertOpen(false);
       toast({
@@ -385,12 +440,16 @@ export const ProductTab = () => {
         duration: 2000,
         isClosable: true,
       });
-      refetch(); // Volver a cargar los productos
+      
+      // Refetch to ensure data consistency
+      refetch();
     } catch (error) {
+      // Revert optimistic update on error
+      refetch();
       setIsAlertOpen(false);
       toast({
-        title: "Error al eliminar el producto",
-        description: error.message,
+        title: "Error deleting product",
+        description: error.message || "Please try again",
         status: "error",
         duration: 3000,
         isClosable: true,

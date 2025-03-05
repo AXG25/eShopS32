@@ -101,7 +101,7 @@ const Sidebar = ({ collapsed }) => {
               >
                 <MenuItem
                   icon={<FaPeopleGroup />}
-                  component={<RouterLink to="/" />}
+                  component={<RouterLink to="/" />} // No cambiar por la vista /about-us ya que se encuentra en desarrollo
                 >
                   Nosotros
                 </MenuItem>

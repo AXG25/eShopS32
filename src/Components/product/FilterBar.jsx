@@ -26,6 +26,7 @@ import CustomButton from "../common/CustomButton";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import env from "../../config/env";
+import { useDebounce } from "../../hooks/useDebounce";
 
 const fetchCategories = async () => {
   const response = await axios.get(env.PRODUCTS.CATEGORIES);
@@ -36,17 +37,20 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
   const { t } = useTranslation();
   const [localFilters, setLocalFilters] = useState(currentFilters);
   const [errors, setErrors] = useState({});
-
+  
+  // Add debounced search state
+  const [searchInput, setSearchInput] = useState(currentFilters.search || "");
+  const debouncedSearchValue = useDebounce(searchInput, 500); // 500ms debounce delay
   const { data: categories = [] } = useQuery({
     queryKey: ["categories"],
     queryFn: fetchCategories,
+    staleTime: 10 * 60 * 1000, // Categories remain fresh for 10 minutes
+    cacheTime: 60 * 60 * 1000, // Cache persists for 60 minutes
   });
-
   const categoryOptions = [
     { value: t("filters.AllCategories"), label: t("filters.AllCategories") },
     ...categories.map((cat) => ({ value: cat.name, label: cat.name })),
   ];
-
   const sortOptions = [
     { value: "", label: t("general.sortBy") },
     { value: "price_asc", label: t("filters.priceLowToHigh") },
@@ -54,17 +58,14 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
     { value: "name_asc", label: t("filters.nameAToZ") },
     { value: "name_desc", label: t("filters.nameZToA") },
   ];
-
   useEffect(() => {
     setLocalFilters(currentFilters);
   }, [currentFilters]);
-
   const validateInputs = useCallback(
     (filters) => {
       const newErrors = {};
       const minPriceValue = filters.priceRange[0];
       const maxPriceValue = filters.priceRange[1];
-
       if (minPriceValue < 0) {
         newErrors.minPrice = t("errors.negativeNumber");
       }
@@ -82,7 +83,12 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
     },
     [t]
   );
-
+  // Effect to apply debounced search value
+  useEffect(() => {
+    if (debouncedSearchValue !== localFilters.search) {
+      handleInputChange("search", debouncedSearchValue);
+    }
+  }, [debouncedSearchValue]);
   const handleInputChange = useCallback(
     (key, value) => {
       setLocalFilters((prev) => {
@@ -101,7 +107,6 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
     },
     [onFilterChange, validateInputs]
   );
-
   const clearFilters = () => {
     const clearedFilters = {
       priceRange: [0, Infinity],
@@ -113,7 +118,6 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
     setErrors({});
     onClearFilters();
   };
-
   const getActiveFilters = () => {
     const filters = [];
     if (localFilters.search)
@@ -140,7 +144,6 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
       filters.push({ key: "sortBy", value: localFilters.sortBy });
     return filters;
   };
-
   const removeFilter = (key) => {
     switch (key) {
       case "search":
@@ -161,7 +164,6 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
         break;
     }
   };
-
   return (
     <Box bg="white" p={{ base: 2, md: 4 }} borderRadius="md" shadow="sm" mb={{ base: 2, md: 4 }}>
       <VStack spacing={{ base: 2, md: 4 }} align="stretch">
@@ -171,11 +173,10 @@ const FilterBar = ({ onFilterChange, onClearFilters, currentFilters }) => {
           </InputLeftElement>
           <Input
             placeholder={t("filters.searchPlaceholder")}
-            value={localFilters.search}
-            onChange={(e) => handleInputChange("search", e.target.value)}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
           />
         </InputGroup>
-
         <SimpleGrid columns={{ base: 1, md: 3 }} spacing={{ base: 2, md: 4 }}>
           <Box>
             <Select

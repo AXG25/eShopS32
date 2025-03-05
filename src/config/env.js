@@ -79,6 +79,7 @@ const env = generateFullUrls({
     REGISTER: "/register",
     LOGOUT: "/logout",
     REFRESH_TOKEN: "/refresh-token",
+    VALIDATE_TOKEN: "/store/{storeName}/validate-token",
   },
 
   PRODUCTS: {
